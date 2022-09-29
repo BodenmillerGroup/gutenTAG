@@ -64,8 +64,8 @@ cat("... done ! \n")
 
 args <- commandArgs(trailingOnly = T)
 
-#Path_to_izml_file = args[1]
-Path_to_izml_file = "Desktop/MALDI_Imaging_project/test_file_john/Subset_placenta.imzML"
+Path_to_izml_file = args[1]
+#Path_to_izml_file = "Desktop/MALDI_Imaging_project/test_file_john/Subset_placenta.imzML"
 
 cat("Reading the .izml and .ibd file  ...")
 rawFile <- readMSIData(Path_to_izml_file)
@@ -79,16 +79,16 @@ Sample_name = Sample_name[length(Sample_name)]
 Sample_name = strsplit(Sample_name,split = ".",fixed = T)[[1]]
 Sample_name = Sample_name[1]
 
-#Path_to_peak_annotation = args[2]
-Path_to_peak_annotation = "Desktop/MALDI_Imaging_project/test_file_john/AmbergenPilotPanel.csv"
+#Path_to_peak_annotation = "Desktop/MALDI_Imaging_project/test_file_john/AmbergenPilotPanel.csv"
+Path_to_peak_annotation = args[2]
 
 cat("Reading the csv annotation file  ...")
 peakAnnotation <- read.delim(Path_to_peak_annotation,sep=",")
 refList <- peakAnnotation$FeatureMass
 cat("done ! \n")
 
-#Path_to_parameter_file = args[3]
-Path_to_parameter_file = "Desktop/MALDI_Imaging_project/test_file_john/Parameter_processing.txt"
+Path_to_parameter_file = args[3]
+#Path_to_parameter_file = "Desktop/MALDI_Imaging_project/test_file_john/Parameter_processing.txt"
 
 cat("Loading parameter file...")
 Parameters = suppressWarnings(read.table(Path_to_parameter_file,header = F,sep = "="))
@@ -101,18 +101,21 @@ peak_mz_tolerance = as.numeric(Parameters_values["peak_mz_tolerance"])
 cat("done ! \n")
 
 ##III)Parallelisation
-cat("Creating parallel environement...")
 
 if (N_cores >= round(0.8*detectCores(),0) ) {
   stop("Not enough threads available. Check Parameter.txt")
 }
 
-param <- MulticoreParam(workers = N_cores)
-setCardinalBPPARAM(param)
 
-getCardinalBPPARAM()
-setCardinalBPPARAM(SerialParam)
-cat("... done ! \n")
+if (N_cores >1) {
+  cat("Creating parallel environement...")
+  param <- MulticoreParam(workers = N_cores)
+  setCardinalBPPARAM(param)
+  
+  getCardinalBPPARAM()
+  setCardinalBPPARAM(SerialParam)
+  cat("... done ! \n")
+}
 
 
 ###IV)Processing
@@ -175,13 +178,16 @@ ticSummary = pixelsSummarized$tic
 
 TIC_threshold = Otsu_thresholding(log10(ticSummary))
 
+#B)Feature-wise quality control 
+
+Mean_marker_intensity = colMeans(Intensity_data)
 
 
 
 #VII)Generating QC pdf
 
 Output_path = args[4]
-Output_path = "Desktop/MALDI_Imaging_project/Output_directory"
+#Output_path = "Desktop/MALDI_Imaging_project/Output_directory"
 Output_path = paste(Output_path,"/",sep="")
 
 if( !dir.exists(Output_path)) {
@@ -198,9 +204,15 @@ par(las=1,mfrow=c(4,3),mar=c(6,6,6,4))
 
 hist(log10(1+ticSummary), 100, main = "TIC histogram", xlab = "Total Ion Count (Log10)",xaxs='i',yaxs='i',cex.lab=1.3)
 abline(v= TIC_threshold, lwd=2, col="red", lty=2)
-
 dev.off()
   
 #VIII)Exporting processed data
+
+cat("Exporting processed files...")
+writeMSIData(peaksBinned, file = "subset_placenta", name=paste(Sample_name,"_processed",sep = ""),folder = Output_path,
+             mz.type = "32-bit float",intensity.type="32-bit float")
+write.table(Intensity_data,file = paste(Output_path,"/",Sample_name,"_intensity_data.txt",sep = ""),sep="\t",quote = F,row.names = F)
+write.table(Location_data,file = paste(Output_path,"/",Sample_name,"_location_data.txt",sep = ""),sep="\t",quote = F,row.names = F)
+cat("... done ! \n")
 
 
