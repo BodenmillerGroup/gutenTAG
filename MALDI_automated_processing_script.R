@@ -1,4 +1,4 @@
-# Title: Fully automated MALDI processing script
+# Title: Fully automated luxury communist processing script
 # User: John Abbey
 # Start: 29.09.2022
 # Latest update: 14.10.2022
@@ -89,7 +89,7 @@ cat("... done ! \n")
 args <- commandArgs(trailingOnly = T)
 
 Path_to_imzml_file = args[1]
-Path_to_imzml_file = "mnt/msi_volume/imzml-ambergen-5um/tonsil-1.imzML"
+#Path_to_imzml_file = "mnt/msi_volume/imzml-ambergen-5um/tonsil-1.imzML"
 
 cat("Reading the .imzml and .ibd file  ...")
 rawFile <- readMSIData(Path_to_imzml_file)
@@ -104,7 +104,7 @@ Sample_name = strsplit(Sample_name,split = ".",fixed = T)[[1]]
 Sample_name = Sample_name[1]
 
 Path_to_peak_annotation = args[2]
-Path_to_peak_annotation = "mnt/msi_volume/Panels/AmbergenPilotPanel.csv"
+#Path_to_peak_annotation = "mnt/msi_volume/Panels/AmbergenPilotPanel.csv"
 
 cat("Reading the csv annotation file  ...")
 peakAnnotation <- read.delim(Path_to_peak_annotation,sep=",")
@@ -119,7 +119,7 @@ cat("done ! \n")
 # Set parameters (dev only)
 
 Path_to_parameter_file = args[3]
-Path_to_parameter_file = "mnt/msi_volume/Parameter_files/test_param_file.txt"
+#Path_to_parameter_file = "mnt/msi_volume/Parameter_files/test_param_file.txt"
 
 cat("Loading parameter file...")
 Parameters = suppressWarnings(read.table(Path_to_parameter_file,header = F,sep = "="))
@@ -275,16 +275,7 @@ Mean_peak_intensity <- cbind(Mean_peak_intensity, colour_panel)
 Var_peak_intensity = summarizeFeatures(peaksBinned, FUN = var)
 Var_peak_intensity = Var_peak_intensity@featureData
 Var_peak_values <- Var_peak_intensity$FUN
-
-#### old stuff from antibody check table
-# get markers that didn't pass peak detection
-#failed_markers <- setdiff(peakAnnotation$Name, name_conserved_channels)
-# make binary vector for passed/failed
-#TF_vector <- peakAnnotation$Name %in% name_conserved_channels
-#TF_vector <- as.numeric((as.logical(TF_vector)))
-#TF_vector <- as.data.frame(TF_vector)
-# add column to dataframe
-#peakAnnotation <- cbind(peakAnnotation, TF_vector)
+          
 
 #VII) Generating QC pdf
 
