@@ -20,6 +20,8 @@ This script receives a raw .imzML file and generates:
 
 where:
   
+  dir = directory to the R script
+  
   arg[1] = path to the raw .imzML file
   
   arg[2] = path to the peak annotation csv file
