@@ -4,9 +4,7 @@ Author: John Abbey
 
 Start date: 29.09.2022
 
-Latest update: 29.09.2022
-
-*IMPORTANT*: This script is designed to be fully automated, ie. it is not intended to be edited. All customisation can be performed in the parameter file.
+*IMPORTANT*: The full_processing.R script is designed to be fully automated, ie. it is not intended to be edited. All customisation can be performed in the parameter file.
 
 This script receives a raw .imzML file and generates: 
 
