@@ -1,0 +1,697 @@
+# MALDI pre-processing, processing, and QC script. Written by Pierre and John
+
+### i). Loading packages and functions
+cat("Loading of the libraries....  ")
+suppressMessages(library(Cardinal))
+suppressMessages(library(fftw))
+suppressMessages(library(N2R))
+suppressMessages(library(Matrix))
+suppressMessages(library(igraph))
+suppressMessages(library(splus2R))
+suppressMessages(library(EBImage))
+suppressMessages(library(imager))
+suppressMessages(library(FactoMineR))
+suppressMessages(library(hexbin))
+cat("... done ! \n")
+
+# Find peaks function written by 
+cat("Loading of the functions... ")
+find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
+  # find peaks
+  if(is.null(span)) {
+    pks <- x == max(x, na.rm = na.rm)
+    if (strict && sum(pks) != 1L) {
+      pks <- logical(length(x)) # all FALSE
+    }
+  } else {
+    pks <- splus2R::peaks(x = x, span = span, strict = strict)
+  }
+  # apply threshold to found peaks
+  if (abs(ignore_threshold) < 1e-5) {
+    pks
+  } else {
+    range_x <- range(x, na.rm = na.rm, finite = TRUE)
+    min_x <- range_x[1]
+    max_x <- range_x[2]
+    x <- ifelse(!is.finite(x), min_x, x)
+    # this can cater for the case when max_x < 0, as with logs
+    delta <- max_x - min_x
+    top_flag <- ignore_threshold > 0.0
+    scaled_threshold <- delta * abs(ignore_threshold)
+    if (top_flag) {
+      ifelse(x - min_x > scaled_threshold, pks , FALSE)
+    } else {
+      ifelse(max_x - x > scaled_threshold, pks , FALSE)
+    }
+  }
+}
+
+
+# Load in functions
+{ # estimatenoiseMAD function from Cardinal GitHub
+  .estimateNoiseMAD <- function(x, blocks=1, fun=mean, tform=diff) {
+    mad <- function(y, na.rm) {
+      center <- fun(tform(y), na.rm=na.rm)
+      fun(abs(y - center), na.rm=na.rm)
+    }
+    if ( blocks > 1 ) {
+      t <- seq_along(x)
+      xint <- split_blocks(x, blocks=blocks)
+      tint <- split_blocks(t, blocks=blocks)
+      noiseval <- sapply(xint, mad, na.rm=TRUE)
+      noiseidx <- sapply(tint, mean, na.rm=TRUE)
+      noise <- interp1(noiseidx, noiseval, xi=t, method="linear",
+                       extrap=fun(noiseval, na.rm=TRUE))
+      noise <- supsmu(x=t, y=noise)$y
+    } else {
+      noise <- mad(x, na.rm=TRUE)
+      noise <- rep(noise, length(x))
+    }
+    noise
+  }
+  
+  # cardinal MAD noise estimation function. set SNR to 10
+  peakPick.mad <- function(x, SNR=10, window=25, blocks=1, fun=mean, tform=diff, ...) {
+    noise <- .estimateNoiseMAD(x, blocks=blocks, fun=fun, tform=tform)
+    maxs <- locmax(x)
+    peaks <- intersect(maxs, which(x / noise >= SNR))
+    return(peaks)
+  }
+  locmax = function(x) {
+    Local_max_temp = which(diff(sign(diff(x)))==-2)+1
+    return(Local_max_temp)
+  }
+  
+  
+  # define function to convert to mz scale
+  Convert_to_mz_scale = function(x,range_peaks, N_features) {
+    scale_vector = base::seq(range_peaks[1], range_peaks[2], length.out =N_features )
+    return(scale_vector[x])
+  }
+  
+  # define function for hierarchical clustering with complete linkage
+  HC_single_linkage_function = function(x,Threshold_height=2) {
+    sub_clustering = 1
+    # if there is more than one element in the region, run the distance function
+    if (length(x)>1) {
+      dist_matrix = dist(x)
+      hc_clustering = hclust(dist_matrix,method = "single")
+      sub_clustering = cutree(hc_clustering,h =Threshold_height )
+    }
+    return(sub_clustering)
+  }
+  
+  # define a modified which max function
+  which_max_modified = function(x) {
+    if (sum(x)==0) {
+      y = NA
+    }
+    else {
+      x[x==0] = NA
+      y = which.min(x)
+    }
+    return(y)
+  }
+  
+  color_convertion=function(x,max_scale=NULL) {
+    f <- colorRamp(c("white","yellow","orange","red"))
+    x=as.numeric(x)
+    if (is.null(max_scale)) {
+      max_scale=quantile(x,0.999,na.rm = T)
+    }
+    x_prime=ifelse(x>max_scale,max_scale,x)
+    x_prime=x_prime/max_scale
+    x_color=f(x_prime)/255
+    x_color[!complete.cases(x_color),]=c(0,0,0)
+    x_color=rgb(x_color)
+    return(x_color)
+  }
+  
+  string.to.colors = function (string, colors = NULL){
+    if (is.factor(string)) {
+      string = as.character(string)
+    }
+    if (!is.null(colors)) {
+      if (length(colors) != length(unique(string))) {
+        (break)("The number of colors must be equal to the number of unique elements.")
+      }
+      else {
+        conv = cbind(unique(string), colors)
+      }
+    }
+    else {
+      conv = cbind(unique(string), rainbow(length(unique(string))))
+    }
+    unlist(lapply(string, FUN = function(x) {
+      conv[which(conv[, 1] == x), 2]
+    }))
+  }
+  
+}
+cat("... done ! \n")
+
+
+### ii). Data and annotation loading
+args <- commandArgs(trailingOnly = T)
+
+cat("Reading the .imzml and .ibd file... ")
+Path_to_imzml_file = args[1]
+#Path_to_imzml_file = "mnt/msi_volume/experiments/QC-report-ImzML/menzha_20221215_tonsil_resublimate_20um.imzML"
+rawFile = readMSIData(Path_to_imzml_file)
+cat("done ! \n")
+
+
+cat("Subsetting if needed... ")
+rawFile <- subsetPixels(rawFile, x<=250, y<= 200)
+cat("done ! \n")
+
+cat("Assigning experiment and sample name... ")
+Sample_name = strsplit(Path_to_imzml_file,split = "/",fixed = T)[[1]]
+# initialise correct folder as the first string in the sequence
+h=1
+correctFolder = Sample_name[h]
+# while the correct folder is not "experiments", iterate through each string in the sequence until it is correct
+if(correctFolder == "experiments"){
+  print("Correct on first iteration")
+  print(paste("Current folder is ", correctFolder, sep = ""))
+  h = h+1
+}else{while(correctFolder != "experiments"){
+  correctFolder = Sample_name[h]
+  print(paste("Current folder is ", correctFolder, sep = ""))
+  h = h+1
+  if (correctFolder == "experiments"){
+    print(paste("The current folder is ", correctFolder, ".", sep = ""))
+  }
+}}
+
+Experiment_name = Sample_name[h]
+print(paste("The experiment is ", Experiment_name, ".", sep = ""))
+Sample_name = Sample_name[length(Sample_name)]
+Sample_name = strsplit(Sample_name,split = ".",fixed = T)[[1]]
+Sample_name = Sample_name[1]
+print(paste("The sample is ", Sample_name, ".", sep = ""))
+cat("done ! \n")
+
+Path_to_peak_annotation = args[2]
+#Path_to_peak_annotation = "mnt/msi_volume/experiments/QC-report-ImzML/SciLS_library/25-plex-real.csv"
+cat("Reading the csv annotation file... ")
+peakAnnotation = read.delim(Path_to_peak_annotation,sep=",")
+peakAnnotation = peakAnnotation[-3]
+peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$FeatureMass)
+refList = peakAnnotation$FeatureMass
+markerNames = peakAnnotation$Name
+cat("done ! \n")
+
+Path_to_parameter_file = args[3]
+#Path_to_parameter_file = "mnt/msi_volume/parameter_files/test_param_file.txt"
+
+# load in parameter file
+cat("Loading parameter file... ")
+Parameters = suppressWarnings(read.table(Path_to_parameter_file,header = F,sep = "="))
+Parameters_names = Parameters$V1
+Parameters_values = Parameters$V2
+names(Parameters_values) = Parameters_names
+# define parameters
+N_cores = as.numeric(Parameters_values[1])
+peak_mz_tolerance = as.numeric(Parameters_values[2])
+freqMin = as.numeric(Parameters_values[3])
+cat("done ! \n")
+
+
+### iii). Pre-Processing
+
+cat("Running normalisation and baseline correction... ")
+peakPre <- rawFile %>% 
+  smoothSignal(method = "gaussian", plot=FALSE) %>%
+  reduceBaseline(method="locmin") %>%
+  process()
+cat("...done ! \n")
+
+cat("Managing memory... ")
+print(mcols(processingData(peakPre))[,-1])
+rm(rawFile)
+gc()
+cat("...done ! \n")
+
+
+### iv). Processing (peak detection and peak aggregation)
+
+cat("Extracting pre-processed intensity data... ")
+# extract pre-processed intensity dataframe
+raw_intensity = peakPre@imageData$data$intensity
+cat("...done ! \n")
+
+cat("Defining important variables and constants... ")
+# set up some important constants
+range_peaks = range(peakPre@featureData@mz)
+N_features = length(peakPre@featureData@mz)
+N_pixels_total = dim(peakPre)[2]
+Threshold_Detection = N_pixels_total*0.01
+# all m/z values 
+mz_vector = as.data.frame(peakPre@featureData)
+Location_pixels = as.data.frame(pData(peakPre))
+Location_pixels = Location_pixels[,c(2,3)]
+cat("...done ! \n")
+
+cat("Applying peak detection... ")
+# apply MAD peak picking function to all pixels
+List_peaks = apply(raw_intensity, MARGIN = 2, FUN = function(x) {peakPick.mad(x,SNR = 10,window = 400)})
+cat("...done ! \n")
+
+# number of peaks per pixel
+N_peak_per_pixel = unlist(lapply(List_peaks,FUN = length))
+
+cat("Getting peak counts ... ")
+# re-scale peaks to m/z scale
+List_peaks_rescaled = mz_vector[unlist(List_peaks),1]
+# only unique peaks
+List_peaks_unique = unique(unlist(List_peaks))
+# rescale unique peaks to m/z scale
+List_peaks_unique_rescaled = mz_vector$mz[List_peaks_unique]
+# order rescales unique peaks
+List_peaks_unique_rescaled_ordered = List_peaks_unique_rescaled[order(List_peaks_unique_rescaled)]
+# how many pixels peaks are present in
+Freq_peak_rescaled_ordered = table(factor(List_peaks_rescaled,levels = mz_vector$mz))
+Freq_peak_rescaled_ordered = as.numeric(Freq_peak_rescaled_ordered)
+cat("...done ! \n")
+
+# We smooth with a Gaussian curve with a sigma of 1mz so that isotopic peaks are merged
+
+cat("Smoothing spectra to merge isotopic peaks... ")
+# mz index ratio: range of mz values divided by number of features
+mz_index_ratio = (max(mz_vector$mz)-min(mz_vector$mz))/N_features
+# inverse of this ratio
+sigma_smoothing_isotopic = 1/mz_index_ratio
+# number of mz values centered around zero
+list_values = seq(-N_features/2, N_features/2, length.out = N_features)
+Gaussian_vector = exp(-list_values^2/sigma_smoothing_isotopic^2)
+Freq_peak_rescaled_ordered_smooth = stats::convolve(y = Gaussian_vector,x = Freq_peak_rescaled_ordered, conj = TRUE)
+# counts of rescaled ordered smooth peaks
+Freq_peak_rescaled_ordered_smooth = Freq_peak_rescaled_ordered_smooth[c((N_features/2):N_features,1:(N_features/2-1))]
+cat("...done ! \n")
+
+cat("Setting pixels below detection limit to zero... ")
+# set values under the pixel detection threshold to zero
+Freq_peak_smoothed_thresholded = Freq_peak_rescaled_ordered_smooth
+Freq_peak_smoothed_thresholded[Freq_peak_smoothed_thresholded<Threshold_Detection] = 0
+cat("...done ! \n")
+
+cat("Finding local maxima... ")
+# We want to find local maxima within a range of 3mz 
+span_local_maxima = 3/mz_index_ratio
+# round up to nearest odd value
+Local_maxima_peak_freq = base::which(find_peaks(Freq_peak_smoothed_thresholded,span = span_local_maxima))
+# flattened 
+Local_maxima_peak_freq_reshaped = matrix(rep(0,length(Freq_peak_rescaled_ordered)),ncol = 1)
+Local_maxima_peak_freq_reshaped[Local_maxima_peak_freq]=1:length(Local_maxima_peak_freq)
+cat("...done ! \n")
+
+cat("Finding peak maxima, width and center per peak... ")
+Freq_peak_smoothed_thresholded = matrix(Freq_peak_smoothed_thresholded,ncol = 1)
+Propagation_selection = propagate(Freq_peak_smoothed_thresholded, seeds = Local_maxima_peak_freq_reshaped, mask = Freq_peak_smoothed_thresholded>Threshold_Detection)
+
+# watershed_peak = watershed(as.cimg(Local_maxima_peak_freq_reshaped),as.cimg(matrix(Freq_peak_rescaled_ordered_thresholded,ncol = 1)))
+# watershed_peak[Freq_peak_rescaled_ordered_thresholded==0]=0
+
+Peak_location = aggregate.data.frame(data.frame(Location = mz_vector$mz,Freq = Freq_peak_rescaled_ordered),
+                                     by=list(as.numeric(Propagation_selection)),FUN = function(x) {sum(x[[1]]*x[[2]])/sum(x[[2]])})
+Peak_location_centered = c()
+Peak_location_max = c()
+Peak_delimitation = c()
+for (k in 1:max(Propagation_selection)) {
+  # Looking for weigted mean 
+  Location_centered_temp = weighted.mean(x=mz_vector$mz[as.numeric(Propagation_selection)==k],
+                                         w =Freq_peak_rescaled_ordered[as.numeric(Propagation_selection)==k] )
+  # vector of centered peak locations
+  Peak_location_centered = c(Peak_location_centered,Location_centered_temp)
+  
+  Location_max_temp  = (mz_vector$mz[as.numeric(Propagation_selection)==k])[which.max(Freq_peak_rescaled_ordered[as.numeric(Propagation_selection)==k])]
+  # vevtor of peak maximimum locations
+  Peak_location_max = c(Peak_location_max,Location_max_temp)
+  
+  Cumsum_freq = (cumsum(Freq_peak_rescaled_ordered[as.numeric(Propagation_selection)==k])/sum(Freq_peak_rescaled_ordered[as.numeric(Propagation_selection)==k]))
+  
+  Beginning_peak = max(which(Cumsum_freq < 0.01))
+  End_peak = min(which(Cumsum_freq > 0.99))
+  if (is.infinite(Beginning_peak)) {
+    Beginning_peak = 1
+  }
+  # beginning and end of peak location
+  Peak_delimitation = rbind(Peak_delimitation,c(mz_vector$mz[as.numeric(Propagation_selection)==k][Beginning_peak],mz_vector$mz[as.numeric(Propagation_selection)==k][End_peak]))
+}
+# width of each peak 
+Peak_width = Peak_delimitation[,2]-Peak_delimitation[,1]
+# width of each peak on m/z scale 
+Peak_width = Peak_width*mz_index_ratio
+cat("...done ! \n")
+
+cat("Modifying peakAnnotation df... ")
+# create completed peakAnnotation table for adducts
+peakAnnotation_extended = peakAnnotation
+
+# create vectors for each adduct ion
+FeatureMassHydrogen = peakAnnotation_extended$FeatureMass
+FeatureMassSodium = (FeatureMassHydrogen - 1) + 23
+FeatureMassAmmonium = (FeatureMassHydrogen - 1) + 18
+peakAnnotation_extended = cbind(peakAnnotation_extended, FeatureMassSodium, FeatureMassAmmonium)
+# bind the feature masses to the feature names and adduct ions, then bind all features together to get flattened list
+peakAnnotation_extended = rbind(cbind(peakAnnotation_extended$Name, peakAnnotation_extended$FeatureMass),
+                                cbind(paste(peakAnnotation_extended$Name,"Sodium", sep = "_"), peakAnnotation_extended$FeatureMassSodium),
+                                cbind(paste(peakAnnotation_extended$Name,"Ammonium", sep = "_"), peakAnnotation_extended$FeatureMassAmmonium))
+# convert to dataframe
+peakAnnotation_extended = as.data.frame(peakAnnotation_extended)
+colnames(peakAnnotation_extended) = c("FeatureAnnotation","Location")
+# convert peak location to numeric
+peakAnnotation_extended$Location = as.numeric(peakAnnotation_extended$Location)
+cat("...done ! \n")
+
+
+cat("Computing cross matrix nearest neighbours between detected peaks and metapeaks... ")
+# cross compare total reference list with metapeaks (find closest peak across lists)
+Mapping_meta = crossKnn(mA = matrix(Peak_location_max, ncol = 1),
+                        mB= matrix(peakAnnotation_extended$Location, ncol = 1), k = 10, indexType = "L2")
+mz_threshold_association = 1
+# remove all mappings below the m/z distance association threshold
+Mapping_meta[Mapping_meta>mz_threshold_association]=0
+Mapping_meta_cleaned = apply(as.matrix(Mapping_meta),MARGIN = 2,FUN = which_max_modified)
+# table comparing the metapeak location with the detected peak location and the associated peak name
+cat("...done ! \n")
+
+
+cat("Assigning marker labels to nearest neighbours... ")
+Associated_marker = c()
+for (k in 1:length(Peak_location_max)) {
+  selected_mz_location = range(mz_vector$mz[as.numeric(Propagation_selection)==k])
+  Annotation_assigned = peakAnnotation_extended$FeatureAnnotation[peakAnnotation_extended$Location>selected_mz_location[1] & peakAnnotation_extended$Location<selected_mz_location[2]]
+  if (length(Annotation_assigned)==0){
+    Annotation_assigned = NA
+  }
+  # if there are more than one possible annotations, annotate it as such.
+  ## what to do with these?? 
+  if (length(Annotation_assigned)>1){
+    Annotation_assigned = paste(Annotation_assigned,collapse="__OR__")
+  }
+  Associated_marker = c(Associated_marker,Annotation_assigned)
+}
+cat("...done ! \n")
+
+cat("Creating Correspondence matrix... ")
+Correspondence_matrix = data.frame(mz_location = Peak_location_max,
+                                   Expected_mz_location = peakAnnotation_extended$Location[Mapping_meta_cleaned],
+                                   Annotation_peaks = peakAnnotation_extended$FeatureAnnotation[Mapping_meta_cleaned])
+rownames(peakAnnotation_extended) = peakAnnotation_extended$FeatureAnnotation
+
+Correspondence_matrix = data.frame(mz_location = Peak_location_max,
+                                   Expected_mz_location = peakAnnotation_extended$Location[Associated_marker],
+                                   Annotation_peaks = Associated_marker)
+cat("...done ! \n")
+
+
+cat("Creating Final intensity matrix... ")
+Final_intensity_matrix = c()
+for (k in 1:nrow(Correspondence_matrix)) {
+  selected_mz_location = mz_vector$mz >= Peak_delimitation[k,1] & mz_vector$mz <=Peak_delimitation[k,2]
+  if (sum(selected_mz_location)>1) {
+    intensity_temp = colSums(raw_intensity[selected_mz_location,])
+  }
+  if (sum(selected_mz_location)==1) {
+    intensity_temp = (raw_intensity[selected_mz_location,])
+  }
+  
+  Final_intensity_matrix = cbind(Final_intensity_matrix,intensity_temp)
+}
+cat("...done ! \n")
+
+cat("... Processing complete ! \n")
+
+
+### v). Summary statistics
+
+# Functions for plotting ion images nicely
+
+cat("Creating plotting channel functions... ")
+# plot only one channel
+Plot_channel = function(channel_number=1,quantile_lim = 0.99) {
+  Matrix_image = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots
+  x = Final_intensity_matrix[,channel_number]
+  # get intensity value for 99th percentile most intense pixels
+  x_max = quantile(x, probs = quantile_lim)
+  # set all pixel values greater than x_max to that of x_max
+  x[x>x_max]=x_max
+  Matrix_image[as.matrix(Location_pixels)] = x
+  # convert matrix to image
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image))
+  
+  #ifelse(test = Corresponance_matrix$Annotation_peaks[channel_number] == "NA", yes = print("Untargeted Peak"), no = print(Corresponance_matrix$Annotation_peaks[channel_number]))  
+  plot((Matrix_image),main=Correspondence_matrix$Annotation_peaks[channel_number])
+}
+
+# overlay two channels
+Plot_two_channel = function(channel_1=1,channel_2=2,quantile_lim = 0.99) {
+  Matrix_image_1 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots channel 1
+  x = Final_intensity_matrix[,channel_1]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_1[as.matrix(Location_pixels)] = x
+  
+  Matrix_image_1 = Matrix_image_1/x_max
+  # convert matrix to image
+  Matrix_image_1 = as.cimg(Matrix_image_1-min(Matrix_image_1))
+  
+  # channel 2 as image
+  Matrix_image_2 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots channel 2
+  x = Final_intensity_matrix[,channel_2]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  
+  Matrix_image_2[as.matrix(Location_pixels)] = x
+  Matrix_image_2 = Matrix_image_2/x_max
+  Matrix_image_2 = as.cimg(Matrix_image_2-min(Matrix_image_2))
+  
+  Matrix_image_1 = add.color(Matrix_image_1,simple = TRUE)
+  Matrix_image_1[,,,3] = Matrix_image_2
+  
+  plot(Matrix_image_1)
+}
+
+# overlay 3 channels on same plot
+Plot_three_channel = function(channel_1=1,channel_2=2,channel_3=3,quantile_lim = 0.99){
+  
+  Matrix_image_1 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots channel 1
+  x = Final_intensity_matrix[,channel_1]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_1[as.matrix(Location_pixels)] = x
+  Matrix_image_1 = Matrix_image_1/x_max
+  # convert matrix to image
+  Matrix_image_1 = as.cimg(Matrix_image_1-min(Matrix_image_1))
+  
+  Matrix_image_2 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots channel 2
+  x = Final_intensity_matrix[,channel_2]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_2[as.matrix(Location_pixels)] = x
+  Matrix_image_2 = Matrix_image_2/x_max
+  # convert matrix to image
+  Matrix_image_2 = as.cimg(Matrix_image_2-min(Matrix_image_2))
+  
+  Matrix_image_3 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+  # remove hotspots channel 3
+  x = Final_intensity_matrix[,channel_3]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_3[as.matrix(Location_pixels)] = x
+  Matrix_image_3 = Matrix_image_3/x_max
+  # convert matrix to image
+  Matrix_image_3 = as.cimg(Matrix_image_3-min(Matrix_image_3))
+  
+  
+  Matrix_image_1 = add.color(Matrix_image_1,simple = TRUE)
+  Matrix_image_1[,,,2] = Matrix_image_2
+  Matrix_image_1[,,,3] = Matrix_image_3
+  
+  plot(Matrix_image_1)
+}
+cat("...done ! \n")
+
+## a). Geary's C
+
+cat("Starting Geary's C score computation... \n ")
+
+cat("Creating spatial weight matrix... ")
+# create spatial weighted matrix (adjacency matrix)
+spatial_weight_matrix =N2R::Knn(as.matrix(Location_pixels),k = 4,verbose = T,indexType = "L2")
+# make sparse matrix
+spatial_weight_matrix = as(spatial_weight_matrix,"dgCMatrix")
+cat("...done ! \n")
+
+cat("Computing Geary's C score... ")
+# Create vector of Geary's C score for each peak
+geary_vector = c()
+for (i in 1:ncol(Final_intensity_matrix)){
+  x = matrix(Final_intensity_matrix[,i],ncol = 1)
+  x_squared = x^2
+  product_temp_1 = 2*sum(spatial_weight_matrix%*%x_squared)
+  product_temp_2 = 2*t(x)%*%spatial_weight_matrix%*%x
+  N = length(x)
+  W = sum(spatial_weight_matrix)
+  Var_X = var(x)*N
+  # compure Geary's C score
+  Geary_C = as.numeric((N-1)*(product_temp_1-product_temp_2)/(2*Var_X*W))
+  # add geary value to geary vector
+  geary_vector = c(geary_vector, Geary_C)
+}
+cat("...done ! \n")
+
+# add geary vector to Correspondance matrix
+Correspondence_matrix$Geary = geary_vector
+cat("... Finished Geary's C ! \n")
+
+# b). Standard summary statistics (mean, variance, corrected standard deviation)
+
+cat("Calculating standard statistics for final intensities... ")
+### Normalised variance compared to mean
+Mean_signal = colMeans(Final_intensity_matrix)
+Sd_signal = apply(Final_intensity_matrix,MARGIN = 2,FUN = sd)
+Corrected_sd = lm(log(Sd_signal)~log(Mean_signal))
+# add peak standard deviation and peak width to correspondance matrix
+Correspondence_matrix$Corrected_sd = Corrected_sd$residuals
+Correspondence_matrix$PeakWidth = Peak_width
+# cumulative signal of each peak in every pixel 
+Total_signal = colSums(raw_intensity)
+# correlation between the marker intensity and total signal intensity
+Correlation_total_signal = apply(Final_intensity_matrix,MARGIN =2 ,FUN = function(x) {cor(log(x+1),log(1+Total_signal))})
+Correspondence_matrix$Correlation_total_signal = Correlation_total_signal^2
+cat("...done ! \n")
+
+
+# vi). Generating QC pdf
+
+cat(paste("Creating QC report pdf..."))
+# create path for all processed files
+Output_path = args[4]
+#Output_path = "mnt/msi_volume/processed_files"
+Output_path = paste(Output_path,"/",sep="")
+print(Output_path)
+
+# if directory does not exist, create it
+if( !dir.exists(Output_path)) {
+  dir.create(Output_path)
+}
+
+# create directory for the experiment
+experiment_path = paste(Output_path, Experiment_name, sep="")
+experiment_path = paste(experiment_path,"/",sep="")
+print(experiment_path)
+
+# if directory does not exist, create it
+if( !dir.exists(experiment_path)) {
+  dir.create(experiment_path)
+}
+
+# create folder path for each sample
+sample_path = paste(experiment_path,Sample_name,sep="")
+
+# if directory does not exist, create it
+if( !dir.exists(sample_path)) {
+  dir.create(sample_path)
+}
+
+# create QC pdf path
+QC_pdf_path = paste("QC_report_", Sample_name, ".pdf",sep ="" )
+QC_pdf_path = paste(sample_path,"/", QC_pdf_path , sep = "")
+
+
+{
+  pdf(QC_pdf_path, height = 30, width = 15, title = "QC Report")
+  par(las=1, mfrow=c(4,2), mar=c(8,8,12,5)) # first is bottom, second is left, third is top, fourth is right
+  
+  
+  # i). Figure 1. Mean-variance plot of peaks in correspondence matrix
+  plot(Mean_signal, Sd_signal, log="xy", 
+       pch=21, bg=string.to.colors(is.na(Correspondence_matrix$Annotation_peaks), 
+                                   colors = c("grey","red3")),
+       cex=1.5,xlab="Mean signal", ylab="Standard Deviation signal", cex.lab=1.2, 
+       main = "Mean-Variance of Annotated Peaks (red) and Untargeted Peaks (grey)",
+       cex.main = 2)
+  
+  
+  # ii). Figure 2. Geary's C score box plot
+  
+  # boxplot comparing values of annotated metapeaks vs. untargetted
+  boxplot(geary_vector~is.na(Correspondence_matrix$Annotation_peaks), 
+          main = "Targetted vs. Untargetted Geary's C",
+          cex.main = 2,
+          xlab = "",
+          ylab = "Geary's C score", 
+          names = c("Annotated Peaks", "Untargetted Peaks"),
+          ylim = c(0,1),
+          col = c("red3","lightgrey"))
+  
+  # iii). Figure 3. Corrected standard deviation vs Geary score for each peak
+  plot(Correspondence_matrix$Corrected_sd, Correspondence_matrix$Geary,
+       col = "lightblue", pch=19,
+       xlab = "Corrected Standard Deviation",
+       ylab = "Geary's C score",
+       main = "Geary vs. SD",
+       cex.main = 2,
+       ylim = c(0,1))
+  
+  dev.off()
+}
+cat(" ...done ! \n")
+
+
+### vii). Saving ion images
+
+# save spatial distribution as .png file
+cat(paste("Saving ion images for each channel...\n"))
+
+cat(paste("Create path..."))
+Spatial_dir = paste(sample_path,"/", "ion_images",sep = "")
+# if directory does not exist, create it
+if( !dir.exists(Spatial_dir)) {
+  dir.create(Spatial_dir)
+}
+
+
+cat(" ...done ! \n")
+cat(paste("Saving annotated single channel images...\n"))
+# show all ion images 
+for (n in 1:nrow(Correspondence_matrix)){
+  if(!is.na(Correspondence_matrix$Annotation_peaks[n])){
+    Spatial_path = paste(Spatial_dir,"/", Correspondence_matrix$Annotation_peaks[n], ".png", sep = "")
+    print(Spatial_path)
+    png(file=Spatial_path, width=1200, height=700)
+    Plot_channel(n)
+    dev.off()
+  }else{
+  }
+}
+cat(" ...done ! \n")
+cat(paste("...Saving ion images complete. \n"))
+#dev.new()
+
+### viii). Exporting processed data
+
+cat("Exporting processed files...")
+print("Intensity data")
+write.table(raw_intensity, file = paste(sample_path,"/", Sample_name, "raw_intensity_data.txt", sep = ""), sep="\t", quote = F, row.names = F)
+print("Location data")
+write.table(Location_pixels, file = paste(sample_path,"/", Sample_name, "_location_data.txt", sep = ""), sep="\t", quote = F, row.names = F)
+print("Correspondance Matrix")
+write.table(Correspondence_matrix, file = paste(sample_path,"/", Sample_name, "_export_table.txt", sep = ""), sep="\t", quote = F, row.names = F)
+print("Final Intnensity Matrix")
+write.table(Final_intensity_matrix, file = paste(sample_path,"/", Sample_name, "_export_table.txt", sep = ""), sep="\t", quote = F, row.names = F)
+print("Processed data")
+writeMSIData(peakPre, file = Sample_name, name=paste(Sample_name,"_pre-processed",sep = ""), folder = sample_path,
+             mz.type = "32-bit float", intensity.type="32-bit float")
+cat(" ... FINISHED ! \n")
+
+
+
