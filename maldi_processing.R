@@ -112,21 +112,7 @@ find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm =
     }
     return(y)
   }
-  
-  color_convertion=function(x,max_scale=NULL) {
-    f <- colorRamp(c("white","yellow","orange","red"))
-    x=as.numeric(x)
-    if (is.null(max_scale)) {
-      max_scale=quantile(x,0.999,na.rm = T)
-    }
-    x_prime=ifelse(x>max_scale,max_scale,x)
-    x_prime=x_prime/max_scale
-    x_color=f(x_prime)/255
-    x_color[!complete.cases(x_color),]=c(0,0,0)
-    x_color=rgb(x_color)
-    return(x_color)
-  }
-  
+    
   string.to.colors = function (string, colors = NULL){
     if (is.factor(string)) {
       string = as.character(string)
