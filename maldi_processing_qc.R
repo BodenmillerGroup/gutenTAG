@@ -26,7 +26,7 @@ args <- commandArgs(trailingOnly = T)
 cat("Reading the .imzml and .ibd file... ")
 Path_to_imzml_file = args[1]
 #Path_to_imzml_file = "mnt/msi_volume/experiments/glycan_experiment_01/menzha_20230210_glycantest3-breastcancer-20um.imzML"
-Path_to_imzml_file = "mnt/msi_volume/experiments/QC-report-ImzML/42251-20um-breastcancer.imzML"
+Path_to_imzml_file = "mnt/msi_volume/experiments/QC-report-ImzML/menzha_20221212_46849-cerebellum-25plex-20um.imzML"
 rawFile = readMSIData(Path_to_imzml_file)
 cat("done ! \n")
 
