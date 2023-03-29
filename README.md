@@ -1,5 +1,13 @@
 # MALDI_processing
 
-A [workflowr][] project.
+Single paragraph on what you're doing
 
-[workflowr]: https://github.com/workflowr/workflowr
+## Usage
+
+How to reproduce the analysis
+
+## Styling
+
+This is **bold** and that's *italic*
+
+Enter a [link](https://github.com/BodenmillerGroup/maldi-processing/tree/devel)

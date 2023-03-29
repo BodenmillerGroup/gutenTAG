@@ -1,0 +1,18 @@
+---
+title: "Read data"
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+This is my annotation
+
+```{r test}
+library(ggplot2)
+data(cars)
+
+ggplot(cars) + 
+  geom_point(aes(speed, dist))
+```

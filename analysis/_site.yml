@@ -5,10 +5,8 @@ navbar:
   left:
   - text: Home
     href: index.html
-  - text: About
-    href: about.html
-  - text: License
-    href: license.html
+  - text: Read data
+    href: 01_read_data.html
 output:
   workflowr::wflow_html:
     toc: yes
