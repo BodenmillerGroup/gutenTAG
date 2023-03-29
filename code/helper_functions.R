@@ -563,9 +563,6 @@ sampleNameFinder <- function(path = Path_to_imzml_file){
 
 
 
-}
-
-
 #### Original Plot_channel functions ####
 
 # NOTE: if trying to image a channel in Rstudio, can change "Final_intensity_matrix" to "Final_intensity_matrix_targeted" (easier to get channel index)
