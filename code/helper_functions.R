@@ -1,3 +1,5 @@
+
+#### find peaks function ####
 find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
   # find peaks
   if(is.null(span)) {
@@ -329,11 +331,10 @@ peakAlignment <- function(pre, detected, metapeaks, ref){
 
   processed_data <- list("IntensityData" = Final_intensity_matrix_targeted, "CorrespondenceMatrix" = Correspondence_matrix, "SpatialCoordinates" = Location_pixels)
 
-
-
   return(processed_data)
 
 }
+
 
 #### Find sample name function ####
 
@@ -354,251 +355,223 @@ sampleNameFinder <- function(path = Path_to_imzml_file){
 }
 
 
-  #### Marker panel cleaning function ####
+#### Marker panel cleaning function ####
 
-  cleanPanel <- function(panel){
+cleanPanel <- function(panel){
 
-    # 1. ensure column names are correct
+  # 1. ensure column names are correct
 
-    if (is.numeric(panel$Name) == T){
-      colnames(panel) = c("FeatureMass","Name")
-    }
-
-    # rearrange column order so Name is first column
-    relocate(panel, "Name", .before = "FeatureMass")
-
-    # 2. sort by mass tag size
-
-    panel = dplyr::arrange(panel, panel$FeatureMass)
-
-    # 3. clean marker names
-
-    for(a in seq_along(panel$Name)){
-      # replace spaces between + symbol
-      if (grepl("+", panel$Name[a], fixed=T)){
-        new_string = gsub(" ", "", panel$Name[a])
-        panel$Name[a] <- new_string
-      }
-      else{
-        # split strings with spaces into list with individual strings as elements
-        new_string = gsub(" ", "-", panel$Name[a])
-        # replace fullstops with underscores
-        new_string = gsub(".", "-", new_string, fixed = T)
-        # if there is a dash at the end of the name, remove it
-        if(endsWith(new_string, "-")){
-          new_string = substr(new_string,1, nchar(new_string)-1)
-        }
-        # replace names in peakAnnotation
-        panel$Name[a] <- new_string
-      }
-      # remove slashes
-      if (grepl("/", panel$Name[a], fixed=T)){
-        new_string = gsub("/", "", panel$Name[a])
-        panel$Name[a] <- new_string
-      }
-    }
-
-    # 4. rearrange column order so Name is first column
-    panel <- relocate(panel, "Name", .before = "FeatureMass")
-
-    return(panel)
-
+  if (is.numeric(panel$Name) == T){
+    colnames(panel) = c("FeatureMass","Name")
   }
 
+  # rearrange column order so Name is first column
+  relocate(panel, "Name", .before = "FeatureMass")
 
-  #### Convert_to_mz_scale function ####
+  # 2. sort by mass tag size
 
-  # define function to convert to mz scale
-  Convert_to_mz_scale <- function(x,range_peaks, N_features) {
-    scale_vector = base::seq(range_peaks[1], range_peaks[2], length.out =N_features )
-    return(scale_vector[x])
-  }
+  panel = dplyr::arrange(panel, panel$FeatureMass)
 
-  # define function for hierarchical clustering with complete linkage
-  HC_single_linkage_function <- function(x,Threshold_height=2) {
-    sub_clustering = 1
-    # if there is more than one element in the region, run the distance function
-    if (length(x)>1) {
-      dist_matrix = dist(x)
-      hc_clustering = hclust(dist_matrix,method = "single")
-      sub_clustering = cutree(hc_clustering,h =Threshold_height )
+  # 3. clean marker names
+
+  for(a in seq_along(panel$Name)){
+    # replace spaces between + symbol
+    if (grepl("+", panel$Name[a], fixed=T)){
+      new_string = gsub(" ", "", panel$Name[a])
+      panel$Name[a] <- new_string
     }
-    return(sub_clustering)
+    else{
+      # split strings with spaces into list with individual strings as elements
+      new_string = gsub(" ", "-", panel$Name[a])
+      # replace fullstops with underscores
+      new_string = gsub(".", "-", new_string, fixed = T)
+      # if there is a dash at the end of the name, remove it
+      if(endsWith(new_string, "-")){
+        new_string = substr(new_string,1, nchar(new_string)-1)
+      }
+      # replace names in peakAnnotation
+      panel$Name[a] <- new_string
+    }
+    # remove slashes
+    if (grepl("/", panel$Name[a], fixed=T)){
+      new_string = gsub("/", "", panel$Name[a])
+      panel$Name[a] <- new_string
+    }
   }
 
-  #### which_max_modified function ####
+  # 4. rearrange column order so Name is first column
+  panel <- relocate(panel, "Name", .before = "FeatureMass")
 
-  # define a modified which max function
-  which_max_modified = function(x) {
-    if (sum(x)==0) {
-      y = NA
+  return(panel)
+
+}
+
+
+#### Convert_to_mz_scale function ####
+# define function to convert to mz scale
+Convert_to_mz_scale <- function(x,range_peaks, N_features) {
+  scale_vector = base::seq(range_peaks[1], range_peaks[2], length.out =N_features )
+  return(scale_vector[x])
+}
+ # define function for hierarchical clustering with complete linkage
+ HC_single_linkage_function <- function(x,Threshold_height=2) {
+   sub_clustering = 1
+   # if there is more than one element in the region, run the distance function
+   if (length(x)>1) {
+     dist_matrix = dist(x)
+     hc_clustering = hclust(dist_matrix,method = "single")
+     sub_clustering = cutree(hc_clustering,h =Threshold_height )
+   }
+   return(sub_clustering)
+ }
+
+
+#### which_max_modified function ####
+# define a modified which max function
+which_max_modified = function(x) {
+  if (sum(x)==0) {
+    y = NA
+  }
+  else {
+    x[x==0] = NA
+    y = which.min(x)
+  }
+  return(y)
+}
+
+#### Otsu thresholding ####
+
+Otsu_thresholding = function(x,number_bins=100) {
+  List_bin = quantile(x,base::seq(from=0,to=1,length.out=number_bins))
+  Intravariance_vector = c()
+  for (k in 1:number_bins) {
+    threshold_temp = List_bin[k]
+    s = length(x[x<threshold_temp])*var(x[x<threshold_temp]) + length(x[x>threshold_temp])*var(x[x>threshold_temp])
+    Intravariance_vector= c(Intravariance_vector,s)
+  }
+  Selected_values = List_bin[which.min(Intravariance_vector)]
+  return(Selected_values)
+}
+
+#### Strings to colours ####
+string.to.colors = function (string, colors = NULL)
+{
+  if (is.factor(string)) {
+    string = as.character(string)
+  }
+  if (!is.null(colors)) {
+    if (length(colors) != length(unique(string))) {
+      (break)("The number of colors must be equal to the number of unique elements.")
     }
     else {
-      x[x==0] = NA
-      y = which.min(x)
+      conv = cbind(unique(string), colors)
     }
-    return(y)
   }
-
-  #### Otsu thresholding ####
-
-  Otsu_thresholding = function(x,number_bins=100) {
-    List_bin = quantile(x,base::seq(from=0,to=1,length.out=number_bins))
-    Intravariance_vector = c()
-    for (k in 1:number_bins) {
-      threshold_temp = List_bin[k]
-      s = length(x[x<threshold_temp])*var(x[x<threshold_temp]) + length(x[x>threshold_temp])*var(x[x>threshold_temp])
-      Intravariance_vector= c(Intravariance_vector,s)
-    }
-    Selected_values = List_bin[which.min(Intravariance_vector)]
-    return(Selected_values)
+  else {
+    conv = cbind(unique(string), rainbow(length(unique(string))))
   }
+  unlist(lapply(string, FUN = function(x) {
+    conv[which(conv[, 1] == x), 2]
+  }))
+}
 
-  #### Strings to colours ####
 
-  string.to.colors = function (string, colors = NULL)
-  {
-    if (is.factor(string)) {
-      string = as.character(string)
-    }
-    if (!is.null(colors)) {
-      if (length(colors) != length(unique(string))) {
-        (break)("The number of colors must be equal to the number of unique elements.")
-      }
-      else {
-        conv = cbind(unique(string), colors)
-      }
-    }
-    else {
-      conv = cbind(unique(string), rainbow(length(unique(string))))
-    }
-    unlist(lapply(string, FUN = function(x) {
-      conv[which(conv[, 1] == x), 2]
-    }))
+#### Plot_mz_channel function ####
+Plot_mz_channel = function(dataframe = processedData$IntensityMatrix, coords = processedData$SpatialCoordinates,
+                           channel =1, quantile_lim = 0.99, col = "blue") {
+  coords$x = coords$x - min(coords$x) + 1
+  coords$y = coords$y - min(coords$y) + 1
+  Matrix_image = matrix(0,ncol = max(coords$y), nrow=max(coords$x))
+  x = dataframe[,channel]
+  x_max = quantile(x, probs = quantile_lim)
+  x[x>x_max] = x_max
+  Matrix_image[as.matrix(coords)] = x
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image))
+  Matrix_image = add.color(Matrix_image,simple = TRUE)
+  if (col == "green"){
+    R(Matrix_image) <- 0
+    B(Matrix_image) <- 0
   }
-
-
-  #### Plot_mz_channel function ####
-
-  Plot_mz_channel = function(dataframe = processedData$IntensityMatrix, coords = processedData$SpatialCoordinates,
-                             channel =1, quantile_lim = 0.99, col = "blue") {
-
-    coords$x = coords$x - min(coords$x) + 1
-    coords$y = coords$y - min(coords$y) + 1
-
-    Matrix_image = matrix(0,ncol = max(coords$y), nrow=max(coords$x))
-
-    x = dataframe[,channel]
-    x_max = quantile(x, probs = quantile_lim)
-    x[x>x_max] = x_max
-    Matrix_image[as.matrix(coords)] = x
-    Matrix_image = as.cimg(Matrix_image-min(Matrix_image))
-
-    Matrix_image = add.color(Matrix_image,simple = TRUE)
-
-    if (col == "green"){
-      R(Matrix_image) <- 0
-      B(Matrix_image) <- 0
-    }
-
-    if (col == "blue"){
-      R(Matrix_image) <- 0
-      G(Matrix_image) <- 0
-    }
-
-    if (col == "red"){
-      G(Matrix_image) <- 0
-      B(Matrix_image) <- 0
-    }
-
-    if (col == "cyan"){
-      R(Matrix_image) <- 0
-    }
-
-    if (col == "magenta"){
-      G(Matrix_image) <- 0
-    }
-
-    if (col == "yellow"){
-      B(Matrix_image) <- 0
-    }
-
-    if (col == "white"){
-    }
-
-    plot((Matrix_image))
-
+  if (col == "blue"){
+    R(Matrix_image) <- 0
+    G(Matrix_image) <- 0
   }
-
-
-
-
-  #### Plot_two_mz_channel function ####
-
-  ## plotting function for comp group meeting
-  Plot_two_mz_channel = function(dataframe = processedData$IntensityData, coords = processedData$SpatialCoordinates,
-                                 channel_1=1, channel_2=2, quantile_lim = 0.99) {
-
-    coords$x = coords$x - min(coords$x) + 1
-    coords$y = coords$y - min(coords$y) + 1
-
-    Matrix_image_1 = matrix(0,ncol = max(coords$y),nrow=max(coords$x))
-    # remove hotspots channel 1
-    x = dataframe[,channel_1]
-    x_max = quantile(x,probs = quantile_lim)
-    x[x>x_max]=x_max
-    Matrix_image_1[as.matrix(coords)] = x
-
-    Matrix_image_1 = Matrix_image_1/x_max
-    # convert matrix to image
-    Matrix_image_1 = as.cimg(Matrix_image_1-min(Matrix_image_1))
-
-    # channel 2 as image
-    Matrix_image_2 = matrix(0,ncol = max(coords$y),nrow=max(coords$x))
-    # remove hotspots channel 2
-    x = dataframe[,channel_2]
-    x_max = quantile(x,probs = quantile_lim)
-    x[x>x_max]=x_max
-
-    Matrix_image_2[as.matrix(coords)] = x
-    Matrix_image_2 = Matrix_image_2/x_max
-    Matrix_image_2 = as.cimg(Matrix_image_2-min(Matrix_image_2))
-
-    Matrix_image_1 = add.color(Matrix_image_1,simple = TRUE)
-    Matrix_image_1[,,,3] = Matrix_image_2
-
-    plot(Matrix_image_1)
-
-    text(x = max(coords$x)*1.02, y = max(coords$y)*0.1,
-         labels = colnames(dataframe[channel_1]),
-         adj = 0,
-         cex = 1,
-         col = "blue")
-    text(x = max(coords$x)*1.02, y = max(coords$y)*0.18,
-         adj = 0,
-         labels = colnames(dataframe[channel_2]),
-         cex = 1,
-         col = "gold")
-
+  if (col == "red"){
+    G(Matrix_image) <- 0
+    B(Matrix_image) <- 0
   }
+  if (col == "cyan"){
+    R(Matrix_image) <- 0
+  }
+  if (col == "magenta"){
+    G(Matrix_image) <- 0
+  }
+  if (col == "yellow"){
+    B(Matrix_image) <- 0
+  }
+  if (col == "white"){
+  }
+  plot((Matrix_image))
+}
 
 
+#### Plot_two_mz_channel function ####
+
+## plotting function for comp group meeting
+Plot_two_mz_channel = function(dataframe = processedData$IntensityData, coords = processedData$SpatialCoordinates,
+                               channel_1=1, channel_2=2, quantile_lim = 0.99) {
+  coords$x = coords$x - min(coords$x) + 1
+  coords$y = coords$y - min(coords$y) + 1
+  Matrix_image_1 = matrix(0,ncol = max(coords$y),nrow=max(coords$x))
+  # remove hotspots channel 1
+  x = dataframe[,channel_1]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_1[as.matrix(coords)] = x
+  Matrix_image_1 = Matrix_image_1/x_max
+  # convert matrix to image
+  Matrix_image_1 = as.cimg(Matrix_image_1-min(Matrix_image_1))
+  # channel 2 as image
+  Matrix_image_2 = matrix(0,ncol = max(coords$y),nrow=max(coords$x))
+  # remove hotspots channel 2
+  x = dataframe[,channel_2]
+  x_max = quantile(x,probs = quantile_lim)
+  x[x>x_max]=x_max
+  Matrix_image_2[as.matrix(coords)] = x
+  Matrix_image_2 = Matrix_image_2/x_max
+  Matrix_image_2 = as.cimg(Matrix_image_2-min(Matrix_image_2))
+  Matrix_image_1 = add.color(Matrix_image_1,simple = TRUE)
+  Matrix_image_1[,,,3] = Matrix_image_2
+  plot(Matrix_image_1)
+  text(x = max(coords$x)*1.02, y = max(coords$y)*0.1,
+       labels = colnames(dataframe[channel_1]),
+       adj = 0,
+       cex = 1,
+       col = "blue")
+  text(x = max(coords$x)*1.02, y = max(coords$y)*0.18,
+       adj = 0,
+       labels = colnames(dataframe[channel_2]),
+       cex = 1,
+       col = "gold")
+}
 
 
 #### Original Plot_channel functions ####
 
 # NOTE: if trying to image a channel in Rstudio, can change "Final_intensity_matrix" to "Final_intensity_matrix_targeted" (easier to get channel index)
-Plot_channel = function(channel_number=1, quantile_lim = 0.99) {
-  Matrix_image = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+Plot_channel = function(image, channel_number=1, quantile_lim = 0.99) {
 
-  x = Final_intensity_matrix[,channel_number]
+  Matrix_image = matrix(NA,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
+
+  # intensity vector
+  x = image[,channel_number]
   # get intensity value for 99th percentile most intense pixels
   x_max = quantile(x, probs = quantile_lim)
   # set all pixel values greater than x_max to that of x_max
   x[x>x_max] = x_max
   Matrix_image[as.matrix(Location_pixels)] = x
   # convert matrix to image
-  Matrix_image = as.cimg(Matrix_image-min(Matrix_image))
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = T))
 
   # add colour channels to the image
   Matrix_image = add.color(Matrix_image,simple = TRUE)
@@ -607,16 +580,18 @@ Plot_channel = function(channel_number=1, quantile_lim = 0.99) {
   R(Matrix_image) <- 0
   B(Matrix_image) <- 0
 
-  #ifelse(test = Corresponance_matrix$Annotation_peaks[channel_number] == "NA", yes = print("Untargeted Peak"), no = print(Corresponance_matrix$Annotation_peaks[channel_number]))
+  #ifelse(test = Correspondence_matrix$Annotation_peaks[channel_number] == "NA", yes = print("Untargeted Peak"), no = print(Corresponance_matrix$Annotation_peaks[channel_number]))
 
-  plot((Matrix_image))#,main=colnames(Final_intensity_matrix[channel_number]))
+  plot((Matrix_image))
   text(x = max(Location_pixels$x)*1.02, y = max(Location_pixels$y)*0.1,
-       labels = colnames(Final_intensity_matrix[channel_number]),
+       labels = colnames(image[channel_number]),
        adj = 0,
        cex = 1,
        col = "green")
 }
 
+
+#### Plot Channel in RStudio ####
 Plot_channel_rstudio = function(channel_number=1, quantile_lim = 0.99) {
   Matrix_image = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
 
@@ -645,7 +620,7 @@ Plot_channel_rstudio = function(channel_number=1, quantile_lim = 0.99) {
   # col = "green")
 }
 
-# overlay two channels
+#### overlay two channels ####
 Plot_two_channel = function(channel_1=1,channel_2=2,quantile_lim = 0.99) {
   Matrix_image_1 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
   x = Final_intensity_matrix_targeted[,channel_1]
@@ -683,7 +658,7 @@ Plot_two_channel = function(channel_1=1,channel_2=2,quantile_lim = 0.99) {
 
 }
 
-# overlay 3 channels on same plot
+#### overlay 3 channels on same plot ####
 Plot_three_channel = function(channel_1=1,channel_2=2,channel_3=3,quantile_lim = 0.99){
 
   Matrix_image_1 = matrix(0,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))

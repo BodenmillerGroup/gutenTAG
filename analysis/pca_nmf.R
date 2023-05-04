@@ -6,32 +6,8 @@ library(RcppML)
 library(EBImage)
 library(imager)
 
-# Vector for plotting images
-Plot_vector = function(x, quantile_lim = 0.99) {
-  Matrix_image = matrix(NA,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
-
-  # get intensity value for 99th percentile most intense pixels
-  x_max = quantile(x, probs = quantile_lim)
-  # set all pixel values greater than x_max to that of x_max
-  x[x>x_max] = x_max
-  Matrix_image[as.matrix(Location_pixels)] = x
-  # convert matrix to image
-  Matrix_image = as.cimg(Matrix_image-min(Matrix_image,na.rm = T))
-
-  # add colour channels to the image
-  Matrix_image = add.color(Matrix_image,simple = TRUE)
-
-  # set red and blue channels to zero to get only green
-  R(Matrix_image) <- 0
-  B(Matrix_image) <- 0
-
-
-  plot((Matrix_image))#,main=colnames(Final_intensity_matrix[channel_number]))
-  text(x = max(Location_pixels$x)*1.02, y = max(Location_pixels$y)*0.1,
-       adj = 0,
-       cex = 1,
-       col = "green")
-}
+# Load in functions from helper script
+source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
 
 # check dimensions of
 dim(Final_intensity_matrix_targeted)
@@ -60,10 +36,10 @@ par(las=1,bty="l")
 barplot((PCA_simple$sdev)^2/PCA_simple$totalvar*100, ylab="Proportion of variance explained")
 
 # plot principal components
-Plot_vector(PCA_simple$x[,1])
+Plot_channel(PCA_simple$x[,1])
 
 # plot the inverse of the principal components
-Plot_vector(-PCA_simple$x[,1])
+Plot_channel(-PCA_simple$x[,1])
 
 
 #### NMF ####
@@ -76,7 +52,7 @@ barplot(nmf_temp$d)
 dim(nmf_temp$w)
 
 # plot factors
-Plot_vector(nmf_temp$w[,6])
+Plot_channel(nmf_temp$w, 3)
 
 # contribution of markers to factors
 Contribution_NFM = nmf_temp$h
