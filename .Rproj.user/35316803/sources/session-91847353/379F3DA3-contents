@@ -1,0 +1,17 @@
+sampleNameFinder <- function(path = Path_to_imzml_file){
+  Sample_name <- strsplit(path, split = "/",fixed = T)[[1]]
+
+  for (i in length(Sample_name)){
+    if (grepl(".imzML", Sample_name[i], fixed=TRUE)){
+      temp_name <- (Sample_name[i])
+      temp_name <- strsplit(temp_name, split = ".",fixed = TRUE)[[1]]
+      Sample_name <- temp_name[1]
+    }else{
+      print("No .imzML detected")
+    }
+  }
+
+  return(Sample_name)
+}
+
+Sample_name <- sampleNameFinder(Path_to_imzml_file)
