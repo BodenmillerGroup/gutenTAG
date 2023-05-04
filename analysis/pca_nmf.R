@@ -3,11 +3,13 @@
 # Load packages
 library(irlba)
 library(RcppML)
+library(EBImage)
+library(imager)
 
 # Vector for plotting images
 Plot_vector = function(x, quantile_lim = 0.99) {
   Matrix_image = matrix(NA,ncol = max(Location_pixels$y),nrow=max(Location_pixels$x))
-  
+
   # get intensity value for 99th percentile most intense pixels
   x_max = quantile(x, probs = quantile_lim)
   # set all pixel values greater than x_max to that of x_max
@@ -15,15 +17,15 @@ Plot_vector = function(x, quantile_lim = 0.99) {
   Matrix_image[as.matrix(Location_pixels)] = x
   # convert matrix to image
   Matrix_image = as.cimg(Matrix_image-min(Matrix_image,na.rm = T))
-  
+
   # add colour channels to the image
   Matrix_image = add.color(Matrix_image,simple = TRUE)
-  
+
   # set red and blue channels to zero to get only green
   R(Matrix_image) <- 0
   B(Matrix_image) <- 0
-  
-  
+
+
   plot((Matrix_image))#,main=colnames(Final_intensity_matrix[channel_number]))
   text(x = max(Location_pixels$x)*1.02, y = max(Location_pixels$y)*0.1,
        adj = 0,
@@ -31,7 +33,7 @@ Plot_vector = function(x, quantile_lim = 0.99) {
        col = "green")
 }
 
-# check dimensions of 
+# check dimensions of
 dim(Final_intensity_matrix_targeted)
 
 # variance and mean of columns (each marker)
@@ -66,7 +68,7 @@ Plot_vector(-PCA_simple$x[,1])
 
 #### NMF ####
 
-# run NMF 
+# run NMF
 nmf_temp = nmf(scale(Final_intensity_matrix_targeted,center = FALSE),k = 10)
 
 # scree plot
