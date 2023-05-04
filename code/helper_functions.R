@@ -338,7 +338,7 @@ peakAlignment <- function(pre, detected, metapeaks, ref){
 #### Find sample name function ####
 
 sampleNameFinder <- function(path = Path_to_imzml_file){
-  Sample_name <- strsplit(path, split = "/",fixed = T)[[1]]
+  Sample_name <- strsplit(path, split = "/",fixed = TRUE)[[1]]
 
   for (i in length(Sample_name)){
     if (grepl(".imzML", Sample_name[i], fixed=TRUE)){
@@ -409,13 +409,13 @@ sampleNameFinder <- function(path = Path_to_imzml_file){
   #### Convert_to_mz_scale function ####
 
   # define function to convert to mz scale
-  Convert_to_mz_scale = function(x,range_peaks, N_features) {
+  Convert_to_mz_scale <- function(x,range_peaks, N_features) {
     scale_vector = base::seq(range_peaks[1], range_peaks[2], length.out =N_features )
     return(scale_vector[x])
   }
 
   # define function for hierarchical clustering with complete linkage
-  HC_single_linkage_function = function(x,Threshold_height=2) {
+  HC_single_linkage_function <- function(x,Threshold_height=2) {
     sub_clustering = 1
     # if there is more than one element in the region, run the distance function
     if (length(x)>1) {
@@ -454,6 +454,28 @@ sampleNameFinder <- function(path = Path_to_imzml_file){
     return(Selected_values)
   }
 
+  #### Strings to colours ####
+
+  string.to.colors = function (string, colors = NULL)
+  {
+    if (is.factor(string)) {
+      string = as.character(string)
+    }
+    if (!is.null(colors)) {
+      if (length(colors) != length(unique(string))) {
+        (break)("The number of colors must be equal to the number of unique elements.")
+      }
+      else {
+        conv = cbind(unique(string), colors)
+      }
+    }
+    else {
+      conv = cbind(unique(string), rainbow(length(unique(string))))
+    }
+    unlist(lapply(string, FUN = function(x) {
+      conv[which(conv[, 1] == x), 2]
+    }))
+  }
 
 
   #### Plot_mz_channel function ####

@@ -1,0 +1,106 @@
+---
+title: "preprocessing"
+author: "John Abbey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Install packages if necessary
+
+```{r Install packages,message=FALSE}
+#install.packages("Cardinal")
+#nstall.packages("N2R")
+#install.packages("EBImage")
+#install.packages("imager")
+```
+
+Loading in Packages
+
+```{r Packages,message=FALSE}
+library(Cardinal)
+library(N2R)
+library(EBImage)
+library(imager)
+library(dplyr)
+library(workflowr)
+```
+
+Load in functions
+
+```{r Functions}
+source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
+```
+
+Read in .imzML file
+
+```{r Reading in data, message=FALSE}
+Path_to_imzml_file = "/mnt/msi_volume/experiments/goodTonsil/menzha_20230323_tonwasopt_6_52034-20um-ag.imzML"
+rawData = readMSIData(Path_to_imzml_file)
+rawData
+```
+
+Optional get sample name step: splits path string into multiple strings and extract that which ends in .imzML
+
+```{r Sample name, message=FALSE}
+Sample_name <- sampleNameFinder(Path_to_imzml_file)
+Sample_name
+```
+
+Read in panel
+
+```{r Read in panel, echo=FALSE}
+Path_to_peak_annotation = "/mnt/msi_volume/panels/30-plex-tonsil.csv"
+peakAnnotation = read.delim(Path_to_peak_annotation, sep=",", header=TRUE, col.names = c("Name", "FeatureMass"))
+peakAnnotation
+```
+
+Clean panel: orders by mass, cleans names, removes potentially problematic elements of string (e.g fullstop, spaces, etc.)
+
+```{r Clean panel, echo=FALSE}
+peakAnnotation <- cleanPanel(peakAnnotation)
+```
+
+Pre-process data
+
+```{r Pre-processing}
+preprocessed <- rawData %>% 
+  Cardinal::normalize(method = "tic") %>%
+  smoothSignal(method = "gaussian", plot=FALSE) %>%
+  reduceBaseline(method="locmin") %>%
+  #process(BPPARAM = MulticoreParam(workers = 4))
+  process()
+
+gc()
+```
+
+Pre-processed spectra visualisation. 
+
+Plot by pixel number
+```{r pressure, echo=FALSE}
+plot(preprocessed, pixel = 1000)
+```
+
+Plot by pixel coordinate
+
+```{r pressure, echo=FALSE}
+plot(preprocessed, coord = c(100, 100))
+```
+
+Pre-processed image visualisation. Specify which mz you want to image.
+
+```{r pressure, echo=FALSE}
+image(preprocessed, mz = peakAnnotation$FeatureMass[1])
+```
+
+Write data
+
+```{r Write pre-processed file , echo=FALSE}
+writeMSIData(preprocessed, file = Sample_name, name=paste(Sample_name,"_pre-processed",sep = ""), folder = sample_path,
+             mz.type = "32-bit float", intensity.type="32-bit float")
+```
+
+
