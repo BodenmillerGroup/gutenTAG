@@ -134,12 +134,11 @@ for (j in 1:ncol(my_cropped_df)){
   
   temp_df <- data.frame(my_cropped_df[,j])
   temp_mean <-colMeans((temp_df), na.rm = TRUE)
-  mean_vector <- cbind(mean_vector, temp_mean)
+  mean_vector <- rbind(mean_vector, temp_mean)
   
 }
-colnames(mean_vector) <- colnames(my_df)
-rownames(mean_vector) <- "Mean"
-mean_vector <- t(mean_vector)
+rownames(mean_vector) <- colnames(my_df)
+colnames(mean_vector) <- "Mean"
 
 
 # 9. Plot image ####
