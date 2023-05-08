@@ -571,7 +571,7 @@ Plot_channel = function(image, channel_number=1, quantile_lim = 0.99) {
   x[x>x_max] = x_max
   Matrix_image[as.matrix(Location_pixels)] = x
   # convert matrix to image
-  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = T))
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = TRUE))
 
   # add colour channels to the image
   Matrix_image = add.color(Matrix_image,simple = TRUE)
