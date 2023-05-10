@@ -158,11 +158,11 @@ for (j in 1:ncol(my_df)){
 
 }
 rownames(mean_vector) <- colnames(my_df)
-colnames(mean_vector) <- "region17"
+colnames(mean_vector) <- region
+mean_df <- data.frame(mean_vector)
 
 # Convert to DF, add column, fill column with mean values for crop2
 
-mean_df <- data.frame(mean_vector)
 mean_df["region14_crop2"] <- NA
 
 for (l in 1:ncol(my_cropped_df)){
