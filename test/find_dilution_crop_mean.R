@@ -24,9 +24,9 @@
 source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
 
 # 2. Read in data
-Path_to_imzml_file <- "/mnt/msi_volume/experiments/080523_dilution/13.imzML"
-region13 <- readMSIData(Path_to_imzml_file)
-region <- "region13"
+Path_to_imzml_file <- "/mnt/msi_volume/experiments/080523_dilution/02.imzML"
+region02 <- readMSIData(Path_to_imzml_file)
+region <- "region02"
 
 # 3. Create custom peakAnnotation df ####
 Name_vector <- c("uncharged_peptide_plus1", "charged_peptide_plus1", "uncharged_peptide_plus2", "charged_peptide_plus2")
@@ -41,7 +41,7 @@ typeof(peakAnnotation$Mass_vector)
 
 # 4. Pre-processing ####
 
-peakPre <- region13 %>%
+peakPre <- region02 %>%
   Cardinal::normalize(method = "tic") %>%
   smoothSignal(method = "gaussian", plot=FALSE) %>%
   reduceBaseline(method="locmin") %>%
@@ -74,7 +74,7 @@ x_values <- Location_pixels$x
 y_values <- Location_pixels$y
 
 # crop at desired x value position. Edit this value for different crops
-x_values <- x_values[x_values > 160]
+x_values <- x_values[x_values < 140]
 
 # crop y_values accordingly
 y_values <- y_values[1:length(x_values)]
@@ -172,36 +172,8 @@ for (l in 1:ncol(my_cropped_df)){
 
 }
 
-region14_mean_df<- mean_df
 
 # 10. Plot image ####
-
-Plot_channel_cropped = function(image, channel_number=4, quantile_lim = 0.99) {
-
-  Matrix_image = matrix(NA,ncol = max(Location_pixels_crop$y), nrow=max(Location_pixels_crop$x))
-
-  # intensity vector
-  x = image[,channel_number]
-  # get intensity value for 99th percentile most intense pixels
-  x_max = quantile(x, probs = quantile_lim)
-  # set all pixel values greater than x_max to that of x_max
-  x[x>x_max] = x_max
-  #x[x == 0] <- NA
-  Matrix_image[as.matrix(Location_pixels_crop)] = x
-  # convert matrix to image
-  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = TRUE))
-
-  # add colour channels to the image
-  Matrix_image = add.color(Matrix_image,simple = TRUE)
-
-  # set red and blue channels to zero to get only green
-  R(Matrix_image) <- 0
-  B(Matrix_image) <- 0
-  #G(Matrix_image) <- 0
-
-  plot((Matrix_image))
-
-}
 
 Plot_channel_cropped(my_cropped_df, 4)
 
@@ -249,17 +221,215 @@ for (n in 1:ncol(my_df)){
 }
 
 
-# for cropped images
-for (n in 1:ncol(my_df)){
-    Spatial_path = paste(Spatial_dir,"/", region, "/", "_crop2_",colnames(my_df)[n], ".png", sep = "")
-    print(Spatial_path)
-    png(file=Spatial_path, width=1200, height=700)
-    Plot_channel_cropped(my_cropped_df, n)
-    dev.off()
-}
-
-
 write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
 
 print(paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""))
+
+
+
+
+
+
+# 12. Cropped workflow #### (from peakProc)
+
+image(peakProc, mz =peakAnnotation$Mass_vector[4], contrast.enhance = "histogram")
+
+crop = "crop3"
+
+# Crop location coordinates
+
+x_values <- Location_pixels$x
+y_values <- Location_pixels$y
+
+# Define x values for each crop
+
+x1 <- x_values[x_values < 140]
+
+x2 <- x_values[x_values > 180]
+x2 <- x2[x2 < 350]
+
+x3 <- x_values[x_values > 300]
+x3 <- x3[x3 < 450]
+
+x4 <- x_values[x_values > 450]
+x4 <- x4[x4 < 620]
+
+x5 <- x_values[x_values > 620]
+
+
+# crop y_values accordingly
+y1 <- y_values[1:length(x1)]
+y2 <- y_values[1:length(x2)]
+y3 <- y_values[1:length(x3)]
+y4 <- y_values[1:length(x4)]
+y5 <- y_values[1:length(x5)]
+
+# list of x and y values for each crop
+x_list <- list(x1,x2,x3,x4,x5)
+y_list <- list(y1,y2,y3,y4,y5)
+
+range(x_list[[2]])
+
+
+
+# remake Location_pixels_crop dataframe
+Location_pixels_crop <- data.frame(matrix(NA, nrow = length(x2), ncol = 0))
+
+# create cropped coordinate system
+Location_pixels_crop$x <- x2
+Location_pixels_crop$y <- y2
+#Location_pixels_crop <- cbind(x5, y5)
+Location_pixels_crop <- data.frame(Location_pixels_crop)
+
+
+# Create cropped intensity dataframe
+
+# initialise dataframe
+my_cropped_df <- data.frame(matrix(data = 0, nrow = length(x2), ncol = 1))
+# crop dataframe
+for (k in 1:ncol(my_df)){
+
+  temp_channel <- my_df[,k]
+  lenx1 <- length(x1) + 1
+  lenx1x2 <- length(x1) + length(x2)
+  temp_channel <- data.frame(temp_channel[lenx1:lenx1x2])
+  my_cropped_df[,k] <- temp_channel
+
+}
+
+# set column names
+colnames(my_cropped_df) <- colnames(my_df)
+
+Plot_channel_cropped = function(image, channel_number=4, quantile_lim = 0.99) {
+
+  Matrix_image = matrix(NA,ncol = max(Location_pixels_crop$y), nrow=max(Location_pixels_crop$x))
+
+  # intensity vector
+  x = image[,channel_number]
+  # get intensity value for 99th percentile most intense pixels
+  x_max = quantile(x, probs = quantile_lim)
+  # set all pixel values greater than x_max to that of x_max
+  x[x>x_max] = x_max
+  #x[x == 0] <- NA
+  Matrix_image[as.matrix(Location_pixels_crop)] = x
+  # convert matrix to image
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = TRUE))
+
+  # add colour channels to the image
+  Matrix_image = add.color(Matrix_image,simple = TRUE)
+
+  # set red and blue channels to zero to get only green
+  R(Matrix_image) <- 0
+  B(Matrix_image) <- 0
+  #G(Matrix_image) <- 0
+
+  plot((Matrix_image))
+
+}
+
+
+# test plot
+Plot_channel_cropped(my_cropped_df, 4)
+
+
+# Region path
+region_dir = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, sep = "")
+print(region_dir)
+# if directory does not exist, create it
+if( !dir.exists(region_dir)) {
+  dir.create(region_dir)
+}
+
+# Histogram path
+hist_dir = paste(region_dir, "/", "histograms", sep = "")
+print(hist_dir)
+# if directory does not exist, create it
+if( !dir.exists(hist_dir)) {
+  dir.create(hist_dir)
+}
+
+crop_dir_hist = paste(hist_dir, "/", crop, sep = "")
+print(crop_dir_hist)
+# if directory does not exist, create it
+if( !dir.exists(crop_dir_hist)) {
+  dir.create(crop_dir_hist)
+}
+
+
+# Histogram
+for (n in 1:length(peakAnnotation$Name_vector)){
+
+  crop_path = paste(crop_dir_hist,"/", peakAnnotation$Name_vector[n], ".png", sep = "")
+  print(crop_path)
+  png(file=crop_path, width=1200, height=700)
+  hist(log(my_cropped_df[,n]), 100, main = paste(region, crop, peakAnnotation$Name_vector[n], sep = "_"), xlab  = "Log Intensity")
+  dev.off()
+
+}
+
+# Image path
+Spatial_dir = paste(region_dir, "/", "ion_images",sep = "")
+print(Spatial_dir)
+
+if( !dir.exists(Spatial_dir)) {
+  dir.create(Spatial_dir)
+}
+
+crop_dir_image = paste(Spatial_dir, "/", crop, sep = "")
+print(crop_dir_image)
+if( !dir.exists(crop_dir_image)) {
+  dir.create(crop_dir_image)
+}
+
+# Cropped images
+for (n in 1:ncol(my_df)){
+  Spatial_path = paste(crop_dir_image,"/" ,colnames(my_cropped_df)[n], ".png", sep = "")
+  print(Spatial_path)
+  png(file=Spatial_path, width=1200, height=700)
+  Plot_channel_cropped(my_cropped_df, n)
+  dev.off()
+}
+
+
+
+# Replace zeros with NA f
+df_na <- my_cropped_df
+for (i in 1:ncol(my_cropped_df)){
+
+  temp_channel <- my_cropped_df[,i]
+  temp_channel[temp_channel == 0] <- NA
+  df_na[,i] <- temp_channel
+
+}
+
+#  Calculate mean for each column
+mean_vector <- c()
+for (j in 1:ncol(my_cropped_df)){
+
+  temp_df <- data.frame(my_cropped_df[,j])
+  temp_mean <- colMeans((temp_df), na.rm = TRUE)
+  mean_vector <- data.frame(rbind(mean_vector, temp_mean))
+
+}
+rownames(mean_vector) <- colnames(my_df)
+colnames(mean_vector) <- crop
+mean_df <- data.frame(mean_vector)
+
+
+# Convert to DF, add column, fill column with mean values for crop2
+
+mean_df[crop] <- NA
+
+for (l in 1:ncol(my_cropped_df)){
+
+  temp_df <- data.frame(my_cropped_df[,l])
+  mean_df[,5][l] <- colMeans((temp_df), na.rm = TRUE)
+
+}
+
+mean_df["rownames"] <- colnames(my_df)
+mean_df <- mean_df %>% relocate(rownames)
+
+
+write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
 
