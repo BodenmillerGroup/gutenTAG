@@ -24,24 +24,30 @@
 source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
 
 # 2. Read in data
-Path_to_imzml_file <- "/mnt/msi_volume/experiments/080523_dilution/02.imzML"
-region02 <- readMSIData(Path_to_imzml_file)
-region <- "region02"
+Path_to_imzml_file <- "/mnt/msi_volume/experiments/150523_dilution/DHB/30.imzML"
+region30 <- readMSIData(Path_to_imzml_file)
+region <- "region30"
 
 # 3. Create custom peakAnnotation df ####
-Name_vector <- c("uncharged_peptide_plus1", "charged_peptide_plus1", "uncharged_peptide_plus2", "charged_peptide_plus2")
-Mass_vector <- as.numeric(c(919.584, 961.628, 460.298, 481.335))
+#Name_vector <- c("uncharged_peptide_plus1", "charged_peptide_plus1", "uncharged_peptide_plus2", "charged_peptide_plus2")
+#Mass_vector <- as.numeric(c(919.584, 961.628, 460.298, 481.335))
+#peakAnnotation <- data.frame(cbind(Name_vector, Mass_vector))
+#rownames(peakAnnotation) <- NULL
+#peakAnnotation$Mass_vector <- as.numeric(peakAnnotation$Mass_vector)
+#peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$Mass_vector)
 
-peakAnnotation <- data.frame(cbind(Name_vector, Mass_vector))
-rownames(peakAnnotation) <- NULL
-peakAnnotation$Mass_vector <- as.numeric(peakAnnotation$Mass_vector)
-peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$Mass_vector)
-
-typeof(peakAnnotation$Mass_vector)
+Path_to_peak_annotation = "/mnt/msi_volume/panels/dilution_experiments/DHB_masslist_5pep.csv"
+peakAnnotation = read.delim(Path_to_peak_annotation, sep=",", header=TRUE, col.names = c("Name", "FeatureMass"))
+if (is.numeric(peakAnnotation$Name) == TRUE){
+  colnames(peakAnnotation) = c("FeatureMass","Name")
+}
+peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$FeatureMass)
+peakAnnotation$FeatureMass <- as.numeric(peakAnnotation$FeatureMass)
+typeof(peakAnnotation$FeatureMass)
 
 # 4. Pre-processing ####
 
-peakPre <- region02 %>%
+peakPre <- region30 %>%
   Cardinal::normalize(method = "tic") %>%
   smoothSignal(method = "gaussian", plot=FALSE) %>%
   reduceBaseline(method="locmin") %>%
@@ -52,7 +58,7 @@ peakPre <- region02 %>%
 
 snr = 2
 window_width = 50
-refList =  peakAnnotation$Mass_vector
+refList =  peakAnnotation$FeatureMass
 Location_pixels = as.data.frame(pData(peakPre))[,c("x","y")]
 
 peakProc <- peakPre %>%
@@ -65,7 +71,7 @@ mat_mat <- peakProc@imageData$data$intensity
 # convert to matrix then to dataframe
 my_matrix <- t(as.matrix(mat_mat))
 my_df <- data.frame(my_matrix)
-colnames(my_df) <- peakAnnotation$Name_vector
+colnames(my_df) <- peakAnnotation$Name
 
 
 # 6. Crop location coordinates  ####
@@ -73,20 +79,9 @@ colnames(my_df) <- peakAnnotation$Name_vector
 x_values <- Location_pixels$x
 y_values <- Location_pixels$y
 
-# crop at desired x value position. Edit this value for different crops
-x_values <- x_values[x_values < 140]
 
-# crop y_values accordingly
-y_values <- y_values[1:length(x_values)]
-
-# remake Location_pixels_crop dataframe
-Location_pixels_crop <- data.frame(matrix(NA, nrow = length(x_values), ncol = 0))
-
-Location_pixels_crop$x <- x_values
-Location_pixels_crop$y <- y_values
-Location_pixels_crop <- cbind(x_values, y_values)
-Location_pixels_crop <- data.frame(Location_pixels_crop)
-
+# test plot of uncropped dataframe
+Plot_channel(my_df, 5)
 
 # 7. Replace zeros with NA for entire DF ####
 df_na <- my_df
@@ -98,57 +93,7 @@ for (i in 1:ncol(my_df)){
 
 }
 
-
-# test plot of uncropped dataframe
-
-Plot_channel_drop = function(image, channel_number=4, quantile_lim = 0.99) {
-
-  Matrix_image = matrix(NA,ncol = max(Location_pixels$y), nrow=max(Location_pixels$x))
-
-  # intensity vector
-  x = image[,channel_number]
-  # get intensity value for 99th percentile most intense pixels
-  x_max = quantile(x, probs = quantile_lim)
-  # set all pixel values greater than x_max to that of x_max
-  x[x>x_max] = x_max
-  x[x == 0] <- NA
-  Matrix_image[as.matrix(Location_pixels)] = x
-  # convert matrix to image
-  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = TRUE))
-
-  # add colour channels to the image
-  Matrix_image = add.color(Matrix_image,simple = TRUE)
-
-  # set red and blue channels to zero to get only green
-  R(Matrix_image) <- 0
-  B(Matrix_image) <- 0
-  #G(Matrix_image) <- 0
-
-  plot((Matrix_image))
-
-}
-
-Plot_channel(my_df, 1)
-
-
-# 8. Crop intensity dataframe according to cropped pixel coordinates ####
-
-# initialise dataframe
-my_cropped_df <- data.frame(matrix(data = 0, nrow = length(x_values), ncol = 1))
-# crop dataframe
-for (k in 1:ncol(my_df)){
-
-  # uses df_na, the dataframe with zeros replaced by NAs so the mean isn't weighted
-  temp_channel <- my_df[,k]
-  temp_channel <- data.frame(temp_channel[1:length(x_values)])
-  my_cropped_df[,k] <- temp_channel
-
-}
-# set column names
-colnames(my_cropped_df) <- colnames(my_df)
-
-
-# 9. Calculate mean for each column ####
+# 8. Calculate mean for each column ####
 mean_vector <- c()
 for (j in 1:ncol(my_df)){
 
@@ -158,32 +103,32 @@ for (j in 1:ncol(my_df)){
 
 }
 rownames(mean_vector) <- colnames(my_df)
+mean_df["Peptide"] <- rownames(mean_df)
 colnames(mean_vector) <- region
 mean_df <- data.frame(mean_vector)
+mean_df["Peptide"] <- rownames(mean_df)
+mean_df <- mean_df[,c("Peptide", region)]
 
-# Convert to DF, add column, fill column with mean values for crop2
 
-mean_df["region14_crop2"] <- NA
+# 9. Define paths ####
 
-for (l in 1:ncol(my_cropped_df)){
-
-  temp_df <- data.frame(my_cropped_df[,l])
-  mean_df[,2][l] <- colMeans((temp_df), na.rm = TRUE)
-
+# experiment dir
+experiment_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/", sep = "")
+print(experiment_dir)
+# if directory does not exist, create it
+if( !dir.exists(experiment_dir)) {
+  dir.create(experiment_dir)
 }
 
-
-# 10. Plot image ####
-
-Plot_channel_cropped(my_cropped_df, 4)
-
-region_dir = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, sep = "")
+# region dir
+region_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/", region, sep = "")
 print(region_dir)
 # if directory does not exist, create it
 if( !dir.exists(region_dir)) {
   dir.create(region_dir)
 }
 
+# histogram dir
 hist_dir = paste(region_dir, "/", "histograms", sep = "")
 print(hist_dir)
 # if directory does not exist, create it
@@ -191,27 +136,26 @@ if( !dir.exists(hist_dir)) {
   dir.create(hist_dir)
 }
 
-# 11. Histogram ####
-for (n in 1:length(peakAnnotation$Name_vector)){
-
-  hist_path = paste(hist_dir,"/", peakAnnotation$Name_vector[n], ".png", sep = "")
-  print(hist_path)
-  png(file=hist_path, width=1200, height=700)
-  hist(log(my_df[,n]), 100, main = paste(region, peakAnnotation$Name_vector[n], sep = "_"), xlab  = "Log Intensity")
-  dev.off()
-
-}
-
-
+# image dir
 Spatial_dir = paste(region_dir, "/", "ion_images",sep = "")
 print(Spatial_dir)
-
 # if directory does not exist, create it
 if( !dir.exists(Spatial_dir)) {
   dir.create(Spatial_dir)
 }
 
-# loop for uncropped images
+# 10. Histogram ####
+for (n in 1:length(peakAnnotation$Name)){
+
+  hist_path = paste(hist_dir,"/", peakAnnotation$Name[n], ".png", sep = "")
+  print(hist_path)
+  png(file=hist_path, width=1200, height=700)
+  hist(log(my_df[,n]), 100, main = paste(region, peakAnnotation$Name[n], sep = "_"), xlab  = "Log Intensity")
+  dev.off()
+
+}
+
+# 11. Images ####
 for (n in 1:ncol(my_df)){
   Spatial_path = paste(Spatial_dir,"/",colnames(my_df)[n], ".png", sep = "")
   print(Spatial_path)
@@ -221,16 +165,17 @@ for (n in 1:ncol(my_df)){
 }
 
 
-write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
-
+# 12. Write table ####
 print(paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""))
+write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment", "/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
 
 
 
 
 
 
-# 12. Cropped workflow #### (from peakProc)
+
+# 14. Cropped workflow #### (from peakProc)
 
 image(peakProc, mz =peakAnnotation$Mass_vector[4], contrast.enhance = "histogram")
 
