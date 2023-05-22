@@ -24,7 +24,7 @@
 source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
 
 # 2. Read in data
-Path_to_imzml_file <- "/mnt/msi_volume/experiments/150523_dilution/DHB/30.imzML"
+Path_to_imzml_file <- "/mnt/msi_volume/experiments/150523_dilution/CHCA/30.imzML"
 region30 <- readMSIData(Path_to_imzml_file)
 region <- "region30"
 
@@ -36,7 +36,7 @@ region <- "region30"
 #peakAnnotation$Mass_vector <- as.numeric(peakAnnotation$Mass_vector)
 #peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$Mass_vector)
 
-Path_to_peak_annotation = "/mnt/msi_volume/panels/dilution_experiments/DHB_masslist_5pep.csv"
+Path_to_peak_annotation = "/mnt/msi_volume/panels/dilution_experiments/CHCA_masslist_5pep.csv"
 peakAnnotation = read.delim(Path_to_peak_annotation, sep=",", header=TRUE, col.names = c("Name", "FeatureMass"))
 if (is.numeric(peakAnnotation$Name) == TRUE){
   colnames(peakAnnotation) = c("FeatureMass","Name")
@@ -55,7 +55,6 @@ peakPre <- region30 %>%
 
 
 # 5. Processing to align ####
-
 snr = 2
 window_width = 50
 refList =  peakAnnotation$FeatureMass
@@ -73,15 +72,13 @@ my_matrix <- t(as.matrix(mat_mat))
 my_df <- data.frame(my_matrix)
 colnames(my_df) <- peakAnnotation$Name
 
-
 # 6. Crop location coordinates  ####
 
 x_values <- Location_pixels$x
 y_values <- Location_pixels$y
 
-
 # test plot of uncropped dataframe
-Plot_channel(my_df, 5)
+Plot_channel(my_df, 9)
 
 # 7. Replace zeros with NA for entire DF ####
 df_na <- my_df
@@ -103,7 +100,6 @@ for (j in 1:ncol(my_df)){
 
 }
 rownames(mean_vector) <- colnames(my_df)
-mean_df["Peptide"] <- rownames(mean_df)
 colnames(mean_vector) <- region
 mean_df <- data.frame(mean_vector)
 mean_df["Peptide"] <- rownames(mean_df)
@@ -113,7 +109,7 @@ mean_df <- mean_df[,c("Peptide", region)]
 # 9. Define paths ####
 
 # experiment dir
-experiment_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/", sep = "")
+experiment_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/CHCA/", sep = "")
 print(experiment_dir)
 # if directory does not exist, create it
 if( !dir.exists(experiment_dir)) {
@@ -121,7 +117,7 @@ if( !dir.exists(experiment_dir)) {
 }
 
 # region dir
-region_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/", region, sep = "")
+region_dir = paste(experiment_dir, region, sep = "")
 print(region_dir)
 # if directory does not exist, create it
 if( !dir.exists(region_dir)) {
@@ -144,14 +140,20 @@ if( !dir.exists(Spatial_dir)) {
   dir.create(Spatial_dir)
 }
 
+
 # 10. Histogram ####
 for (n in 1:length(peakAnnotation$Name)){
 
-  hist_path = paste(hist_dir,"/", peakAnnotation$Name[n], ".png", sep = "")
-  print(hist_path)
-  png(file=hist_path, width=1200, height=700)
-  hist(log(my_df[,n]), 100, main = paste(region, peakAnnotation$Name[n], sep = "_"), xlab  = "Log Intensity")
-  dev.off()
+  # skip columns that have all zeros
+  if(length(my_df[,n][my_df[,n] == 0]) == length(my_df[,n])){
+
+  }else{
+    hist_path = paste(hist_dir,"/", peakAnnotation$Name[n], ".png", sep = "")
+    print(hist_path)
+    png(file=hist_path, width=1200, height=700)
+    hist(log(my_df[,n]), 100, main = paste(region, peakAnnotation$Name[n], sep = "_"), xlab  = "Log Intensity")
+    dev.off()
+  }
 
 }
 
@@ -166,8 +168,8 @@ for (n in 1:ncol(my_df)){
 
 
 # 12. Write table ####
-print(paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""))
-write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment", "/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
+print(paste(region_dir, "/", "mean_value.txt", sep = ""))
+write.table(mean_df, file = paste(region_dir, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
 
 
 
