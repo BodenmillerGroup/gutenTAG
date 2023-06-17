@@ -1,0 +1,382 @@
+#
+
+
+# 1). Loading packages and functions ####
+{cat("Loading of the libraries....  ")
+  suppressMessages(library(Cardinal))
+  suppressMessages(library(fftw))
+  suppressMessages(library(N2R))
+  suppressMessages(library(Matrix))
+  suppressMessages(library(igraph))
+  suppressMessages(library(splus2R))
+  suppressMessages(library(EBImage))
+  suppressMessages(library(imager))
+  suppressMessages(library(FactoMineR))
+  suppressMessages(library(hexbin))
+  suppressMessages(library(matrixStats))
+  suppressMessages(library(mclust))
+  suppressMessages(library(dplyr))
+  suppressMessages(library(matter))
+  cat("... done ! \n")
+}
+
+# Load in functions from helper script
+source("/mnt/msi_volume/Rscripts/maldi-processing/code/helper_functions.R")
+
+# 2. Read in data
+Path_to_imzml_file <- "/mnt/msi_volume/experiments/150523_dilution/CHCA/30.imzML"
+region30 <- readMSIData(Path_to_imzml_file)
+region <- "region30"
+
+# 3. Create custom peakAnnotation df ####
+#Name_vector <- c("uncharged_peptide_plus1", "charged_peptide_plus1", "uncharged_peptide_plus2", "charged_peptide_plus2")
+#Mass_vector <- as.numeric(c(919.584, 961.628, 460.298, 481.335))
+#peakAnnotation <- data.frame(cbind(Name_vector, Mass_vector))
+#rownames(peakAnnotation) <- NULL
+#peakAnnotation$Mass_vector <- as.numeric(peakAnnotation$Mass_vector)
+#peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$Mass_vector)
+
+Path_to_peak_annotation = "/mnt/msi_volume/panels/dilution_experiments/CHCA_masslist_5pep.csv"
+peakAnnotation = read.delim(Path_to_peak_annotation, sep=",", header=TRUE, col.names = c("Name", "FeatureMass"))
+if (is.numeric(peakAnnotation$Name) == TRUE){
+  colnames(peakAnnotation) = c("FeatureMass","Name")
+}
+peakAnnotation = dplyr::arrange(peakAnnotation, peakAnnotation$FeatureMass)
+peakAnnotation$FeatureMass <- as.numeric(peakAnnotation$FeatureMass)
+typeof(peakAnnotation$FeatureMass)
+
+# 4. Pre-processing ####
+
+peakPre <- region30 %>%
+  Cardinal::normalize(method = "tic") %>%
+  smoothSignal(method = "gaussian", plot=FALSE) %>%
+  reduceBaseline(method="locmin") %>%
+  process(BPPARAM = MulticoreParam(workers = 4))
+
+
+# 5. Processing to align ####
+snr = 2
+window_width = 50
+refList =  peakAnnotation$FeatureMass
+Location_pixels = as.data.frame(pData(peakPre))[,c("x","y")]
+
+peakProc <- peakPre %>%
+  peakPick(method="mad", SNR = snr,window = window_width) %>%
+  peakAlign(ref = refList, tolerance = 0.2, units = "mz", method="diff") %>%
+  process()
+
+# retrieve intensity matter matrix
+mat_mat <- peakProc@imageData$data$intensity
+# convert to matrix then to dataframe
+my_matrix <- t(as.matrix(mat_mat))
+my_df <- data.frame(my_matrix)
+colnames(my_df) <- peakAnnotation$Name
+
+# 6. Crop location coordinates  ####
+
+x_values <- Location_pixels$x
+y_values <- Location_pixels$y
+
+# test plot of uncropped dataframe
+Plot_channel(my_df, 9)
+
+# 7. Replace zeros with NA for entire DF ####
+df_na <- my_df
+for (i in 1:ncol(my_df)){
+
+  temp_channel <- my_df[,i]
+  temp_channel[temp_channel == 0] <- NA
+  df_na[,i] <- temp_channel
+
+}
+
+# 8. Calculate mean for each column ####
+mean_vector <- c()
+for (j in 1:ncol(my_df)){
+
+  temp_df <- data.frame(my_df[,j])
+  temp_mean <- colMeans((temp_df), na.rm = TRUE)
+  mean_vector <- data.frame(rbind(mean_vector, temp_mean))
+
+}
+rownames(mean_vector) <- colnames(my_df)
+colnames(mean_vector) <- region
+mean_df <- data.frame(mean_vector)
+mean_df["Peptide"] <- rownames(mean_df)
+mean_df <- mean_df[,c("Peptide", region)]
+
+
+# 9. Define paths ####
+
+# experiment dir
+experiment_dir = paste("/mnt/msi_volume/processed_files/150523_dilution_experiment/CHCA/", sep = "")
+print(experiment_dir)
+# if directory does not exist, create it
+if( !dir.exists(experiment_dir)) {
+  dir.create(experiment_dir)
+}
+
+# region dir
+region_dir = paste(experiment_dir, region, sep = "")
+print(region_dir)
+# if directory does not exist, create it
+if( !dir.exists(region_dir)) {
+  dir.create(region_dir)
+}
+
+# histogram dir
+hist_dir = paste(region_dir, "/", "histograms", sep = "")
+print(hist_dir)
+# if directory does not exist, create it
+if( !dir.exists(hist_dir)) {
+  dir.create(hist_dir)
+}
+
+# image dir
+Spatial_dir = paste(region_dir, "/", "ion_images",sep = "")
+print(Spatial_dir)
+# if directory does not exist, create it
+if( !dir.exists(Spatial_dir)) {
+  dir.create(Spatial_dir)
+}
+
+
+# 10. Histogram ####
+for (n in 1:length(peakAnnotation$Name)){
+
+  # skip columns that have all zeros
+  if(length(my_df[,n][my_df[,n] == 0]) == length(my_df[,n])){
+
+  }else{
+    hist_path = paste(hist_dir,"/", peakAnnotation$Name[n], ".png", sep = "")
+    print(hist_path)
+    png(file=hist_path, width=1200, height=700)
+    hist(log(my_df[,n]), 100, main = paste(region, peakAnnotation$Name[n], sep = "_"), xlab  = "Log Intensity")
+    dev.off()
+  }
+
+}
+
+# 11. Images ####
+for (n in 1:ncol(my_df)){
+  Spatial_path = paste(Spatial_dir,"/",colnames(my_df)[n], ".png", sep = "")
+  print(Spatial_path)
+  png(file=Spatial_path, width=1200, height=700)
+  Plot_channel(my_df, n)
+  dev.off()
+}
+
+
+# 12. Write table ####
+print(paste(region_dir, "/", "mean_value.txt", sep = ""))
+write.table(mean_df, file = paste(region_dir, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
+
+
+
+
+
+
+
+# 14. Cropped workflow #### (from peakProc)
+
+image(peakProc, mz =peakAnnotation$Mass_vector[4], contrast.enhance = "histogram")
+
+crop = "crop3"
+
+# Crop location coordinates
+
+x_values <- Location_pixels$x
+y_values <- Location_pixels$y
+
+# Define x values for each crop
+
+x1 <- x_values[x_values < 140]
+
+x2 <- x_values[x_values > 180]
+x2 <- x2[x2 < 350]
+
+x3 <- x_values[x_values > 300]
+x3 <- x3[x3 < 450]
+
+x4 <- x_values[x_values > 450]
+x4 <- x4[x4 < 620]
+
+x5 <- x_values[x_values > 620]
+
+
+# crop y_values accordingly
+y1 <- y_values[1:length(x1)]
+y2 <- y_values[1:length(x2)]
+y3 <- y_values[1:length(x3)]
+y4 <- y_values[1:length(x4)]
+y5 <- y_values[1:length(x5)]
+
+# list of x and y values for each crop
+x_list <- list(x1,x2,x3,x4,x5)
+y_list <- list(y1,y2,y3,y4,y5)
+
+range(x_list[[2]])
+
+
+
+# remake Location_pixels_crop dataframe
+Location_pixels_crop <- data.frame(matrix(NA, nrow = length(x2), ncol = 0))
+
+# create cropped coordinate system
+Location_pixels_crop$x <- x2
+Location_pixels_crop$y <- y2
+#Location_pixels_crop <- cbind(x5, y5)
+Location_pixels_crop <- data.frame(Location_pixels_crop)
+
+
+# Create cropped intensity dataframe
+
+# initialise dataframe
+my_cropped_df <- data.frame(matrix(data = 0, nrow = length(x2), ncol = 1))
+# crop dataframe
+for (k in 1:ncol(my_df)){
+
+  temp_channel <- my_df[,k]
+  lenx1 <- length(x1) + 1
+  lenx1x2 <- length(x1) + length(x2)
+  temp_channel <- data.frame(temp_channel[lenx1:lenx1x2])
+  my_cropped_df[,k] <- temp_channel
+
+}
+
+# set column names
+colnames(my_cropped_df) <- colnames(my_df)
+
+Plot_channel_cropped = function(image, channel_number=4, quantile_lim = 0.99) {
+
+  Matrix_image = matrix(NA,ncol = max(Location_pixels_crop$y), nrow=max(Location_pixels_crop$x))
+
+  # intensity vector
+  x = image[,channel_number]
+  # get intensity value for 99th percentile most intense pixels
+  x_max = quantile(x, probs = quantile_lim)
+  # set all pixel values greater than x_max to that of x_max
+  x[x>x_max] = x_max
+  #x[x == 0] <- NA
+  Matrix_image[as.matrix(Location_pixels_crop)] = x
+  # convert matrix to image
+  Matrix_image = as.cimg(Matrix_image-min(Matrix_image, na.rm = TRUE))
+
+  # add colour channels to the image
+  Matrix_image = add.color(Matrix_image,simple = TRUE)
+
+  # set red and blue channels to zero to get only green
+  R(Matrix_image) <- 0
+  B(Matrix_image) <- 0
+  #G(Matrix_image) <- 0
+
+  plot((Matrix_image))
+
+}
+
+
+# test plot
+Plot_channel_cropped(my_cropped_df, 4)
+
+
+# Region path
+region_dir = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, sep = "")
+print(region_dir)
+# if directory does not exist, create it
+if( !dir.exists(region_dir)) {
+  dir.create(region_dir)
+}
+
+# Histogram path
+hist_dir = paste(region_dir, "/", "histograms", sep = "")
+print(hist_dir)
+# if directory does not exist, create it
+if( !dir.exists(hist_dir)) {
+  dir.create(hist_dir)
+}
+
+crop_dir_hist = paste(hist_dir, "/", crop, sep = "")
+print(crop_dir_hist)
+# if directory does not exist, create it
+if( !dir.exists(crop_dir_hist)) {
+  dir.create(crop_dir_hist)
+}
+
+
+# Histogram
+for (n in 1:length(peakAnnotation$Name_vector)){
+
+  crop_path = paste(crop_dir_hist,"/", peakAnnotation$Name_vector[n], ".png", sep = "")
+  print(crop_path)
+  png(file=crop_path, width=1200, height=700)
+  hist(log(my_cropped_df[,n]), 100, main = paste(region, crop, peakAnnotation$Name_vector[n], sep = "_"), xlab  = "Log Intensity")
+  dev.off()
+
+}
+
+# Image path
+Spatial_dir = paste(region_dir, "/", "ion_images",sep = "")
+print(Spatial_dir)
+
+if( !dir.exists(Spatial_dir)) {
+  dir.create(Spatial_dir)
+}
+
+crop_dir_image = paste(Spatial_dir, "/", crop, sep = "")
+print(crop_dir_image)
+if( !dir.exists(crop_dir_image)) {
+  dir.create(crop_dir_image)
+}
+
+# Cropped images
+for (n in 1:ncol(my_df)){
+  Spatial_path = paste(crop_dir_image,"/" ,colnames(my_cropped_df)[n], ".png", sep = "")
+  print(Spatial_path)
+  png(file=Spatial_path, width=1200, height=700)
+  Plot_channel_cropped(my_cropped_df, n)
+  dev.off()
+}
+
+
+
+# Replace zeros with NA f
+df_na <- my_cropped_df
+for (i in 1:ncol(my_cropped_df)){
+
+  temp_channel <- my_cropped_df[,i]
+  temp_channel[temp_channel == 0] <- NA
+  df_na[,i] <- temp_channel
+
+}
+
+#  Calculate mean for each column
+mean_vector <- c()
+for (j in 1:ncol(my_cropped_df)){
+
+  temp_df <- data.frame(my_cropped_df[,j])
+  temp_mean <- colMeans((temp_df), na.rm = TRUE)
+  mean_vector <- data.frame(rbind(mean_vector, temp_mean))
+
+}
+rownames(mean_vector) <- colnames(my_df)
+colnames(mean_vector) <- crop
+mean_df <- data.frame(mean_vector)
+
+
+# Convert to DF, add column, fill column with mean values for crop2
+
+mean_df[crop] <- NA
+
+for (l in 1:ncol(my_cropped_df)){
+
+  temp_df <- data.frame(my_cropped_df[,l])
+  mean_df[,5][l] <- colMeans((temp_df), na.rm = TRUE)
+
+}
+
+mean_df["rownames"] <- colnames(my_df)
+mean_df <- mean_df %>% relocate(rownames)
+
+
+write.table(mean_df, file = paste("/mnt/msi_volume/processed_files/dilution_experiment/", region, "/", "mean_value.txt", sep = ""), sep="\t", quote = FALSE, row.names = FALSE)
+
