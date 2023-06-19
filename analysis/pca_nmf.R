@@ -68,7 +68,7 @@ ggsave(filename = "scree_plot.png",
 Plot_channel(image = PCA_simple$x, channel_number = 3)
 
 # plot the inverse of the principal components
-Plot_channel(image = -PCA_simple$x, channel_number = 1)
+Plot_channel(image = -PCA_simple$x, channel_number = 4)
 
 PCA_df <- data.frame(PCA_simple$x)
 

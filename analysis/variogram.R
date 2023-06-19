@@ -1,8 +1,10 @@
+{
 library(spatial)
 library(gstat)
 library(spatstat)
 library(sp)
 library(ggplot2)
+}
 
 # 1. Construct Variogram function ####
 constructVariogram <- function(df = Final_intensity_matrix_targeted, coords = Location_pixels){
@@ -40,11 +42,10 @@ constructVariogram <- function(df = Final_intensity_matrix_targeted, coords = Lo
 }
 
 
-
 # Apply function to Final Intensity Matrix
 vgrams <- constructVariogram(df = Final_intensity_matrix_targeted, coords = Location_pixels)
 
-names <- colnames(Final_intensity_matrix_targeted)
+names <- unique(colnames(Final_intensity_matrix_targeted))
 
 # Specify an initial model to which you fit the sample variogram
 initial_model <- vgm(psill = 100, model = "Exp", range = 25, nugget = 10)
@@ -111,7 +112,6 @@ distances <- gamma_df["dist"]
 gamma_df <- gamma_df[-1]
 colnames(gamma_df) <- names
 gamma_df <- bind_cols(distances, gamma_df)
-
 
 
 #ggplot(data = vgram_df) +

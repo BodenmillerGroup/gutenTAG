@@ -1,6 +1,8 @@
 # Step 1: Install and load the necessary libraries ####
+{
 library(umap)
 library(ggplot2)
+}
 
 # Step 2: Load the MALDI-imaging data into a data frame ####
 data <- Final_intensity_matrix_targeted
@@ -30,7 +32,7 @@ norm_umap_intensity_df <- data.frame(do.call(cbind, c(umap_df, norm_intensity)))
 
 # plot individual UMAP with intensity overlay
 ggplot(norm_umap_intensity_df) +
-  geom_point(aes(x = UMAP1, y = UMAP2, color = CD98), alpha = 0.6) +
+  geom_point(aes(x = UMAP1, y = UMAP2, color = VIM), alpha = 0.6) +
   scale_color_viridis_c() +
   theme_minimal() +
   theme(legend.position = "right") +
