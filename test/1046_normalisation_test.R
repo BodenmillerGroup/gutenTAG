@@ -101,8 +101,8 @@ for(a in seq_along(peakAnnotation$Name)){
     new_string <- gsub("/", "", peakAnnotation$Name[a])
     peakAnnotation$Name[a] <- new_string
   }
-  
-  
+
+
 }
 
 
@@ -116,19 +116,7 @@ peakPre <- rawFile %>%
   process(BPPARAM = MulticoreParam(workers = 4))
 cat("...done ! \n")
 
-
-peakPre
 image_1046 <- iData(peakPre_1046)
-
-pixels <- pData(peakPre)
-image <- iData(peakPre)
-
-plot(peakPre, pixel = 240, xlim = c(1040, 1050))
-
-View(head(image))
-
-spectra(peakPre)
-
 index_1046 <- features(peakPre, mz = 1046)
 
 # Find the feature corresponding to 1046
@@ -140,13 +128,12 @@ pixel_intensities_1046 <- image[index_1046, ]
 # Sanity check
 length(image[index_1046, ])
 
-# 
+#
 range(pixel_intensities_1046)
 max(pixel_intensities_1046)
 
 
 # Test: average all intensity values from 1046 to 1047 and normalise by this
-
 
 # Find indices of features between 1046 and 1047
 index_in_range <- features(peakPre, 1046 < mz & mz < 1047)
@@ -168,16 +155,16 @@ image_1046_norm <- image/max_1046
 
 # Function for 1046 normalisation ####
 referenceNorm <- function(x){
-  
+
   image <- iData(x)
   index_in_range <- features(x, 1046 < mz & mz < 1047)
   pixel_intensity_range <- image[index_in_range, ]
   avg_intensity_1046 <- colSums(pixel_intensity_range) / nrow(pixel_intensity_range)
   max_1046 <- max(avg_intensity_1046)
   image_1046_norm <- image / max_1046
-  
+
   return(image_1046_norm)
-  
+
 }
 
 peakPre_norm <- referenceNorm(peakPre)
@@ -187,8 +174,8 @@ peakPre_norm <- MSContinuousImagingSpectraList(peakPre_norm)
 fdata <- featureData(peakPre)
 pdata <- pixelData(peakPre)
 
-peakPre_1046 <- MSImagingExperiment(imageData = peakPre_norm, 
-                    featureData = fdata, 
+peakPre_1046 <- MSImagingExperiment(imageData = peakPre_norm,
+                    featureData = fdata,
                     pixelData = pdata)
 
 Cardinal::image(peakPre_1046, mz = 1000)
