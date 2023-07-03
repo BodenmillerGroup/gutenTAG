@@ -105,6 +105,21 @@ metapeakGeneration <- function(x){
                                    c(mz_vector$mz[as.numeric(propagation_selection) == k][beginning_peak],
                                      mz_vector$mz[as.numeric(propagation_selection) == k][end_peak]))
   }
+
+  # replace NA values in metapeak_delimitation with values 1mz lower or higher than the value that exists
+  for (i in 1:nrow(metapeak_delimitation)){
+
+    if(is.na(metapeak_delimitation[i, 1])){
+      metapeak_delimitation[i, 1] <- metapeak_delimitation[i, 2] - 1
+    }
+
+    if(is.na(metapeak_delimitation[i, 2])){
+      metapeak_delimitation[i, 2] <- metapeak_delimitation[i, 1] + 1
+    }
+
+  }
+
+
   # width of each peak
   metapeak_width <- metapeak_delimitation[, 2] - metapeak_delimitation[, 1]
   # width of each peak on m/z scale
@@ -179,8 +194,30 @@ getIntensityDF <- function(x, refList, pre, mz_threshold = 1){
   colnames(final_intensity_targeted) <- correspondence_matrix$Annotation_peaks[!is.na(correspondence_matrix$Annotation_peaks)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
-  return(correspondence_matrix, final_intensity_targeted)
+  return(list(CorrespondenceMatrix = correspondence_matrix,
+              IntensityDF = final_intensity_targeted))
 
 }
 
-getIntensityDF(x = test2, refList = peakAnnotation, pre = peakPre)
+test3 <- getIntensityDF(x = test2,
+                        refList = peakAnnotation,
+                        pre = peakPre)
+
+maldiProcessing <- function(x){
+
+  # 1. Peak detection
+  detected_peaks <- peakDetection(x)
+  # 2. Generate metapeaks
+  metapeaks <- metapeakGeneration(detected_peaks)
+  # 3. Generate final intensity df, correspondence matrix and store pre-processed data
+  processed_data <- getIntensityDF(metapeaks, peakAnnotation, x)
+
+  return(processed_data)
+
+
+}
+
+processed <- maldiProcessing(peakPre)
+
+
+

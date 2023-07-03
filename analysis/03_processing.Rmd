@@ -9,6 +9,25 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+0. Load packages 
+ 
+```{r Load packages, include=FALSE}
+  suppressMessages(library(Cardinal))
+  suppressMessages(library(fftw))
+  suppressMessages(library(N2R))
+  suppressMessages(library(Matrix))
+  suppressMessages(library(igraph))
+  suppressMessages(library(splus2R))
+  suppressMessages(library(EBImage))
+  suppressMessages(library(imager))
+  suppressMessages(library(FactoMineR))
+  suppressMessages(library(hexbin))
+  suppressMessages(library(matrixStats))
+  suppressMessages(library(mclust))
+  suppressMessages(library(dplyr))
+  suppressMessages(library(matter))
+```
+
 1. Get pre-processed intensity matrix
 
 ```{r Raw intensity}
