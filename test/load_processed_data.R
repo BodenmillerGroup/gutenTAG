@@ -15,3 +15,4 @@ Final_intensity_matrix_targeted <- as.data.frame(Final_intensity_matrix_targeted
 # Import Location Data
 path_to_coords <- "//mnt/msi_volume/processed_files/JuneforJohn/menzha_20230526_54242_melanoma-50um/_location_data.txt"
 Location_data <- read.delim(path_to_coords, sep="\t", header=TRUE)
+

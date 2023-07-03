@@ -1,0 +1,190 @@
+---
+title: "03_peak_detection"
+author: "John Abbey"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Get pre-processed intensity matrix
+
+```{r Raw intensity}
+raw_intensity <- iData(peakPre)
+```
+
+2. Get important dataset parameters.
+
+```{r Parameter get}
+range_peaks <- range(mz(peakPre))
+n_features <- length(mz(peakPre))
+n_pixels <- dim(peakPre)["Pixels"]
+threshold_detection <- n_pixels*0.01
+mz_vector <- as.data.frame(mz(peakPre))
+location_pixels <- as.data.frame(pData(peakPre))[, c("x","y")]
+```
+
+3. Peak picking uses the cardinal peakPick function using median adaptive deviation, a SNR of 2 and a window with of 50mz.
+
+```{r Peak picking}
+list_peaks <- Cardinal::peakPick(peakPre, method = "mad", SNR = 2, window = 50) %>%
+  process()
+```
+
+4. Obtain counts for each peak
+
+```{r Obtain counts for each peak}
+
+list_peaks <- peakData(list_peaks)[["mz"]]
+n_peak_per_pixel <- unlist(lapply(list_peaks, FUN = length))
+
+# unlist and order peaks
+unlist_peaks <- unlist(list_peaks)
+unlist_peaks_ordered <- unlist_peaks[order(unlist_peaks)]
+
+# get peak frequencies
+freq_peak_ordered <- table(factor(unlist_peaks_ordered, levels = mz_vector$mz))
+freq_peak_ordered <- as.numeric(freq_peak_ordered)
+```
+
+5. Smooth over peak counts
+
+```{r Smooth over peak counts }
+# avg distance between features
+mz_index_ratio <- (max(mz_vector$mz) - min(mz_vector$mz)) / n_features
+# inverse of this ratio
+sigma_smoothing_isotopic <- 1 / mz_index_ratio
+# number of mz values centered around zero
+list_values <- seq(-n_features / 2, n_features / 2, length.out = n_features)
+# create the Gaussian for convolution
+gaussian_vector <- exp(-list_values^2 / sigma_smoothing_isotopic^2)
+
+# convolve peak frequencies with Gaussian vector
+freq_peak_ordered_smooth <- stats::convolve(y = gaussian_vector, x = freq_peak_ordered, conj = TRUE)
+# counts of rescaled ordered smooth peaks
+freq_peak_ordered_smooth <- freq_peak_ordered_smooth[c((n_features / 2):n_features, 1:(n_features/2 - 1))]
+```
+
+6. Set count values below the threshold to zero
+
+```{r Set count values below the threshold to zero}
+freq_peak_smooth_thresholded <- freq_peak_ordered_smooth
+freq_peak_smooth_thresholded[freq_peak_smooth_thresholded < threshold_detection] <- 0
+```
+
+7. Get metapeaks and their parameters
+
+```{r  Get metapeaks and their parameters}
+span_local_maxima <- 3 / mz_index_ratio
+# round up to nearest odd value
+local_maxima_peak_freq <- base::which(find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima))
+# flattened
+local_maxima_peak_freq_reshaped <- matrix(rep(0, length(freq_peak_ordered)), ncol = 1)
+local_maxima_peak_freq_reshaped[local_maxima_peak_freq] <- 1:length(local_maxima_peak_freq)
+
+freq_peak_smooth_thresholded <- matrix(freq_peak_smooth_thresholded, ncol = 1)
+
+# this is the metapeak selection step
+propagation_selection <- propagate(freq_peak_smooth_thresholded, 
+                                   seeds = local_maxima_peak_freq_reshaped, 
+                                   mask = freq_peak_smooth_thresholded > threshold_detection)
+
+metapeak_location <- aggregate.data.frame(data.frame(Location = mz_vector$mz, 
+                                                     Freq = freq_peak_ordered),
+                                         by = list(as.numeric(propagation_selection)), 
+                                         FUN = function(x) {sum(x[[1]]*x[[2]]) / sum(x[[2]])})
+metapeak_center <- c()
+metapeak_max <- c()
+metapeak_delimitation <- c()
+for (k in 1:max(propagation_selection)) {
+  # Looking for weighted mean
+  location_centered_temp <- weighted.mean(x = mz_vector$mz[as.numeric(propagation_selection) == k],
+                                         w = freq_peak_ordered[as.numeric(propagation_selection) == k] )
+  # vector of centered peak locations
+  metapeak_center <- c(metapeak_center, location_centered_temp)
+
+  location_max_temp <- (mz_vector$mz[as.numeric(propagation_selection) == k])[which.max(freq_peak_ordered[as.numeric(propagation_selection) == k])]
+  # vector of peak maximimum locations
+  metapeak_max <- c(metapeak_max, location_max_temp)
+
+  cumsum_freq <- (cumsum(freq_peak_ordered[as.numeric(propagation_selection) == k]) / sum(freq_peak_ordered[as.numeric(propagation_selection) == k]))
+
+  beginning_peak <- max(which(cumsum_freq < 0.01))
+  end_peak <- min(which(cumsum_freq > 0.99))
+  if (is.infinite(beginning_peak)) {
+    Beginning_peak = 1
+  }
+  # beginning and end of peak location
+  metapeak_delimitation <- rbind(metapeak_delimitation, 
+                                 c(mz_vector$mz[as.numeric(propagation_selection) == k][beginning_peak], 
+                                   mz_vector$mz[as.numeric(propagation_selection) == k][end_peak]))
+}
+# width of each peak
+metapeak_width <- metapeak_delimitation[, 2] - metapeak_delimitation[, 1]
+# width of each peak on m/z scale
+metapeak_width <- metapeak_width * mz_index_ratio
+cat("...done ! \n")
+```
+
+8. Generate correspondence matrix
+
+```{r Generate correspondence matrix}
+mapping_meta <- crossKnn(mA = matrix(metapeak_max, ncol = 1),
+                        mB= matrix(peakAnnotation_extended$Location, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
+mz_threshold_association <- 1
+# remove all mappings below the m/z distance association threshold
+mapping_meta[mapping_meta > mz_threshold_association] <- 0
+mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = which_max_modified)
+
+associated_marker <- c()
+for (k in 1:length(metapeak_max)) {
+  selected_mz_location <- range(mz_vector$mz[as.numeric(propagation_selection) == k])
+  annotation_assigned <- peakAnnotation_extended$FeatureAnnotation[peakAnnotation_extended$Location > selected_mz_location[1] & peakAnnotation_extended$Location < selected_mz_location[2]]
+  if (length(annotation_assigned) == 0){
+    annotation_assigned = NA
+  }
+  if (length(annotation_assigned) > 1){
+    annotation_assigned = paste(annotation_assigned, collapse="__OR__")
+  }
+  associated_marker <- c(associated_marker, annotation_assigned)
+}
+
+correspondence_matrix <- data.frame(mz_location = metapeak_max,
+                                   Expected_mz_location = peakAnnotation_extended$Location[mapping_meta_cleaned],
+                                   Annotation_peaks = peakAnnotation_extended$FeatureAnnotation[mapping_meta_cleaned])
+rownames(peakAnnotation_extended) <- peakAnnotation_extended$FeatureAnnotation
+
+```
+
+9. Generate the Final Intensity DF
+
+```{r Generate Final Intensity DF}
+final_intensity <- c()
+for (k in 1:nrow(Correspondence_matrix)) {
+  # which mz locations are inside the peak (boolean)
+  selected_mz_location = mz_vector$mz >= metapeak_delimitation[k,1] & mz_vector$mz <= metapeak_delimitation[k,2]
+  # those mz values
+  mz_vector$mz[which(selected_mz_location == TRUE)]
+  if (sum(selected_mz_location) > 1) {
+    intensity_temp = colSums(raw_intensity[selected_mz_location, ])
+  }
+  # if there is only one mz location, the intensity list is only the intensity values of the one mz location
+  if (sum(selected_mz_location) == 1) {
+    intensity_temp = (raw_intensity[selected_mz_location, ])
+  }
+  #intensity_temp = Correspondence_matrix$Annotation_peaks[k]
+  final_intensity = cbind(final_intensity, intensity_temp)
+
+}
+cat("...done ! \n")
+
+### DEV: GMM analysis on Final intensity matrix
+
+# which of the metapeaks in the final intensity matrix are annotated peaks
+final_intensity_targeted <- final_intensity[, !is.na(Correspondence_matrix$Annotation_peaks)]
+colnames(final_intensity_targeted) <- correspondence_matrix$Annotation_peaks[!is.na(correspondence_matrix$Annotation_peaks)]
+final_intensity_targeted <- as.data.frame(final_intensity_targeted)
+
+```

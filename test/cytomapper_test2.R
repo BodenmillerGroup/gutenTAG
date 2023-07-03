@@ -22,8 +22,10 @@ my_array <- do.call(abind, list(matrix_list, along = 3))
 my_image <- Image(my_array)
 # Create CytoImageList object from image
 my_image <- CytoImageList(my_image)
-# Assign channel names
+# Assign image and channel names
+names(my_image) <- "test"
 channelNames(my_image) <- colnames(Final_intensity_matrix_targeted)
+
 
 # 3. Plot pixels ####
 
@@ -35,5 +37,9 @@ plotPixels(my_image,
 
 plotPixels(my_image, colour_by = c("PR.AB", "CK5", "Cytokeratin7"),
            colour = list(PR.AB = c("black", "red"), CK5  = c("black", "cyan"), Cytokeratin7 = c("black", "green")))
+
+# 4. Cytoviewer ####
+
+cytoviewer(image = my_image)
 
 
