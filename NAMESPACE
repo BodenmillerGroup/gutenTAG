@@ -2,4 +2,7 @@
 
 export(getIntensityDF)
 export(metapeakGeneration)
+export(nmf)
+export(pca)
 export(peakDetection)
+export(umap)
