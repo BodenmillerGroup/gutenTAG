@@ -4,7 +4,7 @@
 \alias{umap}
 \title{Uniform Manifold Approximate Projection (UMAP)}
 \usage{
-umap(x)
+umap(x, plot = FALSE)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
