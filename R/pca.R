@@ -10,22 +10,46 @@
 #'
 #' @examples
 #' pca(IntensityDF, comp = 5)
+
 pca <- function(x, comp = 5, scree = FALSE, plot = FALSE){
 
   library(irlba)
 
-  PCA <- prcomp_irlba(x, n = comp)
+  PCA <- prcomp_irlba(x, n = comp, scale. = TRUE)
 
   if (scree == TRUE){
 
-    PCA_variance <- data.frame(Variation_Explained = (PCA$sdev)^2 / PCA$totalvar * 100,
-                               Component = colnames(PCA$x))
+    library(ggplot2)
 
-    ggplot(data = PCA_variance, aes(x = as.factor(Component), y = Variation_Explained, fill = Component)) +
+    PCA_variance <- data.frame(Variation_Explained = (PCA$sdev)^2 / sum((PCA$sdev)^2) * 100,
+                               Component = 1:comp)
+
+    scree_plot <- ggplot(data = PCA_variance, aes(x = as.factor(Component), y = Variation_Explained, fill = as.factor(Component))) +
       geom_bar(stat = "identity") +
-      labs(title = "Scree Plot", x = "", y = "Variance Explained") +
-      scale_y_continuous(limit = c(0, 100))
+      labs(title = "Scree Plot", x = "Component", y = "Variance Explained (%)") +
+      scale_y_continuous(limits = c(0, 100)) +
+      theme(legend.position = "none")
+    print(scree_plot)
+
   }
 
+  if (plot == TRUE){
+
+    library(ggplot2)
+
+    PCA_data <- data.frame(PCA$x)
+
+    scatter_plot <- ggplot(data = PCA_data, aes(x = PC1, y = PC2)) +
+      geom_point() +
+      labs(title = "Scatter plot of first two principal components", x = "PC1", y = "PC2")
+    print(scatter_plot)
+  }
+
+  return(PCA)
+
 }
+
+
+
+
 
