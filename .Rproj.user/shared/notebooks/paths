@@ -1,6 +1,7 @@
 /home/ubuntu/Rscripts/maldi-processing/.gitignore="16A65C55"
 /home/ubuntu/Rscripts/maldi-processing/DESCRIPTION="8667E29E"
 /home/ubuntu/Rscripts/maldi-processing/NAMESPACE="87FDDE45"
+/home/ubuntu/Rscripts/maldi-processing/R/constructVariogram.R="855B198F"
 /home/ubuntu/Rscripts/maldi-processing/R/getIntensityDF.R="29862845"
 /home/ubuntu/Rscripts/maldi-processing/R/imageChannel.R="6D52E3B7"
 /home/ubuntu/Rscripts/maldi-processing/R/metapeakGeneration.R="E7B8EF2D"
