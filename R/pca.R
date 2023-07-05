@@ -5,20 +5,22 @@
 #' @param scree Plot scree plot (bool)
 #' @param plot Scatter plot of first two principal components (bool)
 #'
-#' @return A PCA 
+#' @return A PCA
 #' @export
 #'
 #' @examples
 #' pca(IntensityDF, comp = 5)
 pca <- function(x, comp = 5, scree = FALSE, plot = FALSE){
-  
-  PCA <- prcomp_irlba(Final_intensity_matrix_targeted, n = comp)
-  
+
+  library(irlba)
+
+  PCA <- prcomp_irlba(x, n = comp)
+
   if (scree == TRUE){
-    
-    PCA_variance <- data.frame(Variation_Explained = (PCA_simple$sdev)^2 / PCA_simple$totalvar * 100,
-                               Component = colnames(PCA_simple$x))
-    
+
+    PCA_variance <- data.frame(Variation_Explained = (PCA$sdev)^2 / PCA$totalvar * 100,
+                               Component = colnames(PCA$x))
+
     ggplot(data = PCA_variance, aes(x = as.factor(Component), y = Variation_Explained, fill = Component)) +
       geom_bar(stat = "identity") +
       labs(title = "Scree Plot", x = "", y = "Variance Explained") +

@@ -4,7 +4,7 @@
 \alias{metapeakGeneration}
 \title{Metapeak Generation}
 \usage{
-metapeakGeneration(x)
+metapeakGeneration(x, threshold = 0.01)
 }
 \arguments{
 \item{x}{A Cardinal MSImagingExperiment object after peak detection is performed.}

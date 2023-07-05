@@ -22,12 +22,13 @@
 #' @examples
 #' metapeakGeneration(list_peaks)
 
-metapeakGeneration <- function(x){
+metapeakGeneration <- function(x, threshold = 0.01){
 
   # 0. Set parameters
   mz_vector <- as.data.frame(mz(x))
+  n_pixels <- dim(x)["Pixels"]
   n_features <- length(mz(x))
-  threshold_detection <- n_pixels*0.01
+  threshold_detection <- n_pixels * threshold
 
   # i. Get ordered counts
   list_peaks <- peakData(x)[["mz"]]
@@ -125,6 +126,6 @@ metapeakGeneration <- function(x){
                     width = metapeak_width,
                     limits = metapeak_delimitation)
 
-  return(metapeaks)
+  return(list(metapeaks = metapeaks, propagation_selection = propagation_selection))
 
 }

@@ -5,5 +5,5 @@
             "ascending": true
         }
     ],
-    "path": "/mnt/msi_volume/Rscripts/maldi-processing/analysis"
+    "path": "~/Rscripts/maldi-processing/R"
 }

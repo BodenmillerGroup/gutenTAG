@@ -18,6 +18,11 @@ getIntensityDF <- function(x, refList, pre, mz_threshold = 1){
   colnames(mz_vector) <- "mz"
   raw_intensity <- iData(pre)
 
+  # extract metepeaks and propagation_selection from x
+  x <- x$metapeaks
+  propagation_selection <- x$propagation_selection
+
+
   mapping_meta <- crossKnn(mA = matrix(x$max),
                            mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
 
@@ -64,8 +69,8 @@ getIntensityDF <- function(x, refList, pre, mz_threshold = 1){
 
 
   # which of the metapeaks in the final intensity matrix are annotated peaks
-  final_intensity_targeted <- final_intensity[, !is.na(correspondence_matrix$Annotation_peaks)]
-  colnames(final_intensity_targeted) <- correspondence_matrix$Annotation_peaks[!is.na(correspondence_matrix$Annotation_peaks)]
+  final_intensity_targeted <- final_intensity[, !is.na(correspondence_matrix$annotation_peaks)]
+  colnames(final_intensity_targeted) <- correspondence_matrix$annotation_peaks[!is.na(correspondence_matrix$annotation_peaks)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
   return(list(CorrespondenceMatrix = correspondence_matrix,

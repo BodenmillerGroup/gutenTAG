@@ -6,11 +6,14 @@
 #' @export
 #'
 #' @examples
+#' umap(IntensityDF)
 
 umap <- function(x){
 
-  umap_representation <- umap(data)
+  umap_representation <- umap(x)
 
   return(umap_representation)
 
 }
+
+

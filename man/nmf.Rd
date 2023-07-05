@@ -4,7 +4,7 @@
 \alias{nmf}
 \title{Non-negative matrix factorisation}
 \usage{
-nmf(x, comp, cntr = FALSE)
+nmf(x, comp)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}

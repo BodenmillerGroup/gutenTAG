@@ -10,8 +10,8 @@
 #' @examples
 #' nmf(x = IntensityDF, comp = 5)
 
-nmf <- function(x, comp, cntr = FALSE){
+nmf <- function(x, comp){
 
-  nmf_temp = nmf(scale(Final_intensity_matrix_targeted, center = cntr), k = comp)
+  nmf_temp <- nmf(scale(x, center = FALSE), k = 5)
 
 }
