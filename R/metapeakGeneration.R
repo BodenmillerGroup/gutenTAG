@@ -56,7 +56,7 @@ metapeakGeneration <- function(x, threshold = 0.01){
 
   # iv. Generate metapeaks
   span_local_maxima <- 3 / mz_index_ratio
-  local_maxima_peak_freq <- base::which(find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima))
+  local_maxima_peak_freq <- base::which(.find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima))
 
   local_maxima_peak_freq_reshaped <- matrix(rep(0, length(freq_peak_ordered)), ncol = 1)
   local_maxima_peak_freq_reshaped[local_maxima_peak_freq] <- 1:length(local_maxima_peak_freq)

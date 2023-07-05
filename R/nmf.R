@@ -12,6 +12,10 @@
 
 nmf <- function(x, comp){
 
-  nmf_temp <- nmf(scale(x, center = FALSE), k = 5)
+  library(RcppML)
+
+  nmf_temp <- RcppML::nmf(scale(x, center = FALSE), k = comp)
 
 }
+
+
