@@ -51,6 +51,9 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix <- data.frame(mz_location = x$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
+
+
+
   rownames(refList) <- refList$Name
 
 
@@ -72,13 +75,28 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
 
   }
 
+  # Summary statistics and expand correspondence matrix
+  mean_intensity <- colMeans(final_intensity)
+  sd_intensity <- apply(final_intensity, MARGIN = 2, FUN = sd)
+  corrected_sd <- lm(log(sd_intensity) ~ log(mean_intensity))
 
-  # which of the metapeaks in the final intensity matrix are annotated peaks
+  correspondence_matrix$corrected_sd <- corrected_sd$residuals
+  correspondence_matrix$peak_width <- x$metapeaks$width
+
+  # Total signal of each peak
+  total_signal <- colSums(raw_intensity)
+
+  # correlation between the marker intensity and total raw signal intensity
+  total_signal_correlation <- apply(Final_intensity_matrix, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
+  correspondence_matrix$total_signal_correlation <- total_signal_correlation^2
+
+
+  # Annotated metapeaks only
   final_intensity_targeted <- final_intensity[, !is.na(correspondence_matrix$marker)]
   colnames(final_intensity_targeted) <- correspondence_matrix$marker[!is.na(correspondence_matrix$marker)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
-  # remove all unannotated peaks
+  # Remove all u-nannotated peaks from correspondence matrix
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
