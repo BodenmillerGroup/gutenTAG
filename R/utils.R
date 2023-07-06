@@ -210,7 +210,7 @@
 }
 
 
-# Otsu thresholding ####
+# One dimensional otsu thresholding  ####
 
 .otsu_thresholding = function(x, number_bins = 100) {
 

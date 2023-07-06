@@ -18,6 +18,7 @@
 ~%2FRscripts%2Fmaldi-processing%2F.gitignore="2838AB80"
 ~%2FRscripts%2Fmaldi-processing%2FDESCRIPTION="925ACEBF"
 ~%2FRscripts%2Fmaldi-processing%2FNAMESPACE="0AEA70A5"
+~%2FRscripts%2Fmaldi-processing%2FR%2FcomputeGMM.R="6B945EC0"
 ~%2FRscripts%2Fmaldi-processing%2FR%2FconstructGearysC.R="8C1B5123"
 ~%2FRscripts%2Fmaldi-processing%2FR%2FconstructVariogram.R="D72F3F00"
 ~%2FRscripts%2Fmaldi-processing%2FR%2FgetIntensityDF.R="3AAB4D7B"
@@ -35,3 +36,5 @@
 ~%2FRscripts%2Fold_folder%2Fpca_nmf.R="55A71F1E"
 ~%2FRscripts%2Fold_folder%2Fumap_initial.R="06B08478"
 ~%2FRscripts%2Fold_folder%2Fvariogram.R="9B021EC1"
+~%2FSingle_cell_analysis_2.Rmd="A9CE639B"
+~%2Fseb_project%2FSingle_cell_analysis_2.Rmd="D7272655"
