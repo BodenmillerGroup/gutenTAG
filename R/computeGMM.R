@@ -1,4 +1,4 @@
-constructGMM <- function(x, hist = FALSE){
+computeGMM <- function(x, hist = FALSE){
 
   targeted_intensity <- x$IntensityDF
   untargeted_intensity <- x$Untargeted$UntargetedIntensity
@@ -20,16 +20,19 @@ constructGMM <- function(x, hist = FALSE){
   # need to run this outside the pdf so that variables are saved
   for (k in 1:ncol(targeted_intensity)) {
 
-    # testing whether or not to threshold
+    # threshold on otsu threshold of TIC
     x <- targeted_intensity[, k][tic_intensity > tic_threshold]
-    #x <- x[, k]
+
+    # no thresholding
+    ##x <- targeted_intensity[, k]
 
     # remove zeros
     x <- x[x > 0]
 
     # optimal number of Gaussians
-    ICL_score <- mclust::mclustICL(data = log10(1 + x), G = 1:5, modelNames = c("V"))
-    ICL_score <- c(ICL_score[[1]], ICL_score[[2]], ICL_score[[3]], ICL_score[[4]], ICL_score[[5]])
+    ICL_score <- mclust::mclustICL(data = log10(1 + x), G = 1:2, modelNames = c("V"))
+    ICL_score <- c(ICL_score[[1]], ICL_score[[2]])
+    #ICL_score <- c(ICL_score[[1]], ICL_score[[2]], ICL_score[[3]], ICL_score[[4]], ICL_score[[5]])
 
     N_gaussian_curves <- as.numeric(which.max((ICL_score)))
     gmm_model <- Mclust(data = log10(1 + x), G = N_gaussian_curves, modelNames = "V")
@@ -103,75 +106,3 @@ constructGMM <- function(x, hist = FALSE){
 
 }
 
-
-columns = c("MarkerID","SeparationScore", "PositivePixels", "MeanNoiseIntensity", "MeanSignalIntensity") # , "SNR")
-gmmTable = data.frame(matrix(nrow = 0, ncol = length(columns)))
-colnames(gmmTable) = columns
-markerID = colnames(Final_intensity_matrix_targeted)
-
-# need to run this outside the pdf so that variables are saved
-for (k in 1:ncol(Final_intensity_matrix_targeted)) {
-  # remove pixels below the TIC threshold
-  x <- Final_intensity_matrix_targeted[, k][ticSummary > TIC_threshold]
-
-  # keep all pixels
-  x <- Final_intensity_matrix_targeted[, k]
-  # remove pixels with value zero
-  x <- x[x > 0]
-
-  # optimal number of Gaussians
-  ICL_score <- mclust::mclustICL(data = log10(1 + x), G = 1:5, modelNames = c("V"))
-  ICL_score <- c(ICL_score[[1]], ICL_score[[2]], ICL_score[[3]], ICL_score[[4]], ICL_score[[5]])
-
-  # run GMM
-  N_gaussian_curves <- as.numeric(which.max((ICL_score)))
-  #N_gaussian_curves = 2
-  GMM_model <- Mclust(data = log10(1 + x), G = N_gaussian_curves, modelNames = "V")
-
-  # get density as data frame and max density for plotting
-  density <- densityMclust(x, plot = FALSE) # same as Mclust but has additional parameter density
-  #density = densityMclust(GMM_model$data, plot = F) # same as Mclust but has additional parameter density
-  density <- data.frame(density[17]) # convert to dataframe to get max value
-  maxDensity <- max(density)
-
-  # Define separability score
-
-  # compute mean of each Gaussian
-  mean1 <- GMM_model$parameters$mean[1]
-  mean2 <- GMM_model$parameters$mean[2]
-
-  # compute standard deviation of each Gaussian
-  sd1 <- sqrt(GMM_model$parameters$variance$sigmasq[1])
-  sd2 <- sqrt(GMM_model$parameters$variance$sigmasq[2])
-
-  # calculate separation score
-  meanDiff <- abs(mean1 - mean2)
-  SNR <- mean2 / mean1
-
-  # proportion positive pixels
-  positivePixels <- length(which(GMM_model$classification == 2))
-  proportionPositive <- positivePixels / length(GMM_model$classification)
-  pi2 <- proportionPositive
-  pi1 <- 1 - pi2
-
-  denominator <- sqrt((sd1^2 / pi1) + (sd2^2 / pi2))
-  separationScore <- meanDiff / denominator
-
-  # Create table for export
-
-  # add markerID and separation score to dataframe
-  gmmTable[k, 1] <- as.character(markerID[k])
-  gmmTable[k, 2] <- separationScore
-  gmmTable[k, 3] <- proportionPositive
-  gmmTable[k, 4] <- mean1
-  gmmTable[k, 5] <- mean2
-  #exportTable[k,6] = SNR
-
-}
-
-# merge separation score with Mean_peak_intensity table
-#exportTable = cbind(test_MeanVarIntensity, exportTable)
-
-# relocate marker name to first column
-gmmTable <- gmmTable %>% relocate(MarkerID)
-gmmTable[is.na(gmmTable)] <- 0
