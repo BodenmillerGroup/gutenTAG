@@ -28,12 +28,12 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   propagation_selection <- x$propagation_selection
 
   # Map metapeaks to panel
-  mapping_meta <- crossKnn(mA = matrix(x$max),
+  mapping_meta <- N2R::crossKnn(mA = matrix(x$max),
                            mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
-  mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = which_max_modified)
+  mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_max_modified)
 
   associated_marker <- c()
   for (k in 1:length(x$max)) {
@@ -87,7 +87,7 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   total_signal <- colSums(raw_intensity)
 
   # correlation between the marker intensity and total raw signal intensity
-  total_signal_correlation <- apply(Final_intensity_matrix, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
+  total_signal_correlation <- apply(final_intensity, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
   correspondence_matrix$total_signal_correlation <- total_signal_correlation^2
 
 

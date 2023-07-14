@@ -15,6 +15,7 @@ imageChannel <- function(x, coords, channel_number = 1, quantile_lim = 0.99) {
   library(imager)
 
   matrix_image <- matrix(NA, ncol = max(coords$y), nrow = max(coords$x))
+  df <- x
 
   # intensity vector
   x <- x[, channel_number]
@@ -33,6 +34,6 @@ imageChannel <- function(x, coords, channel_number = 1, quantile_lim = 0.99) {
   R(matrix_image) <- 0
   B(matrix_image) <- 0
 
-  plot((matrix_image))
+  plot(matrix_image, main = colnames(df)[channel_number])
 
 }
