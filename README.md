@@ -32,6 +32,6 @@ devtools::install_github("BodenmillerGroup/maldi-processing")
 this are the pre-processing and processing steps. Auxilliary functionalities include quality control statistics as well as 
 analysis techniques.
 
-### 1. Pre-processing
+#### 1. Pre-processing
 
 The `preprocess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the Cardinal functions directly. 
