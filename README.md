@@ -4,7 +4,9 @@ This R package supports the data handing, processing, quality control and analys
   targeted MALDI-imaging data. The data handling capabilities (import, pre-processing, export) build 
   heavily on the R package Cardinal, designed for general Mass Spectrometry Imaging data. The main 
   functionality of this package includes reliable data processing, extensive quality control and data
-  analysis. First, data is processing using a novel approach involving the construction of metapeaks
+  analysis. 
+  
+  First, data is processing using a novel approach involving the construction of metapeaks
   to account for mass shift and the presence of isotopic peaks. Then image-level and spatial quality
   control statistics, such as computing Geary's C scores can be computed for every marker. Furthermore, 
   spatial analysis can be performed on the high-dimensional images, including constructing variograms 
