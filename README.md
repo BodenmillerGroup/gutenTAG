@@ -69,3 +69,20 @@ pre <- maldipackage::preprocess(rawFile, cores = 4)
 #### 2. Processing
 
 Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `getIntensityDF` functions in series.
+
+``` r
+
+list_peaks <- peakDetection(pre)
+metapeaks <- metapeakGeneration(list_peaks)
+processed <- getIntensityDF(metapeaks, refList = panel, pre = pre)
+
+```
+
+The output of processing is a simple object containing 4 elements
+
+- `IntensityDF` An intensity dataframe for all markers that were paired with a metapeak.
+- `CorrespondenceMatrix` A targeted correspondence matrix detailing which metapeaks were associated to which mass tags.
+- `SpatialCoords` The spatial coordinates for each pixel.
+- `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix. 
+
+
