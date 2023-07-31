@@ -32,7 +32,7 @@ devtools::install_github("BodenmillerGroup/maldi-processing")
 this are the pre-processing and processing steps. Auxilliary functionalities include quality control statistics as well as 
 analysis techniques.
 
-#### `. Read in data
+#### 1. Read in data
 
 Three input files are required for targeted MALDI-imaging experiments:
 
@@ -56,7 +56,7 @@ panel <- readPanel(/path/to/panel.csv)
 
 ```
 
-#### 1. Pre-processing
+#### 2. Pre-processing
 
 The `preprocess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the Cardinal functions directly. 
 
@@ -66,7 +66,7 @@ pre <- preprocess(rawFile, cores = 4)
 
 ```
 
-#### 2. Processing
+#### 3. Processing
 
 Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `getIntensityDF` functions in series.
 
