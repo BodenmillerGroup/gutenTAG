@@ -32,7 +32,7 @@ devtools::install_github("BodenmillerGroup/maldi-processing")
 this are the pre-processing and processing steps. Auxilliary functionalities include quality control statistics as well as 
 analysis techniques.
 
-#### 0. Read in data
+#### `. Read in data
 
 Three input files are required for targeted MALDI-imaging experiments:
 
@@ -44,7 +44,7 @@ Currently, there is no function provided in this package to read in the .imzML f
 
 ```r
 
-rawFile <- readMSIData(/path/to/.imzML)
+rawFile <- Cardinal::readMSIData(/path/to/.imzML)
 
 ```
 
@@ -52,7 +52,7 @@ The panel can be easily loaded into your R session using the `readPanel` functio
 
 ```r
 
-panel <- maldipackage::readPanel(/path/to/panel.csv)
+panel <- readPanel(/path/to/panel.csv)
 
 ```
 
@@ -62,7 +62,7 @@ The `preprocess` function implements the `Cardinal::normalize`, `Cardinal::smoot
 
 ``` r
 
-pre <- maldipackage::preprocess(rawFile, cores = 4)
+pre <- preprocess(rawFile, cores = 4)
 
 ```
 
