@@ -70,10 +70,25 @@ pre <- preprocess(rawFile, cores = 4)
 
 Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `getIntensityDF` functions in series.
 
+The first step of processing is to identify peaks in the pre-processed spectra. This function is essentially a wrapper for `Cardinal::peakPick`.
+
 ``` r
 
 list_peaks <- peakDetection(pre)
+
+```
+
+Once `peakDetection` has been run, `metapeakGeneration` can be run. `metapeakGeneration` is used to compensate for the presence of technical shift and isotopic peaks in the spectra. 
+
+``` r
+
 metapeaks <- metapeakGeneration(list_peaks)
+
+```
+`getIntensityDF` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
+
+```
+
 processed <- getIntensityDF(metapeaks, refList = panel, pre = pre)
 
 ```
