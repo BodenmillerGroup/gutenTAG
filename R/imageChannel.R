@@ -12,7 +12,10 @@
 #'
 #' @examples imageChannel(IntensityDF, coords, channel_number = 4)
 
-imageChannel <- function(x, coords, channel_number = 1, quantile_lim = 0.99) {
+imageChannel <- function(final, channel_number = 1, quantile_lim = 0.99) {
+
+  x <- final$IntensityDF
+  coords <- final$SpatialCoords
 
   matrix_image <- matrix(NA, ncol = max(coords$y), nrow = max(coords$x))
   df <- x

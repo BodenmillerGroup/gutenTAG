@@ -4,16 +4,16 @@
 \alias{imageChannel}
 \title{Image one channel}
 \usage{
-imageChannel(x, coords, channel_number = 1, quantile_lim = 0.99)
+imageChannel(final, channel_number = 1, quantile_lim = 0.99)
 }
 \arguments{
-\item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
-
-\item{coords}{A spatial coordinates dataframe.}
-
 \item{channel_number}{The index of the channel to be imaged.}
 
 \item{quantile_lim}{A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.}
+
+\item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
+
+\item{coords}{A spatial coordinates dataframe.}
 }
 \value{
 An image.
