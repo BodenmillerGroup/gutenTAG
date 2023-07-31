@@ -18,6 +18,6 @@ For installing the development version of the package, run the following lines i
 ``` r
 
 install.packages("devtools")
-devtools::install_github("yourusername/your_package")
+devtools::install_github("BodenmillerGroup/maldi-processing")
 
 ```
