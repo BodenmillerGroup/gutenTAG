@@ -16,6 +16,8 @@ This R package supports the data handing, processing, quality control and analys
 For installing the development version of the package, run the following lines in R:
 
 ``` r
+
 install.packages("devtools")
 devtools::install_github("yourusername/your_package")
+
 ```
