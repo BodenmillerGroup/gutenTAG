@@ -87,7 +87,7 @@ metapeaks <- metapeakGeneration(list_peaks)
 ```
 `getIntensityDF` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
 
-```
+``` r
 
 processed <- getIntensityDF(metapeaks, refList = panel, pre = pre)
 
