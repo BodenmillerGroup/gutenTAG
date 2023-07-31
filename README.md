@@ -13,6 +13,8 @@ This R package supports the data handing, processing, quality control and analys
   (and cytoviewer) through the construction of a CytoImageList object. As such, once the data is coerced
   to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
 
+`# Installation `
+
 For installing the development version of the package, run the following lines in R:
 
 ``` r
