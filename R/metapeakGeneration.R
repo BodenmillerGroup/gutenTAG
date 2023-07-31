@@ -17,6 +17,9 @@
 #' @param x A Cardinal MSImagingExperiment object after peak detection is performed.
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
+#'
+#' @import stats
+#' @import Cardinal
 #' @export
 #'
 #' @examples

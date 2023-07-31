@@ -4,13 +4,13 @@
 #' @param coords A spatial coordinates dataframe.
 #'
 #' @return A list of variograms for each marker.
+#'
+#' @import gstat
 #' @export
 #'
 #' @examples
 #' constructVariogram(IntensityDF, coords)
 constructVariogram <- function(x, coords){
-
-  library(gstat)
 
   # Include make.names to remove problematic characters, such as spaces, +, etc.
   names(df) <- make.names(names(df))

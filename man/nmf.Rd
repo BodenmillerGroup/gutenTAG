@@ -14,7 +14,7 @@ nmf(x, comp)
 \item{cntr}{Center the data or not (bool)}
 }
 \value{
-?
+Non-ordered factors of the input dataset
 }
 \description{
 Non-negative matrix factorisation

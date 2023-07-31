@@ -6,6 +6,9 @@
 #' @param mz_threshold An m/z threshold that defines positive association of the expected m/z value and an actual metapeak m/z location.
 #'
 #' @return List containing a). A dataframe of intensity values for all markers that are associated with an observed metapeak, and b). A dataframe that references metapeaks to expected peaks, aswell as optional additional features. c). A spatial coordinate dataframe for each pixel.
+#'
+#' @import Cardinal
+#' @import N2R
 #' @export
 #'
 #' @examples
@@ -52,10 +55,7 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
 
-
-
   rownames(refList) <- refList$Name
-
 
   final_intensity <- c()
   for (k in 1:nrow(correspondence_matrix)) {

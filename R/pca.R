@@ -6,6 +6,9 @@
 #' @param plot Scatter plot of first two principal components (bool)
 #'
 #' @return A PCA
+#'
+#' @import irlba
+#' @import ggplot2
 #' @export
 #'
 #' @examples
@@ -13,13 +16,9 @@
 
 pca <- function(x, comp = 5, scree = FALSE, plot = FALSE){
 
-  library(irlba)
-
   PCA <- prcomp_irlba(x, n = comp, scale. = TRUE)
 
   if (scree == TRUE){
-
-    library(ggplot2)
 
     PCA_variance <- data.frame(Variation_Explained = (PCA$sdev)^2 / sum((PCA$sdev)^2) * 100,
                                Component = 1:comp)
@@ -34,8 +33,6 @@ pca <- function(x, comp = 5, scree = FALSE, plot = FALSE){
   }
 
   if (plot == TRUE){
-
-    library(ggplot2)
 
     PCA_data <- data.frame(PCA$x)
 

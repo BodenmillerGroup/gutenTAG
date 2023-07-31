@@ -6,13 +6,13 @@
 #' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
 #'
 #' @return An image.
+#'
+#' @import imager
 #' @export
 #'
 #' @examples imageChannel(IntensityDF, coords, channel_number = 4)
 
 imageChannel <- function(x, coords, channel_number = 1, quantile_lim = 0.99) {
-
-  library(imager)
 
   matrix_image <- matrix(NA, ncol = max(coords$y), nrow = max(coords$x))
   df <- x

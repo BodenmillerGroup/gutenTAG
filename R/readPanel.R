@@ -3,6 +3,8 @@
 #' @param path The path to the panel.
 #'
 #' @return The cleaned and ordered panel.
+#'
+#' @import dplyr
 #' @export
 #'
 #' @examples

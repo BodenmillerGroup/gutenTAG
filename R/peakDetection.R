@@ -7,6 +7,8 @@
 #' @param win Window size over which moving noise levels are calculated.
 #'
 #' @return An MSImagingExperiment object containing a list of detected peaks
+#'
+#' @import Cardinal
 #' @export
 #'
 #' @examples

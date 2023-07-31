@@ -99,5 +99,3 @@ The output of processing is a simple object containing 4 elements
 - `CorrespondenceMatrix` A targeted correspondence matrix detailing which metapeaks were associated to which mass tags.
 - `SpatialCoords` The spatial coordinates for each pixel.
 - `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix. 
-
-
