@@ -32,6 +32,40 @@ devtools::install_github("BodenmillerGroup/maldi-processing")
 this are the pre-processing and processing steps. Auxilliary functionalities include quality control statistics as well as 
 analysis techniques.
 
+#### 0. Read in data
+
+Three input files are required for targeted MALDI-imaging experiments:
+
+- .imzML file (metadata)
+- .ibd file (binary data, not required to read in, but should be in the same directory as the metadata file)
+- .csv file (Panel)
+
+Currently, there is no function provided in this package to read in the .imzML file. It is instead recommended to simply use the Cardinal `readMSIData` function for easy reading in of the data. 
+
+```r
+
+rawFile <- readMSIData(/path/to/.imzML)
+
+```
+
+The panel can be easily loaded into your R session using the `readPanel` function:
+
+```r
+
+panel <- maldipackage::readPanel(/path/to/panel.csv)
+
+```
+
 #### 1. Pre-processing
 
 The `preprocess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the Cardinal functions directly. 
+
+``` r
+
+pre <- maldipackage::preprocess(rawFile, cores = 4)
+
+```
+
+#### 2. Processing
+
+Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `getIntensityDF` functions in series.
