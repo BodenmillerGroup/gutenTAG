@@ -78,7 +78,7 @@ list_peaks <- peakDetection(pre)
 
 ```
 
-Once `peakDetection` has been run, `metapeakGeneration` can be run. `metapeakGeneration` is used to compensate for the presence of technical shift and isotopic peaks in the spectra. 
+Once `peakDetection` has been run, `metapeakGeneration` can be run. Metapeaks are single peaks that correspond to clusters of peaks that contain information the same molecular species. The function used to generate these metapeaks, `metapeakGeneration`, is implemented to compensate for the loss of signal through technical shift and isotopic peaks in the spectra. 
 
 ``` r
 
