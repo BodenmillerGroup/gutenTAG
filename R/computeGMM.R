@@ -1,3 +1,33 @@
+#' Title Compute Gaussian Mixture Model for individual image channels
+#'
+#' @param x Output from getIntensityDF function
+#' @param hist TRUE/FALSE for plotting histogram for each channel
+#'
+#' @return Gaussian mixture model for each channel of MALDI-image
+#'
+#' @importFrom grDevices rainbow
+#' @importFrom graphics curve
+#' @importFrom graphics text
+#' @importFrom methods as
+#' @importFrom stats cor
+#' @importFrom stats aggregate.data.frame
+#' @importFrom stats as.formula
+#' @importFrom stats dist
+#' @importFrom stats cutree
+#' @importFrom stats dnorm
+#' @importFrom stats hclust
+#' @importFrom stats lm
+#' @importFrom stats na.omit
+#' @importFrom stats quantile
+#' @importFrom stats sd
+#' @importFrom stats var
+#' @importFrom stats weighted.mean
+#' @importFrom utils read.delim
+#'
+#' @export
+#'
+#' @examples
+#' computeGMM(final, hist = TRUE)
 computeGMM <- function(x, hist = FALSE){
 
   targeted_intensity <- x$IntensityDF
