@@ -18,7 +18,6 @@ Description: This R package supports the data handing, processing, quality contr
   to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
 Depends: 
   Cardinal,
-  EBImage,
   imager
 Imports:
   N2R,

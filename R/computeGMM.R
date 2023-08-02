@@ -1,4 +1,4 @@
-#' Title Compute Gaussian Mixture Model for individual image channels
+#' Compute Gaussian Mixture Model for individual image channels
 #'
 #' @param x Output from getIntensityDF function
 #' @param hist TRUE/FALSE for plotting histogram for each channel

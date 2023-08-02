@@ -2,7 +2,7 @@
 % Please edit documentation in R/computeGMM.R
 \name{computeGMM}
 \alias{computeGMM}
-\title{Title Compute Gaussian Mixture Model for individual image channels}
+\title{Compute Gaussian Mixture Model for individual image channels}
 \usage{
 computeGMM(x, hist = FALSE)
 }
@@ -15,7 +15,7 @@ computeGMM(x, hist = FALSE)
 Gaussian mixture model for each channel of MALDI-image
 }
 \description{
-Title Compute Gaussian Mixture Model for individual image channels
+Compute Gaussian Mixture Model for individual image channels
 }
 \examples{
 computeGMM(final, hist = TRUE)
