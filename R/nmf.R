@@ -6,7 +6,7 @@
 #'
 #' @return Non-ordered factors of the input dataset
 #'
-#' @import RcppML
+#' @importFrom RcppML nmf
 #' @export
 #'
 #' @examples

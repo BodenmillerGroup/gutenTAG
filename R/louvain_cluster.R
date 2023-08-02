@@ -5,6 +5,11 @@
 #' @param metric The distance metric to be used (angular, L2)
 #'
 #' @return The cluster membership for each pixel.
+#'
+#' @importFrom N2R Knn
+#' @importFrom igraph graph_from_adjacency_matrix
+#' @importFrom igraph cluster_louvain
+#' @importFrom igraph membership
 #' @export
 #'
 #' @examples
@@ -20,13 +25,13 @@ louvain_cluster <- function(x, metric = "angular"){
   KNN_graph_matrix <- KNN_graph_matrix + t(KNN_graph_matrix)
 
   # 2. Build graph from adjacency matrix
-  graph <- graph_from_adjacency_matrix(KNN_graph_matrix, mode = 'undirected', weighted = TRUE)
+  graph <- igraph::graph_from_adjacency_matrix(KNN_graph_matrix, mode = 'undirected', weighted = TRUE)
 
   # 3. Perform louvain clustering
-  clustering <- cluster_louvain(graph)
+  clustering <- igraph::cluster_louvain(graph)
 
   # get membership for each pixel
-  membership <- as.character(membership(clustering))
+  membership <- as.character(igraph::membership(clustering))
 
   return(membership)
 

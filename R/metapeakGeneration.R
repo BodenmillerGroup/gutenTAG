@@ -18,7 +18,7 @@
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
-#' @import stats
+#' @importFrom stats convolve
 #' @import Cardinal
 #' @export
 #'

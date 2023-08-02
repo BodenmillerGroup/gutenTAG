@@ -5,7 +5,7 @@
 #'
 #' @return A list of variograms for each marker.
 #'
-#' @import gstat
+#' @importFrom gstat variogram
 #' @export
 #'
 #' @examples

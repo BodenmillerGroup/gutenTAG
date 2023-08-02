@@ -3,6 +3,9 @@
 #' @param x A targeted intensity dataframe (rows: pixels, cols: features)
 #'
 #' @return object of class umap, containing at least a component with an embedding and a component with configuration settings
+#'
+#' @import ggplot2
+#' @importFrom umap umap
 #' @export
 #'
 #' @examples
@@ -13,8 +16,6 @@ computeUMAP <- function(x, plot = FALSE){
   umap_representation <- umap::umap(x)
 
   if(plot == TRUE){
-
-    library(ggplot2)
 
     umap_coordinates <- umap_representation$layout
 

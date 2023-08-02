@@ -3,15 +3,13 @@
 #' @param object Output from getIntensityDF.
 #'
 #' @return A vector of Geary's C score for each marker.
-#' @import N2R
+#' @importFrom N2R Knn
 #' @export
 #'
 #' @examples
 #' constructGearysC(IntensityDF, coords)
 
 constructGearysC <- function(object, update_correspondence = FALSE){
-
-  #library(N2R)
 
   df <- final$IntensityDF
   correspondence <- final$CorrespondenceMatrix

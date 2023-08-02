@@ -4,7 +4,7 @@
 #'
 #' @return The cleaned and ordered panel.
 #'
-#' @import dplyr
+#' @importFrom dplyr arrange
 #' @export
 #'
 #' @examples
