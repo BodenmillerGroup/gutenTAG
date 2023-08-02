@@ -31,7 +31,8 @@ Imports:
   umap, 
   stats, 
   methods, 
-  mclust
+  mclust, 
+  splus2R
 License: MIT License
 Encoding: UTF-8
 LazyData: true
