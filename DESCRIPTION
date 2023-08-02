@@ -30,7 +30,8 @@ Imports:
   igraph, 
   umap, 
   stats, 
-  methods
+  methods, 
+  mclust
 License: MIT License
 Encoding: UTF-8
 LazyData: true
