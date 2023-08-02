@@ -26,7 +26,9 @@ Imports:
   dplyr,
   ggplot2,
   gstat,
-  irlba
+  irlba, 
+  igraph, 
+  umap
 License: MIT License
 Encoding: UTF-8
 LazyData: true
