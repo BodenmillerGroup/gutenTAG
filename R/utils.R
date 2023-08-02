@@ -1,5 +1,12 @@
 ############################# Reader helpers ###################################
 
+#' @importFrom splus2R  peaks
+#' @importFrom dplyr arrange
+#' @importFrom dplyr relocate
+#' @importFrom stats hclust
+#' @importFrom stats cutree
+#' @importFrom stats quantile
+#'
 # find peaks function ####
 .find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
   # find peaks
@@ -101,7 +108,7 @@
   }
 
   # rearrange column order so Name is first column
-  relocate(panel, "Name", .before = "FeatureMass")
+  dplyr::relocate(panel, "Name", .before = "FeatureMass")
 
   # 2. sort by mass tag size
 
