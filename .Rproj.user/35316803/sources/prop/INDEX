@@ -58,6 +58,7 @@
 ~%2Fgithub%2Fmaldi-imaging%2FR%2FpeakDetection.R="0C0103F0"
 ~%2Fgithub%2Fmaldi-imaging%2FR%2Fpreprocess.R="1573A188"
 ~%2Fgithub%2Fmaldi-imaging%2FR%2FreadPanel.R="DFA16B1C"
+~%2Fgithub%2Fmaldi-imaging%2FR%2Futils.R="EB97ED02"
 ~%2Fseb_project%2FSingle_cell_analysis_2.Rmd="D7272655"
 ~%2Fseb_project%2FcreateSPE.R="188F228C"
 ~%2Fseb_project%2Fumap_initial.R="E4796E56"

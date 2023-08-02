@@ -5,6 +5,8 @@
 #' @return The cleaned and ordered panel.
 #'
 #' @importFrom dplyr arrange
+#' @importFrom dplyr relocate
+#'
 #' @export
 #'
 #' @examples

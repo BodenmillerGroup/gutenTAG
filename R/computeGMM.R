@@ -23,6 +23,10 @@
 #' @importFrom stats var
 #' @importFrom stats weighted.mean
 #' @importFrom utils read.delim
+#' @importFrom mclust mclustICL
+#' @importFrom mclust Mclust
+#' @importFrom mclust densityMclust
+#' @importFrom dplyr relocate
 #'
 #' @export
 #'
