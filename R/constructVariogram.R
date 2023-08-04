@@ -8,8 +8,7 @@
 #' @importFrom gstat variogram
 #' @export
 #'
-#' @examples
-#' constructVariogram(IntensityDF, coords)
+
 constructVariogram <- function(x, coords){
 
   # Include make.names to remove problematic characters, such as spaces, +, etc.
