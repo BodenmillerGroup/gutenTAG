@@ -9,10 +9,10 @@
 #' @import Cardinal
 #' @export
 #' @examples
-#' preprocess(rawFile, 4)
+#' preProcess(rawFile, 4)
 
 
-preprocess <- function(x, cores){
+preProcess <- function(x, cores){
 
   x %>%
     Cardinal::normalize(method = "tic") %>%
