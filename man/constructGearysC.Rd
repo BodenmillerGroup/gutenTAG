@@ -15,6 +15,3 @@ A vector of Geary's C score for each marker.
 \description{
 Compute Geary's C score for each marker.
 }
-\examples{
-constructGearysC(IntensityDF, coords)
-}

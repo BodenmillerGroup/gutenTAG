@@ -7,9 +7,7 @@
 #' @import ggplot2
 #' @importFrom umap umap
 #' @export
-#'
-#' @examples
-#' umap(IntensityDF)
+#'s
 
 computeUMAP <- function(x, plot = FALSE){
 

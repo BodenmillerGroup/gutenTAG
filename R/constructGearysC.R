@@ -6,8 +6,6 @@
 #' @importFrom N2R Knn
 #' @export
 #'
-#' @examples
-#' constructGearysC(IntensityDF, coords)
 
 constructGearysC <- function(object, update_correspondence = FALSE){
 

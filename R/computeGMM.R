@@ -30,8 +30,7 @@
 #'
 #' @export
 #'
-#' @examples
-#' computeGMM(final, hist = TRUE)
+
 computeGMM <- function(x, hist = FALSE){
 
   targeted_intensity <- x$IntensityDF

@@ -17,6 +17,3 @@ Gaussian mixture model for each channel of MALDI-image
 \description{
 Compute Gaussian Mixture Model for individual image channels
 }
-\examples{
-computeGMM(final, hist = TRUE)
-}

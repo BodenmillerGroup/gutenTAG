@@ -15,6 +15,3 @@ object of class umap, containing at least a component with an embedding and a co
 \description{
 Uniform Manifold Approximate Projection (UMAP)
 }
-\examples{
-umap(IntensityDF)
-}
