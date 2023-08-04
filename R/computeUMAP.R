@@ -7,7 +7,7 @@
 #' @import ggplot2
 #' @importFrom umap umap
 #' @export
-#'s
+#'
 
 computeUMAP <- function(x, plot = FALSE){
 
