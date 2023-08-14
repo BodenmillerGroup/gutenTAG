@@ -4,10 +4,10 @@
 \alias{louvain_cluster}
 \title{Title Perform Louvain clustering}
 \usage{
-louvain_cluster(x, metric = "angular")
+louvain_cluster(x, k = 30, metric = "angular", plot = FALSE)
 }
 \arguments{
-\item{x}{Output of getIntensityDF() function.}
+\item{x}{Output of getIntensityDF function.}
 
 \item{metric}{The distance metric to be used (angular, L2)}
 }
