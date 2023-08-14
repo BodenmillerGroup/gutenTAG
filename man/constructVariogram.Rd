@@ -17,6 +17,3 @@ A list of variograms for each marker.
 \description{
 Construct a variogram for each dataframe channel.
 }
-\examples{
-constructVariogram(IntensityDF, coords)
-}

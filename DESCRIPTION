@@ -31,7 +31,9 @@ Imports:
   stats, 
   methods, 
   mclust, 
-  splus2R
+  splus2R, 
+  cytomapper,
+  cytoviewer
 License: MIT License
 Encoding: UTF-8
 LazyData: true
