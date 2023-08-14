@@ -266,6 +266,13 @@
   }))
 }
 
+.curateMatrix <- function(dataframe, channel, coords){
+  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x))
+  x = dataframe[,channel]
+  Matrix_image[as.matrix(coords)] = x
+  return(Matrix_image)
+}
+
 
 
 
