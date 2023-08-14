@@ -1,6 +1,6 @@
 #' Image one channel
 #'
-#' @param x A targeted intensity dataframe (rows: pixels, cols: features)
+#' @param x A targeted intensity dataframe (rows: pixels, cols: features) OR output of getIntensityDF. If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.
 #' @param coords A spatial coordinates dataframe.
 #' @param channel_number The index of the channel to be imaged.
 #' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
@@ -12,16 +12,21 @@
 #'
 #' @examples imageChannel(IntensityDF, coords, channel_number = 4)
 
-imageChannel <- function(final, channel_number = 1, quantile_lim = 0.99) {
+imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99) {
 
-  x <- final$IntensityDF
-  coords <- final$SpatialCoords
+  # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing, otherwise treat as list
+  if(is.data.frame(x) | is.matrix(x)){
+    df <- x
+    coords <- coords
+  }else{
+    df <- x$IntensityDF
+    coords <- x$SpatialCoords
+  }
 
   matrix_image <- matrix(NA, ncol = max(coords$y), nrow = max(coords$x))
-  df <- x
 
   # intensity vector
-  x <- x[, channel_number]
+  x <- df[, channel_number]
   # get intensity value for 99th percentile most intense pixels
   x_max <- quantile(x, probs = quantile_lim)
   # set all pixel values greater than x_max to that of x_max

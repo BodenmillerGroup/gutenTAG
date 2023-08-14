@@ -96,7 +96,7 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   colnames(final_intensity_targeted) <- correspondence_matrix$marker[!is.na(correspondence_matrix$marker)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
-  # Remove all u-nannotated peaks from correspondence matrix
+  # Remove all un-annotated peaks from correspondence matrix
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
