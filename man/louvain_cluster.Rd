@@ -4,7 +4,7 @@
 \alias{louvain_cluster}
 \title{Title Perform Louvain clustering}
 \usage{
-louvain_cluster(x, k = 30, metric = "angular", plot = FALSE)
+louvain_cluster(x, k = 200, metric = "angular", plot = FALSE, resolution = 0.5)
 }
 \arguments{
 \item{x}{Output of getIntensityDF function.}
