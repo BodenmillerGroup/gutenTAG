@@ -14,7 +14,7 @@
 #' @examples
 #' peakDetection(peakPre)
 
-peakDetection <- function(x, snr = 2, win = 50){
+peakDetection <- function(x, snr = 3, win = 50){
 
   raw_intensity <- iData(x)
 
