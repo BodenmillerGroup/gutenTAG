@@ -9,16 +9,18 @@
 #' @export
 #'
 
-constructVariogram <- function(x, coords){
+constructVariogram <- function(df, coords){
 
   # Include make.names to remove problematic characters, such as spaces, +, etc.
   names(df) <- make.names(names(df))
   names <- colnames(df)
 
+  print("Names defined")
+
   # Create list of variograms for each marker
   variograms <- list()
   for (i in 1:ncol(df)){
-
+    print("start")
     marker <- data.frame(df[i])
     colnames(marker) <- names[i]
 
@@ -36,6 +38,7 @@ constructVariogram <- function(x, coords){
 
     # Store the result in the list
     variograms[[names[i]]] <- marker_variogram
+    print("end")
 
   }
 

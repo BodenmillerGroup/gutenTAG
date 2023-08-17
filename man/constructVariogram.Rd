@@ -4,12 +4,12 @@
 \alias{constructVariogram}
 \title{Construct a variogram for each dataframe channel.}
 \usage{
-constructVariogram(x, coords)
+constructVariogram(df, coords)
 }
 \arguments{
-\item{x}{A targeted intensity dataframe.}
-
 \item{coords}{A spatial coordinates dataframe.}
+
+\item{x}{A targeted intensity dataframe.}
 }
 \value{
 A list of variograms for each marker.
