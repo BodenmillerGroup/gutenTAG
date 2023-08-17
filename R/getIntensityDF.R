@@ -25,31 +25,16 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   coords <- as.data.frame(pData(pre))[, c("x","y")]
   coords <- .correctCoordinates(coords)
 
-
   # extract metepeaks and propagation_selection from x
   x <- x$metapeaks
-  propagation_selection <- x$propagation_selection
 
   # Map metapeaks to panel
   mapping_meta <- N2R::crossKnn(mA = matrix(x$max),
-                           mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
+                                mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
   mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_max_modified)
-
-  associated_marker <- c()
-  for (k in 1:length(x$max)) {
-    selected_mz_location <- range(mz_vector$mz[as.numeric(propagation_selection) == k])
-    annotation_assigned <- refList$Name[refList$FeatureMass > selected_mz_location[1] & refList$FeatureMass < selected_mz_location[2]]
-    if (length(annotation_assigned) == 0){
-      annotation_assigned = NA
-    }
-    if (length(annotation_assigned) > 1){
-      annotation_assigned = paste(annotation_assigned, collapse="__OR__")
-    }
-    associated_marker <- c(associated_marker, annotation_assigned)
-  }
 
   correspondence_matrix <- data.frame(mz_location = x$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
@@ -60,7 +45,7 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   final_intensity <- c()
   for (k in 1:nrow(correspondence_matrix)) {
     # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= x$limits[k,1] & mz_vector$mz <= x$limits[k,2]
+    selected_mz_location <- mz_vector$mz >= m$limits[k,1] & mz_vector$mz <= m$limits[k,2]
     # those mz values
     mz_vector$mz[which(selected_mz_location == TRUE)]
     if (sum(selected_mz_location) > 1) {
@@ -78,9 +63,17 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   # Summary statistics and expand correspondence matrix
   mean_intensity <- colMeans(final_intensity)
   sd_intensity <- apply(final_intensity, MARGIN = 2, FUN = sd)
-  corrected_sd <- lm(log(sd_intensity) ~ log(mean_intensity))
 
-  correspondence_matrix$corrected_sd <- corrected_sd$residuals
+  # add mean and sd to correspondence matrix
+  correspondence_matrix$mean <- mean_intensity
+  correspondence_matrix$sd <- sd_intensity
+
+  # set corrected sd as the ratio between the residuals (plus sd) and the sd
+  corrected_sd <- lm(log(1+sd_intensity) ~ log(1+mean_intensity))
+  residuals <- corrected_sd$residuals
+  correspondence_matrix$corrected_sd <- residuals + sd_intensity / sd_intensity
+  # former definition: correspondence_matrix$corrected_sd <- corrected_sd$residuals
+
   correspondence_matrix$peak_width <- x$metapeaks$width
 
   # Total signal of each peak
