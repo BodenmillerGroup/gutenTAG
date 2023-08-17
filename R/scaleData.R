@@ -11,7 +11,6 @@
 
 #' @export
 #'
-#' @examples
 scaleData <- function(x, method = "corsd"){
 
   # extract dataframe and correspondence matrix
