@@ -25,7 +25,7 @@ cytoviewerMALDI <- function(final, name = "test"){
   my_image <- CytoImageList(my_image)
   # Assign image and channel names
   names(my_image) <- name
-  channelNames(my_image) <- colnames(dataframe)
+  cytomapper::channelNames(my_image) <- colnames(dataframe)
 
   cytoviewer(image = my_image)
 

@@ -4,7 +4,7 @@
 \alias{cytoviewerMALDI}
 \title{cytoviewerMALDI}
 \usage{
-cytoviewerMALDI(final, name = "test")
+cytoviewerMALDI(final, name = "melanoma")
 }
 \arguments{
 \item{final}{Output from getIntensityDF function}
