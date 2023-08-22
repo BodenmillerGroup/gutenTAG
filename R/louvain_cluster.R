@@ -14,9 +14,13 @@
 #'
 #' @examples
 #' louvain_cluster(final)
-louvain_cluster <- function(x, k = 200, metric = "angular", plot = FALSE, resolution = 0.5){
+louvain_cluster <- function(x, coords, k = 300, metric = "angular", plot = FALSE, resolution = 0.5){
 
-  intensity <- x$IntensityDF
+  if(is.null(dim(x))){
+    intensity <- x$IntensityDF
+  }else{
+    intensity <- x
+  }
 
   # 1. Build adjacency matrix
   KNN_graph_matrix <- N2R::Knn(as.matrix(intensity), k = k, verbose = FALSE, indexType = metric)
@@ -55,6 +59,6 @@ louvain_cluster <- function(x, k = 200, metric = "angular", plot = FALSE, resolu
   }
 
   print(length(unique(membership)))
-  return(membership)
+  jreturn(membership)
 
 }

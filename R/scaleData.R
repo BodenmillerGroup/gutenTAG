@@ -10,7 +10,6 @@
 #' @importFrom stats var
 
 #' @export
-#'
 scaleData <- function(x, method = "corsd"){
 
   # extract dataframe and correspondence matrix

@@ -45,7 +45,7 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   final_intensity <- c()
   for (k in 1:nrow(correspondence_matrix)) {
     # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= m$limits[k,1] & mz_vector$mz <= m$limits[k,2]
+    selected_mz_location <- mz_vector$mz >= x$limits[k,1] & mz_vector$mz <= x$limits[k,2]
     # those mz values
     mz_vector$mz[which(selected_mz_location == TRUE)]
     if (sum(selected_mz_location) > 1) {

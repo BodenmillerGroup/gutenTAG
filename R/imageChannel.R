@@ -14,10 +14,11 @@
 
 imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99) {
 
-  # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing, otherwise treat as list
+  # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing
   if(is.data.frame(x) | is.matrix(x)){
     df <- x
     coords <- coords
+  # otherwise treat as list
   }else{
     df <- x$IntensityDF
     coords <- x$SpatialCoords
@@ -28,7 +29,9 @@ imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99
   # intensity vector
   x <- df[, channel_number]
   # get intensity value for 99th percentile most intense pixels
-  x_max <- quantile(x, probs = quantile_lim)
+  #x_max <- quantile(x, probs = quantile_lim)
+  x_max <- quantile(x, probs = quantile_lim, na.rm = TRUE)
+
   # set all pixel values greater than x_max to that of x_max
   x[x > x_max] <- x_max
   matrix_image[as.matrix(coords)] <- x
