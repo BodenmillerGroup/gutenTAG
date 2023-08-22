@@ -12,7 +12,7 @@
 #'
 #' @examples imageChannel(IntensityDF, coords, channel_number = 4)
 
-imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99) {
+imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99, interpolate = FALSE, axes = TRUE, colna = "black") {
 
   # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing
   if(is.data.frame(x) | is.matrix(x)){
@@ -45,6 +45,12 @@ imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99
   R(matrix_image) <- 0
   B(matrix_image) <- 0
 
-  plot(matrix_image, main = colnames(df)[channel_number])
+  plot(matrix_image, main = colnames(df)[channel_number],
+       interpolate = interpolate,
+       xlim = c(1, max(coords$x)), ylim = c(max(coords$y), 1),
+       axes = axes,
+       col.na = rgb(0,0,0,1)) # black background for NA
+       #col.na = rgb(0,0,0,0)) # transparent background for NA
+
 
 }

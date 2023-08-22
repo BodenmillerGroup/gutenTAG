@@ -4,7 +4,15 @@
 \alias{imageChannel}
 \title{Image one channel}
 \usage{
-imageChannel(x, coords = NA, channel_number = 1, quantile_lim = 0.99)
+imageChannel(
+  x,
+  coords = NA,
+  channel_number = 1,
+  quantile_lim = 0.99,
+  interpolate = FALSE,
+  axes = TRUE,
+  colna = "black"
+)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features) OR output of getIntensityDF. If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.}
