@@ -4,7 +4,7 @@
 \alias{peakDetection}
 \title{Peak Detection}
 \usage{
-peakDetection(x, snr = 3, win = 50)
+peakDetection(x, snr = 3, win = 50, cores)
 }
 \arguments{
 \item{x}{A pre-processing MSImagingExperiment object}

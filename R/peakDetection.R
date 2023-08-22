@@ -14,7 +14,7 @@
 #' @examples
 #' peakDetection(peakPre)
 
-peakDetection <- function(x, snr = 3, win = 50){
+peakDetection <- function(x, snr = 3, win = 50, cores){
 
   raw_intensity <- iData(x)
 
@@ -26,7 +26,7 @@ peakDetection <- function(x, snr = 3, win = 50){
   location_pixels <- as.data.frame(pData(x))[, c("x","y")]
 
   list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
-    process()
+    process(BPPARAM = MulticoreParam(workers = cores))
 
   return(list_peaks)
 
