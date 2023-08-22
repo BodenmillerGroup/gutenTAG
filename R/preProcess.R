@@ -7,6 +7,7 @@
 #' @returns A pre-processed MSImagingExperiment object.
 #'
 #' @import Cardinal
+#' @import BiocParallel
 #' @export
 #' @examples
 #' preProcess(rawFile, 4)
