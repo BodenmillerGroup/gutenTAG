@@ -93,10 +93,48 @@ getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
+
+  # filter on TIC
+
+  tic <- rowSums(final_intensity_targeted)
+  # remove NAs
+  tic[tic == 0] <- NA
+  tic <- na.omit(tic)
+
+  # otsu threshold on TIC
+  tic_threshold = .otsu_thresholding(log10(tic))
+  # filter out TIC pixels below threshold
+  tic_filtered <- tic[log10(tic) > tic_threshold]
+
+  # set pixels that do not pass filtering to NA
+  tic[!tic %in% tic_filtered] <- NA
+  # how many are filtered out?
+  length(tic[is.na(tic)])
+
+  # which pixels pass filtering
+  indices <- which(tic %in% tic_filtered)
+
+  # create zero matrix with correct dims
+  final_filtered <- matrix(NA, nrow = nrow(final_intensity_targeted), ncol = ncol(final_intensity_targeted))
+  for (j in 1:ncol(final_intensity_targeted)){
+
+    channel <- final_intensity_targeted[,j]
+
+    # pixel values pass filter
+    filtered_vals <- channel[indices]
+    channel[!channel %in% filtered_vals] <- NA
+    final_filtered[,j] <- channel
+
+  }
+
+  final_filtered <- data.frame(final_filtered)
+  colnames(final_filtered) <- colnames(final_intensity_targeted)
+
   return(list(CorrespondenceMatrix = correspondence_matrix_targeted,
               IntensityDF = final_intensity_targeted,
               SpatialCoords = coords,
               Untargeted = list(UntargetedIntensity = final_intensity,
-                                UntargetedCorrespondence = correspondence_matrix)))
+                                UntargetedCorrespondence = correspondence_matrix),
+              FilteredDF = final_filtered))
 
 }
