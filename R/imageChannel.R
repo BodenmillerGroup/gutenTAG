@@ -4,6 +4,9 @@
 #' @param coords A spatial coordinates dataframe.
 #' @param channel_number The index of the channel to be imaged.
 #' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
+#' @param interpolate Perform pixel-wise interpolation.
+#' @param axes Plot axes when imaging.
+#' @param colna If NA values are present, should they be plotted as black background or as transparent?
 #'
 #' @return An image.
 #'
