@@ -67,7 +67,7 @@ metapeakGeneration <- function(x, threshold = 0.01){
   freq_peak_smooth_thresholded <- matrix(freq_peak_smooth_thresholded, ncol = 1)
 
   # watershed for peak segmentation
-  propagation_selection <- propagate(freq_peak_smooth_thresholded,
+  propagation_selection <- EBImage::propagate(freq_peak_smooth_thresholded,
                                      seeds = local_maxima_peak_freq_reshaped,
                                      mask = freq_peak_smooth_thresholded > threshold_detection)
 
@@ -129,6 +129,7 @@ metapeakGeneration <- function(x, threshold = 0.01){
                     width = metapeak_width,
                     limits = metapeak_delimitation)
 
-  return(list(metapeaks = metapeaks, propagation_selection = propagation_selection))
+  return(list(metapeaks = metapeaks,
+              propagation_selection = propagation_selection))
 
 }
