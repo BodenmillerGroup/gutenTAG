@@ -16,7 +16,15 @@ louvain_cluster(
 \arguments{
 \item{x}{Output of getIntensityDF function.}
 
+\item{coords}{If only providing an intensity dataframe for argument x, spatial coordinates must also be provided in the coords argument.}
+
+\item{k}{Number of nearest neighbours when building adjacency matrix.}
+
 \item{metric}{The distance metric to be used (angular, L2)}
+
+\item{plot}{Plot the cluster membership over the spatial coordinates.}
+
+\item{resolution}{Clustering parameter to determine size of communities. Small values produce larger communities, larger values produce smaller communities.}
 }
 \value{
 The cluster membership for each pixel.

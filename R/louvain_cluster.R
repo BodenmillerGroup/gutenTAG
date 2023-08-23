@@ -1,7 +1,11 @@
 #' Title Perform Louvain clustering
 #'
 #' @param x Output of getIntensityDF function.
+#' @param k Number of nearest neighbours when building adjacency matrix.
+#' @param coords If only providing an intensity dataframe for argument x, spatial coordinates must also be provided in the coords argument.
 #' @param metric The distance metric to be used (angular, L2)
+#' @param plot Plot the cluster membership over the spatial coordinates.
+#' @param resolution Clustering parameter to determine size of communities. Small values produce larger communities, larger values produce smaller communities.
 #'
 #' @return The cluster membership for each pixel.
 #'
@@ -59,6 +63,6 @@ louvain_cluster <- function(x, coords, k = 300, metric = "angular", plot = FALSE
   }
 
   print(length(unique(membership)))
-  jreturn(membership)
+  return(membership)
 
 }
