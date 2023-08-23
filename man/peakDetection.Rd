@@ -4,7 +4,7 @@
 \alias{peakDetection}
 \title{Peak Detection}
 \usage{
-peakDetection(x, snr = 3, win = 50, cores)
+peakDetection(x, snr = 3, win = 50, cores = 1)
 }
 \arguments{
 \item{x}{A pre-processing MSImagingExperiment object}
@@ -12,6 +12,8 @@ peakDetection(x, snr = 3, win = 50, cores)
 \item{snr}{Signal to noise ratio for peak picking.}
 
 \item{win}{Window size over which moving noise levels are calculated.}
+
+\item{cores}{Number of cores to use for peak detection.}
 }
 \value{
 An MSImagingExperiment object containing a list of detected peaks

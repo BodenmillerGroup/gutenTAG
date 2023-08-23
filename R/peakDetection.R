@@ -5,6 +5,7 @@
 #' @param x A pre-processing MSImagingExperiment object
 #' @param snr Signal to noise ratio for peak picking.
 #' @param win Window size over which moving noise levels are calculated.
+#' @param cores Number of cores to use for peak detection.
 #'
 #' @return An MSImagingExperiment object containing a list of detected peaks
 #'
@@ -14,7 +15,7 @@
 #' @examples
 #' peakDetection(peakPre)
 
-peakDetection <- function(x, snr = 3, win = 50, cores){
+peakDetection <- function(x, snr = 3, win = 50, cores = 1){
 
   raw_intensity <- iData(x)
 
@@ -25,8 +26,15 @@ peakDetection <- function(x, snr = 3, win = 50, cores){
   mz_vector <- as.data.frame(mz(x))
   location_pixels <- as.data.frame(pData(x))[, c("x","y")]
 
-  list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
-    process(BPPARAM = MulticoreParam(workers = cores))
+  if(cores > 1){
+    list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
+      process(BPPARAM = MulticoreParam(workers = cores))
+  }else{
+    list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
+      process()
+  }
+
+
 
   return(list_peaks)
 
