@@ -4,13 +4,13 @@
 \alias{computeUMAP}
 \title{Uniform Manifold Approximate Projection (UMAP)}
 \usage{
-computeUMAP(x, plot = FALSE)
+computeUMAP(x)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
 }
 \value{
-object of class umap, containing at least a component with an embedding and a component with configuration settings
+a dataframe containing UMAP coordinatees
 }
 \description{
 Uniform Manifold Approximate Projection (UMAP)
