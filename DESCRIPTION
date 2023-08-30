@@ -27,13 +27,17 @@ Imports:
   gstat,
   irlba, 
   igraph, 
-  umap, 
+  uwot, 
   stats, 
   methods, 
   mclust, 
   splus2R, 
   cytomapper,
-  cytoviewer
+  cytoviewer, 
+  Matrix, 
+  grDevices, 
+  graphics, 
+  utils
 License: MIT License
 Encoding: UTF-8
 LazyData: true
