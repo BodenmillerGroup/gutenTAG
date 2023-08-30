@@ -44,11 +44,12 @@ metapeakGeneration <- function(x, threshold = 0.01){
   freq_peak_ordered <- as.numeric(freq_peak_ordered)
 
   # ii. Gaussian smoothing over counts
-  mz_index_ratio <- (max(mz_vector$mz) - min(mz_vector$mz)) / n_features
-  sigma_smoothing_isotopic <- 1 / mz_index_ratio
+  mz_scaling_factor <- (max(mz_vector$mz) - min(mz_vector$mz)) / n_features # calculate avg step size for each detected peak
+  sigma_smoothing_isotopic <- 1 / mz_scaling_factor # scale the standard deviation of the Gaussian so that it is 1 divided by the avg step size
   list_values <- seq(-n_features / 2, n_features / 2, length.out = n_features)
-  gaussian_vector <- exp(-list_values^2 / sigma_smoothing_isotopic^2)
+  gaussian_vector <- exp(-list_values^2 / sigma_smoothing_isotopic^2) # create Gaussian filter for convolution
 
+  # convolve the peak frequencies and the Gaussian filter
   freq_peak_ordered_smooth <- stats::convolve(y = gaussian_vector, x = freq_peak_ordered, conj = TRUE)
   freq_peak_ordered_smooth <- freq_peak_ordered_smooth[c((n_features / 2):n_features, 1:(n_features/2 - 1))]
 
@@ -57,9 +58,9 @@ metapeakGeneration <- function(x, threshold = 0.01){
   freq_peak_smooth_thresholded[freq_peak_smooth_thresholded < threshold_detection] <- 0
 
 
-  # iv. Generate metapeaks
-  span_local_maxima <- 3 / mz_index_ratio
-  local_maxima_peak_freq <- base::which(.find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima))
+  # iv. Generate seeds, then metapeaks
+  span_local_maxima <- 3 / mz_scaling_factor # constraint for how far apart metapeaks should be
+  local_maxima_peak_freq <- base::which(.find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima)) # ?
 
   local_maxima_peak_freq_reshaped <- matrix(rep(0, length(freq_peak_ordered)), ncol = 1)
   local_maxima_peak_freq_reshaped[local_maxima_peak_freq] <- 1:length(local_maxima_peak_freq)
@@ -94,8 +95,9 @@ metapeakGeneration <- function(x, threshold = 0.01){
 
     cumsum_freq <- (cumsum(freq_peak_ordered[as.numeric(propagation_selection) == k]) / sum(freq_peak_ordered[as.numeric(propagation_selection) == k]))
 
+    # define peak limits as being inside the 1% and 99% of the metapeak
     beginning_peak <- max(which(cumsum_freq < 0.01))
-    end_peak <- min(which(cumsum_freq > 0.99))
+    end_peak <- min(which(cumsum_freq > 0.99)) #
     if (is.infinite(beginning_peak)) {
       Beginning_peak = 1
     }
@@ -105,15 +107,16 @@ metapeakGeneration <- function(x, threshold = 0.01){
                                      mz_vector$mz[as.numeric(propagation_selection) == k][end_peak]))
   }
 
-  # replace NA values in metapeak_delimitation with values 1mz lower or higher than the value that exists
+  # replace NA values in metapeak_delimitation with values 1mz lower or higher than the existing value for the other limit
+  ## creates an artificial peak width of 1mz (before m/z scaling) if it can not be directly calculated
   for (i in 1:nrow(metapeak_delimitation)){
 
     if(is.na(metapeak_delimitation[i, 1])){
-      metapeak_delimitation[i, 1] <- metapeak_delimitation[i, 2] - 1
+      metapeak_delimitation[i, 1] <- metapeak_delimitation[i, 2] - 1 # replace peak-beginning NA with peak-end minus 1
     }
 
     if(is.na(metapeak_delimitation[i, 2])){
-      metapeak_delimitation[i, 2] <- metapeak_delimitation[i, 1] + 1
+      metapeak_delimitation[i, 2] <- metapeak_delimitation[i, 1] + 1 # replace peak-end NA with peak-beginning NA plus 1
     }
 
   }
@@ -121,8 +124,8 @@ metapeakGeneration <- function(x, threshold = 0.01){
 
   # width of each peak
   metapeak_width <- metapeak_delimitation[, 2] - metapeak_delimitation[, 1]
-  # width of each peak on m/z scale
-  metapeak_width <- metapeak_width * mz_index_ratio
+  # rescale peak width so it is on the m/z scale
+  metapeak_width <- metapeak_width * mz_scaling_factor
 
   metapeaks <- list(center = metapeak_center,
                     max = metapeak_max,
