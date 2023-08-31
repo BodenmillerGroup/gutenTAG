@@ -10,7 +10,10 @@
 #'
 #' @return An image.
 #'
-#' @import imager
+#' @importFrom imager as.cimg
+#' @importFrom imager add.colour
+#' @importFrom imager R
+#' @importFrom imager G
 #' @export
 #'
 #' @examples imageChannel(IntensityDF, coords, channel_number = 4)
@@ -39,10 +42,10 @@ imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99
   x[x > x_max] <- x_max
   matrix_image[as.matrix(coords)] <- x
   # convert matrix to image
-  matrix_image <- as.cimg(matrix_image - min(matrix_image, na.rm = TRUE))
+  matrix_image <- imager::as.cimg(matrix_image - min(matrix_image, na.rm = TRUE))
 
   # add colour channels to the image
-  matrix_image <- add.color(matrix_image, simple = TRUE)
+  matrix_image <- imager::add.color(matrix_image, simple = TRUE)
 
   # set red and blue channels to zero to get only green
   R(matrix_image) <- 0
