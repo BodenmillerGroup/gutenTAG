@@ -6,7 +6,7 @@
 #' @param cores The number of cores to be used for processing.
 #' @returns A pre-processed MSImagingExperiment object.
 #'
-#' @import Cardinal
+#' @rawNamespace import(Cardinal, except = peaks)
 #' @import BiocParallel
 #' @export
 #' @examples

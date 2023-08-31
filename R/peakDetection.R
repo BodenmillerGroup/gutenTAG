@@ -9,7 +9,6 @@
 #'
 #' @return An MSImagingExperiment object containing a list of detected peaks
 #'
-#' @import Cardinal
 #' @export
 #'
 #' @examples

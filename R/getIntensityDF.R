@@ -7,7 +7,6 @@
 #'
 #' @return List containing a). A dataframe of intensity values for all markers that are associated with an observed metapeak, and b). A dataframe that references metapeaks to expected peaks, aswell as optional additional features. c). A spatial coordinate dataframe for each pixel.
 #'
-#' @import Cardinal
 #' @importFrom N2R crossKnn
 #' @export
 #'
