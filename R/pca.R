@@ -8,7 +8,7 @@
 #' @return A PCA
 #'
 #' @importFrom irlba prcomp_irlba
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #' @export
 #'
 #' @examples
