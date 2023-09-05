@@ -62,7 +62,6 @@ louvain_cluster <- function(x, coords, k = 300, metric = "angular", plot = FALSE
            y = "Y Coordinate")
   }
 
-  print(length(unique(membership)))
   return(membership)
 
 }
