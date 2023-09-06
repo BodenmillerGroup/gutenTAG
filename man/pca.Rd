@@ -4,7 +4,7 @@
 \alias{pca}
 \title{Principal Component Analysis}
 \usage{
-pca(x, comp = 5, scree = FALSE, plot = FALSE)
+pca(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
