@@ -1,4 +1,4 @@
-#' Obtain Intensity dataframe of targeted peaks/
+#' Obtain Intensity dataframe of targeted peaks
 #'
 #' @param x Metapeaks from output of metapeakGeneration function.
 #' @param refList A reference list of masses of interest. Should be dataframe with two columns: 'Name' and 'FeatureMass'.
@@ -11,9 +11,9 @@
 #' @export
 #'
 #' @examples
-#' getIntensityDF(metapeaks, peakAnnotation, peakPre)
+#' assignMetapeaks(metapeaks, peakAnnotation, peakPre)
 
-getIntensityDF <- function(x, pre, refList, mz_threshold = 1){
+assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # get variables from pre-processed object
   mz_vector <- as.data.frame(mz(pre))
