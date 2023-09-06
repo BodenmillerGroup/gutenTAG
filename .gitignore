@@ -10,4 +10,5 @@ analysis/*html
 analysis/*_cache
 analysis/site_libs
 inst/doc
+/doc/
 /Meta/
