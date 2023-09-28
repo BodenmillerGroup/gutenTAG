@@ -7,7 +7,7 @@
 computeGMM(x, hist = FALSE)
 }
 \arguments{
-\item{x}{Output from getIntensityDF function}
+\item{x}{Output from assignMetapeaks function}
 
 \item{hist}{TRUE/FALSE for plotting histogram for each channel}
 }

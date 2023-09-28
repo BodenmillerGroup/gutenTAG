@@ -14,7 +14,7 @@ louvain_cluster(
 )
 }
 \arguments{
-\item{x}{Output of getIntensityDF function.}
+\item{x}{Output of assignMetapeaks function.}
 
 \item{coords}{If only providing an intensity dataframe for argument x, spatial coordinates must also be provided in the coords argument.}
 

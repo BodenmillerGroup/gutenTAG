@@ -9,7 +9,7 @@ asCytoImageList(x, name = "test")
 \arguments{
 \item{name}{The name of the image}
 
-\item{final}{Output from getIntensityDF function}
+\item{final}{Output from assignMetapeaks function}
 }
 \value{
 A CytoImageList object

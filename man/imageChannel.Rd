@@ -15,7 +15,7 @@ imageChannel(
 )
 }
 \arguments{
-\item{x}{A targeted intensity dataframe (rows: pixels, cols: features) OR output of getIntensityDF. If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.}
+\item{x}{A targeted intensity dataframe (rows: pixels, cols: features) OR output of assignMetapeaks If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.}
 
 \item{coords}{A spatial coordinates dataframe.}
 

@@ -1,6 +1,6 @@
 #' Image one channel
 #'
-#' @param x A targeted intensity dataframe (rows: pixels, cols: features) OR output of getIntensityDF. If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.
+#' @param x A targeted intensity dataframe (rows: pixels, cols: features) OR output of assignMetapeaks If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.
 #' @param coords A spatial coordinates dataframe.
 #' @param channel_number The index of the channel to be imaged.
 #' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.

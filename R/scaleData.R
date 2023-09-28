@@ -1,6 +1,6 @@
 #' Scale processed data.
 #'
-#' @param x Output of getIntensityDF function
+#' @param x Output of assignMetapeaks function
 #' @param method Choose according to which statistic to scale the data. Currently supported are corrected standard deviation as "corsd" and Geary's C score as "geary".
 #'
 #' @return Scaled data

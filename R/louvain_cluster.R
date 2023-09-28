@@ -1,6 +1,6 @@
 #' Title Perform Louvain clustering
 #'
-#' @param x Output of getIntensityDF function.
+#' @param x Output of assignMetapeaks function.
 #' @param k Number of nearest neighbours when building adjacency matrix.
 #' @param coords If only providing an intensity dataframe for argument x, spatial coordinates must also be provided in the coords argument.
 #' @param metric The distance metric to be used (angular, L2)

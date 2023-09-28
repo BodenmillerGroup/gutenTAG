@@ -1,6 +1,6 @@
 #' Compute Geary's C score for each marker.
 #'
-#' @param object Output from getIntensityDF.
+#' @param object Output from assignMetapeaks
 #'
 #' @return A vector of Geary's C score for each marker.
 #' @importFrom N2R Knn

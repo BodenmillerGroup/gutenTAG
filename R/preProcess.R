@@ -15,6 +15,8 @@
 
 preProcess <- function(x, cores){
 
+  .valid.preProcess(x, cores)
+
   x %>%
     Cardinal::normalize(method = "tic") %>%
     smoothSignal(method = "gaussian", plot=FALSE) %>%

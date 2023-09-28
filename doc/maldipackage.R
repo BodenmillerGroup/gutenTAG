@@ -19,19 +19,19 @@ path <- system.file("extdata", package = "maldipackage")
 list.files(path, recursive = TRUE)
 
 ## ----pre-processing-----------------------------------------------------------
-pre <- preProcess(rawFile, cores = 8)
+pre <- preProcess(rawFile, cores = 2)
 
 ## ----Cardinal pre-processing--------------------------------------------------
 pre <- rawFile %>%
     Cardinal::normalize(method = "tic") %>%
     smoothSignal(method = "gaussian", plot = FALSE) %>%
     reduceBaseline(method = "locmin") %>%
-    process(BPPARAM = MulticoreParam(workers = 8))
+    process(BPPARAM = MulticoreParam(workers = 2))
 
 
 ## ----Peak detection-----------------------------------------------------------
 
-detected <- maldipackage::peakDetection(pre, snr = 3, cores = 8)
+detected <- maldipackage::peakDetection(pre, snr = 3, cores = 2)
 
 
 ## ----Metapeak generation------------------------------------------------------
@@ -40,7 +40,7 @@ metapeaks <- maldipackage::metapeakGeneration(detected)
 
 
 ## ----Generate final output----------------------------------------------------
-processed <- maldipackage::getIntensityDF(metapeaks, refList = panel, pre = pre)
+processed <- maldipackage::assignMetapeaks(metapeaks, refList = panel, pre = pre)
 
 
 ## ----coerce to CytoImageList object-------------------------------------------
@@ -91,7 +91,7 @@ umap_df <- cbind(my_umap, processed$IntensityDF)
 # plot UMAP with channel intensity
 library(ggplot2)
 ggplot(umap_df) +
-  geom_point(aes(x = UMAP1, y = UMAP2, color = HLA.ABC), alpha = 0.6, size = 0.1) +
+  geom_point(aes(x = UMAP1, y = UMAP2, color = HLA.ABC), alpha = 0.6, size = 1) +
   scale_color_viridis_c() +
   theme_minimal() +
   theme(legend.position = "right") +
@@ -109,7 +109,7 @@ cluster_df <- cbind(my_umap, clusters)
 
 # plot UMAP with channel intensity
 ggplot(cluster_df, aes(x = UMAP1, y = UMAP2, color = clusters)) +
-  geom_point(size = 0.1) +
+  geom_point(size = 1) +
   scale_color_discrete(name = "Cluster Membership") +
   theme_minimal() +
   labs(title = "Cluster Memberships on Spatial Coordinates",
@@ -123,7 +123,7 @@ cluster_coords <- cbind(processed$SpatialCoords, clusters)
 
 # ggplot spatial distribution of clusters
 ggplot(cluster_coords, aes(x = x, y = y, color = clusters)) +
-  geom_point(size = 0.1) +
+  geom_point(size = 1) +
   scale_color_discrete(name="Cluster Membership") +
   #scale_color_brewer(palette = "Set1", name = "Cluster Membership") + # alternative colour set for clustering
   theme_minimal() +

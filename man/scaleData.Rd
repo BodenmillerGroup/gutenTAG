@@ -7,7 +7,7 @@
 scaleData(x, method = "corsd")
 }
 \arguments{
-\item{x}{Output of getIntensityDF function}
+\item{x}{Output of assignMetapeaks function}
 
 \item{method}{Choose according to which statistic to scale the data. Currently supported are corrected standard deviation as "corsd" and Geary's C score as "geary".}
 }

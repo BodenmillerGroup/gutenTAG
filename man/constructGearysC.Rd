@@ -7,7 +7,7 @@
 constructGearysC(object, update_correspondence = FALSE)
 }
 \arguments{
-\item{object}{Output from getIntensityDF.}
+\item{object}{Output from assignMetapeaks}
 }
 \value{
 A vector of Geary's C score for each marker.

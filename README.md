@@ -22,7 +22,7 @@ To install the development version of the package, install via GitHub:
 ``` r
 
 install.packages("devtools")
-devtools::install_github("BodenmillerGroup/maldi-processing")
+devtools::install_github("BodenmillerGroup/maldi-imaging")
 
 ```
 
@@ -68,7 +68,7 @@ pre <- preprocess(rawFile, cores = 4)
 
 #### 3. Processing
 
-Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `getIntensityDF` functions in series.
+Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `assignMetapeaks` functions in series.
 
 The first step of processing is to identify peaks in the pre-processed spectra. This function is essentially a wrapper for `Cardinal::peakPick`.
 
@@ -85,11 +85,11 @@ Once `peakDetection` has been run, `metapeakGeneration` can be run. Metapeaks ar
 metapeaks <- metapeakGeneration(list_peaks)
 
 ```
-`getIntensityDF` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
+`assignMetapeaks` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
 
 ``` r
 
-processed <- getIntensityDF(metapeaks, refList = panel, pre = pre)
+processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
 
 ```
 

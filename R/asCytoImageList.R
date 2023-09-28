@@ -1,6 +1,6 @@
 #' asCytoImageList
 #'
-#' @param final Output from getIntensityDF function
+#' @param final Output from assignMetapeaks function
 #' @param name The name of the image
 #'
 #' @return A CytoImageList object

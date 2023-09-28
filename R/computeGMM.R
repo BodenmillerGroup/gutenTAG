@@ -1,6 +1,6 @@
 #' Compute Gaussian Mixture Model for individual image channels
 #'
-#' @param x Output from getIntensityDF function
+#' @param x Output from assignMetapeaks function
 #' @param hist TRUE/FALSE for plotting histogram for each channel
 #'
 #' @return Gaussian mixture model for each channel of MALDI-image
