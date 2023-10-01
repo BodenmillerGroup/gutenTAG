@@ -1,4 +1,6 @@
-# maldi-processing
+<img src="vignettes/gutenTAG.png" align="right" alt="" width="100" />
+
+# gutenTAG
 
 This R package supports the data handing, processing, quality control and analysis of 
   targeted MALDI-imaging data. The data handling capabilities (import, pre-processing, export) build 
