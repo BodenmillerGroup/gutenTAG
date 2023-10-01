@@ -18,12 +18,15 @@
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
 #' @importFrom stats convolve
-#' @export
+#' @export generateMetapeaks
 #'
 #' @examples
-#' metapeakGeneration(list_peaks)
+#' generateMetapeaks(list_peaks)
 
-metapeakGeneration <- function(x, threshold = 0.01){
+generateMetapeaks <- function(x, threshold = 0.01){
+
+  # validity checks
+  .valid.metapeakGeneration(x, threshold)
 
   # 0. Set parameters
   mz_vector <- as.data.frame(mz(x))

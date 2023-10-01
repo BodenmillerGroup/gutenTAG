@@ -15,6 +15,7 @@
 
 preProcess <- function(x, cores){
 
+  # validity checks for preProcess
   .valid.preProcess(x, cores)
 
   x %>%

@@ -124,7 +124,7 @@ pre <- rawFile %>%
 # Data processing {#processing}
 
 Full processing of the pre-processed MALDI-imaging data can be performed
-using the `peakDetection`, `metapeakGeneration` and `assignMetapeaks`
+using the `peakDetection`, `generateMetapeaks` and `assignMetapeaks`
 functions in series.
 
 ## Peak Detection
@@ -146,7 +146,7 @@ Once `peakDetection` has been performed, the detected peaks per pixel
 can be used to generate metapeaks. Here, metapeaks are defined as single
 peaks that correspond to clusters of peaks that contain information on
 the same molecular species. The function used to generate these
-metapeaks is `metapeakGeneration`. This step is implemented to account
+metapeaks is `generateMetapeaks`. This step is implemented to account
 for loss of signal through technical shift and isotopic peaks in the
 spectra. Inside this function, metapeaks are constructed by
 
@@ -163,7 +163,7 @@ from untargeted peaks.
 
 ```{r Metapeak generation}
 
-metapeaks <- maldipackage::metapeakGeneration(detected)
+metapeaks <- maldipackage::generateMetapeaks(detected)
 
 ```
 
@@ -181,7 +181,7 @@ metapeaks to reference peaks. This assignment can be controlled via the
 You may notice that some of the expected peaks in the reference list
 will not appear in the output. This is likely due to either a lack of
 signal, resulting in the metapeak not passing the filter threshold
-during `metapeakGeneration`, or the metapeak center being out of range
+during `generateMetapeaks`, or the metapeak center being out of range
 for assignment to a reference peak during `assignMetapeaks`. These
 parameters can be adjusted to improve results.
 
@@ -247,7 +247,7 @@ of data analysis. This package explicitly supports PCA, NMF and UMAP.
 
 PCA is a very commonly used techniques which linearly separates the data
 according to the orthogonal dimensions with greatest variance. This can
-be performed using the `pca` function. This function wraps the `irlba`
+be performed using the `computePCA` function. This function wraps the `irlba`
 implementation of PCA, requiring a set seed. This takes the targeted
 intensity dataframe as the main argument. The number of components,
 aswell as some plotting functions can also be chosen as arguments.
@@ -257,7 +257,7 @@ under `my_pca$rotation`.
 
 ```{r pca, echo=TRUE}
 
-my_pca <- maldipackage::pca(processed$IntensityDF, comp = 5, scree = TRUE)
+my_pca <- computePCA(processed$IntensityDF, comp = 5, scree = TRUE)
 
 for (i in 1:ncol(my_pca$x)){
   maldipackage::imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i)
@@ -269,11 +269,11 @@ for (i in 1:ncol(my_pca$x)){
 
 In practice, NMF often performs better than PCA in terms of decomposing
 the major dimensions of the data. NMF gives parts-based representation
-of the data, w. NMF can be performed using the `nmf` function provided
+of the data in the feature factor matrix, denoted here as 'w'. NMF can be simply executed using the `computeNMF` function provided
 by this package.
 
 ```{r nmf}
-my_nmf <- maldipackage::nmf(processed$IntensityDF, comp = 5)
+my_nmf <- computeNMF(processed$IntensityDF, comp = 5)
 
 # visualise the factored dimensions
 for (i in 1:ncol(my_pca$x)){

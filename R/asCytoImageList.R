@@ -1,16 +1,30 @@
 #' asCytoImageList
 #'
-#' @param final Output from assignMetapeaks function
+#' @param x Output from assignMetapeaks function
 #' @param name The name of the image
 #'
 #' @return A CytoImageList object
 #'
 #' @importFrom cytomapper CytoImageList
+#' @importFrom cytomapper channelNames
 #'
 #' @export
+#' @examples
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw, cores = 2)
+#' peaks <- peakDetection(pre, core = 2)
+#' metapeaks <- metapeakGeneration(peaks)
+#' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
+#' cil <- asCytoImageList(processed, name = "test")
 
 asCytoImageList <- function(x, name = "test"){
+
+  # run validity checks
+  .valid.asCytoImageList(x, name)
 
   dataframe <- x$IntensityDF
   coords <- x$SpatialCoords

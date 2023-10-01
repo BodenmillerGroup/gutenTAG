@@ -1,8 +1,8 @@
 #' Make SpatialExperiment object
 #'
-#' @param final The output from assignMetapeaks() function
+#' @param x The output from 'assignMetapeaks' function
 #'
-#' @return
+#' @return An object of the class SpatialExperiment from Cardinal.
 #'
 #' @importFrom SpatialExperiment SpatialExperiment
 #' @importFrom SpatialExperiment spatialCoordsNames
@@ -12,11 +12,14 @@
 #' @examples
 #' spe <- asSpatialExperiment(final)
 #'
-asSpatialExperiment <- function(final){
+asSpatialExperiment <- function(x){
+
+  # validity checks
+  .valid.asSpatialExperiment(x)
 
   # put intensity df and coordinates in correct form
-  mat <- t(matter::as.matrix(final$IntensityDF))
-  crds <- as.matrix(final$SpatialCoords)
+  mat <- t(matter::as.matrix(x$IntensityDF))
+  crds <- as.matrix(x$SpatialCoords)
 
   # put into SpatialExperiment
   spe <- SpatialExperiment(

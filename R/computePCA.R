@@ -14,13 +14,17 @@
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 theme
-#' @export
+#' @export computePCA
 #'
 #' @examples
-#' pca(IntensityDF, comp = 5)
+#' pca(x$IntensityDF, comp = 5)
 
-pca <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
+computePCA <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
 
+  # validity checks
+  .valid.pca(x, comp, seed, scree, plot)
+
+  # set seed for irlba pca
   set.seed(seed)
   PCA <- prcomp_irlba(x, n = comp, scale. = TRUE)
 
@@ -30,10 +34,11 @@ pca <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
                                Component = 1:comp)
 
     scree_plot <- ggplot(data = PCA_variance, ggplot2::aes(x = as.factor(Component), y = Variation_Explained, fill = as.factor(Component))) +
-      ggplot2::geom_bar(stat = "identity") +
-      ggplot2::labs(title = "Scree Plot", x = "Component", y = "Variance Explained (%)") +
-      ggplot2::scale_y_continuous(limits = c(0, 100)) +
-      ggplot2::theme(legend.position = "none")
+      geom_bar(stat = "identity") +
+      labs(title = "Scree Plot", x = "Component", y = "Variance Explained (%)") +
+      scale_y_continuous(limits = c(0, 100)) +
+      theme(legend.position = "none")
+
     print(scree_plot)
 
   }
@@ -45,6 +50,7 @@ pca <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
     scatter_plot <- ggplot(data = PCA_data, aes(x = PC1, y = PC2)) +
       geom_point() +
       labs(title = "Scatter plot of first two principal components", x = "PC1", y = "PC2")
+
     print(scatter_plot)
   }
 

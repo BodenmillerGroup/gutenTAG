@@ -15,6 +15,9 @@
 
 assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
+  # validity checks
+  .valid.assignMetapeaks(x, pre, refList, mz_threshold)
+
   # get variables from pre-processed object
   mz_vector <- as.data.frame(mz(pre))
   colnames(mz_vector) <- "mz"

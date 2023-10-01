@@ -7,13 +7,25 @@
 asCytoImageList(x, name = "test")
 }
 \arguments{
-\item{name}{The name of the image}
+\item{x}{Output from assignMetapeaks function}
 
-\item{final}{Output from assignMetapeaks function}
+\item{name}{The name of the image}
 }
 \value{
 A CytoImageList object
 }
 \description{
 asCytoImageList
+}
+\examples{
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peaks <- peakDetection(pre, core = 2)
+metapeaks <- metapeakGeneration(peaks)
+processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+
+cil <- asCytoImageList(processed, name = "test")
 }

@@ -4,10 +4,13 @@
 \alias{asSpatialExperiment}
 \title{Make SpatialExperiment object}
 \usage{
-asSpatialExperiment(final)
+asSpatialExperiment(x)
 }
 \arguments{
-\item{final}{The output from assignMetapeaks() function}
+\item{x}{The output from 'assignMetapeaks' function}
+}
+\value{
+An object of the class SpatialExperiment from Cardinal.
 }
 \description{
 Make SpatialExperiment object

@@ -16,15 +16,20 @@
 
 peakDetection <- function(x, snr = 3, win = 50, cores = 1){
 
-  raw_intensity <- iData(x)
+  # validity checks for peakDetection
+  .valid.peakDetection(x, snr, win, cores)
 
-  range_peaks <- range(mz(x))
-  n_features <- length(mz(x))
-  n_pixels <- dim(x)["Pixels"]
-  threshold_detection <- n_pixels*0.01
-  mz_vector <- as.data.frame(mz(x))
-  location_pixels <- as.data.frame(pData(x))[, c("x","y")]
+  # is any of this necessary?
+  #raw_intensity <- iData(x)
 
+  #range_peaks <- range(mz(x))
+  #n_features <- length(mz(x))
+  #n_pixels <- dim(x)["Pixels"]
+  #threshold_detection <- n_pixels*0.01
+  #mz_vector <- as.data.frame(mz(x))
+  #location_pixels <- as.data.frame(pData(x))[, c("x","y")]
+
+  # peak detection
   if(cores > 1){
     list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
       process(BPPARAM = MulticoreParam(workers = cores))
@@ -32,8 +37,6 @@ peakDetection <- function(x, snr = 3, win = 50, cores = 1){
     list_peaks <- Cardinal::peakPick(x, method = "mad", SNR = snr, window = win) %>%
       process()
   }
-
-
 
   return(list_peaks)
 

@@ -10,11 +10,14 @@
 #' @export
 #'
 #' @examples
-#' nmf(x = IntensityDF, comp = 5)
+#' computeNMF(x = IntensityDF, comp = 5)
 
-nmf <- function(x, comp){
+computeNMF <- function(x, comp, seed = 234, cntr = FALSE){
 
-  nmf_temp <- RcppML::nmf(scale(x, center = FALSE), k = comp)
+  set.seed(seed)
+  .valid.computeNMF(x, comp, cntr)
+
+  nmf_temp <- RcppML::nmf(A = scale(x, center = cntr), k = comp)
   return(nmf_temp)
 
 }

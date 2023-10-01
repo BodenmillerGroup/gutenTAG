@@ -6,10 +6,13 @@
 #' @return A list of variograms for each marker.
 #'
 #' @importFrom gstat variogram
-#' @export
+#' @export computeVariogram
 #'
 
-constructVariogram <- function(df, coords){
+computeVariogram <- function(df, coords){
+
+  # validity checks
+  .valid.computeVariogram(df, coords)
 
   # Include make.names to remove problematic characters, such as spaces, +, etc.
   names(df) <- make.names(names(df))

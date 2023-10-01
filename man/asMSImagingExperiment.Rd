@@ -4,10 +4,10 @@
 \alias{asMSImagingExperiment}
 \title{Make MSImagingExperiment object}
 \usage{
-asMSImagingExperiment(final)
+asMSImagingExperiment(x)
 }
 \arguments{
-\item{final}{The output from assignMetapeaks() function}
+\item{x}{The output from 'assignMetapeaks' function}
 }
 \value{
 An object of the class MSImagingExperiment from Cardinal.
@@ -16,5 +16,5 @@ An object of the class MSImagingExperiment from Cardinal.
 Make MSImagingExperiment object
 }
 \examples{
-asMSImagingExperiment(final)
+asMSImagingExperiment(x)
 }
