@@ -42,29 +42,29 @@ Three input files are required for targeted MALDI-imaging experiments:
 - .ibd file (binary data, not required to read in, but should be in the same directory as the metadata file)
 - .csv file (Panel)
 
-Currently, there is no function provided in this package to read in the .imzML file. It is instead recommended to simply use the Cardinal `readMSIData` function for easy reading in of the data. 
+Example raw data is stored in the `inst/extdata` directory of this repository. These files can be retrieved using the two chunks of code below.
+It is recommended to use the Cardinal `readMSIData` function to easily read in the .imzML data. 
 
 ```r
-
-rawFile <- Cardinal::readMSIData(/path/to/.imzML)
-
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+rawFile <- readMSIData(path)
 ```
 
-The panel can be easily loaded into your R session using the `readPanel` function:
+The panel can be conveniently loaded into your R session using the `readPanel` function:
 
 ```r
-
-panel <- readPanel(/path/to/panel.csv)
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
 
 ```
 
 #### 2. Pre-processing
 
-The `preprocess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the Cardinal functions directly. 
+The `preProcess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the above Cardinal functions directly. 
 
 ``` r
 
-pre <- preprocess(rawFile, cores = 4)
+pre <- preProcess(rawFile, cores = 2)
 
 ```
 
@@ -80,11 +80,11 @@ list_peaks <- peakDetection(pre)
 
 ```
 
-Once `peakDetection` has been run, `metapeakGeneration` can be run. Metapeaks are single peaks that correspond to clusters of peaks that contain information the same molecular species. The function used to generate these metapeaks, `metapeakGeneration`, is implemented to compensate for the loss of signal through technical shift and isotopic peaks in the spectra. 
+Once `peakDetection` has been run, `generateMetapeaks` can be run. Metapeaks are single peaks that correspond to clusters of peaks that contain information the same molecular species. The function used to generate these metapeaks, `generateMetapeaks`, is implemented to compensate for the loss of signal through technical shift and isotopic peaks in the spectra. 
 
 ``` r
 
-metapeaks <- metapeakGeneration(list_peaks)
+metapeaks <- generateMetapeaks(list_peaks)
 
 ```
 `assignMetapeaks` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
@@ -95,9 +95,10 @@ processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
 
 ```
 
-The output of processing is a simple object containing 4 elements
+The output of processing is a simple object containing 5 elements
 
 - `IntensityDF` An intensity dataframe for all markers that were paired with a metapeak.
 - `CorrespondenceMatrix` A targeted correspondence matrix detailing which metapeaks were associated to which mass tags.
 - `SpatialCoords` The spatial coordinates for each pixel.
+- `FilteredDF` An intensity dataframe for all markers assigned to a metapeak, with background pixels filtered out. Useful for clustering analysis.
 - `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix. 
