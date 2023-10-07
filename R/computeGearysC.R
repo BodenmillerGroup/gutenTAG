@@ -49,8 +49,12 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
     correspondence$GearysC <- geary_vector
     x$CorrespondenceMatrix <- correspondence
 
+    return(x)
+
+  }else{
+    return(geary_vector)
   }
 
-  return(geary_vector)
+
 
 }

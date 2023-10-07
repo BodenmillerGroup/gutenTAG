@@ -4,7 +4,7 @@
 \alias{computePCA}
 \title{Principal Component Analysis}
 \usage{
-computePCA(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE)
+computePCA(x, comp = 5, seed = 123, scree = FALSE)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
@@ -12,8 +12,6 @@ computePCA(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE)
 \item{comp}{The number of principal components to compute.}
 
 \item{scree}{Plot scree plot (bool)}
-
-\item{plot}{Scatter plot of first two principal components (bool)}
 }
 \value{
 A PCA

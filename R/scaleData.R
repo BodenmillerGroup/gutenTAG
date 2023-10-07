@@ -12,13 +12,16 @@
 #' @export
 scaleData <- function(x, method = "corsd"){
 
+  # validity checks
+  .valid.scaleData(x, method)
+
   # extract dataframe and correspondence matrix
   df <- x$IntensityDF
   correspondence <- x$CorrespondenceMatrix
 
   # Remove all un-annotated peaks from correspondence matrix
-  correspondence_matrix_targeted <- na.omit(correspondence)
-  correspondence_matrix_targeted <- dplyr::relocate(correspondence_matrix_targeted, "Annotation_peaks") # change to Annotation_peaks or Marker accordingly
+  #correspondence_matrix_targeted <- na.omit(correspondence)
+  #correspondence_matrix_targeted <- dplyr::relocate(correspondence_matrix_targeted, "Annotation_peaks") # change to Annotation_peaks or Marker accordingly
 
   # specify channel
   scaled_data <- c()
@@ -33,13 +36,25 @@ scaleData <- function(x, method = "corsd"){
 
     # compute alpha based on method
     if(method == "corsd"){
-      alpha <- correspondence["Corrected_sd"][i,]
+      alpha <- correspondence["corrected_sd"][i,]
     }
 
     if(method == "geary"){
-      geary <- correspondence["Geary"][i,]
-      alpha <- 1 - geary
+      if(!("GearysC" %in% colnames(correspondence))){
+        x <- computeGearysC(x = x, verbose = FALSE, update_correspondence = TRUE)
+        correspondence <- x$CorrespondenceMatrix
+        geary <- correspondence["GearysC"][i,]
+        alpha <- 1 - geary
+      }else{
+        geary <- correspondence["GearysC"][i,]
+        alpha <- 1 - geary
+      }
     }
+
+    if(!("GearysC" %in% colnames(correspondence))){
+      x <- computeGearysC(x = x, verbose = FALSE, update_correspondence = TRUE)
+    }
+
 
     # add method for variogram, e.g. distance to 50% of semivariance ???
 

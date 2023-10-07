@@ -9,6 +9,7 @@
 #'
 # find peaks function ####
 .find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
+
   # find peaks
   if(is.null(span)) {
 

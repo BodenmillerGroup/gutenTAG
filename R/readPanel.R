@@ -2,7 +2,7 @@
 #'
 #' @param path The path to the panel.
 #'
-#' @return The cleaned and ordered panel.
+#' @return A clean and ordered panel.
 #'
 #' @importFrom dplyr arrange
 #' @importFrom dplyr relocate
@@ -10,7 +10,9 @@
 #' @export
 #'
 #' @examples
-#' readPanel("/path/to/panel.csv")
+#'
+#' readPanel("extdata/ref_list.csv")
+
 readPanel <- function(path){
 
   # read in .csv

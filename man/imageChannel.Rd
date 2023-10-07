@@ -10,7 +10,7 @@ imageChannel(
   channel_number = 1,
   quantile_lim = 0.99,
   interpolate = FALSE,
-  axes = TRUE,
+  axes = FALSE,
   colna = "black"
 )
 }

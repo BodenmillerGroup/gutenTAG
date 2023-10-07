@@ -25,26 +25,34 @@
 #' @importFrom utils read.delim
 #' @importFrom mclust mclustICL
 #' @importFrom mclust Mclust
+#' @importFrom mclust mclustBIC
 #' @importFrom mclust densityMclust
 #' @importFrom dplyr relocate
+#' @importFrom graphics mtext
 #'
 #' @export
 #'
 
 computeGMM <- function(x, hist = FALSE){
 
+  # validity checks
+  .valid.computeGMM(x, hist)
+
+  # extract information from input
   targeted_intensity <- x$IntensityDF
   untargeted_intensity <- x$Untargeted$UntargetedIntensity
 
+  # calculate TIC
   tic_intensity <- rowSums(untargeted_intensity)
 
-  #pixelsSummarised <- as.data.frame(cbind(tic_intensity, mean_intensity))
-
+  # omit all zero values
   tic_intensity[tic_intensity == 0] <- NA
   tic_intensity <- na.omit(tic_intensity)
 
+  # otsu thresholding to define signal/noise threshold
   tic_threshold <- .otsu_thresholding(log10(tic_intensity))
 
+  #
   columns <- c("MarkerID", "SeparationScore", "PositivePixels", "MeanNoiseIntensity", "MeanSignalIntensity")
   gmmTable <- data.frame(matrix(nrow = 0, ncol = length(columns)))
   colnames(gmmTable) <- columns
@@ -63,9 +71,8 @@ computeGMM <- function(x, hist = FALSE){
     x <- x[x > 0]
 
     # optimal number of Gaussians
-    ICL_score <- mclust::mclustICL(data = log10(1 + x), G = 1:2, modelNames = c("V"))
+    ICL_score <- mclustICL(data = log10(1 + x), G = 1:2, modelNames = c("V"))
     ICL_score <- c(ICL_score[[1]], ICL_score[[2]])
-    #ICL_score <- c(ICL_score[[1]], ICL_score[[2]], ICL_score[[3]], ICL_score[[4]], ICL_score[[5]])
 
     N_gaussian_curves <- as.numeric(which.max((ICL_score)))
     gmm_model <- Mclust(data = log10(1 + x), G = N_gaussian_curves, modelNames = "V")
@@ -74,11 +81,11 @@ computeGMM <- function(x, hist = FALSE){
     density <- data.frame(density[17]) # convert to dataframe to get max value
     maxDensity <- max(density)
 
-    # Define separability score
-
+    # Define separation score
     mean1 <- gmm_model$parameters$mean[1]
     mean2 <- gmm_model$parameters$mean[2]
 
+    # standard deviation of both Gaussians
     sd1 <- sqrt(gmm_model$parameters$variance$sigmasq[1])
     sd2 <- sqrt(gmm_model$parameters$variance$sigmasq[2])
 
@@ -121,11 +128,7 @@ computeGMM <- function(x, hist = FALSE){
               add = TRUE,
               lwd = 2,
               col = rainbow(N_gaussian_curves)[j])
-        text(x = max(gmm_model$data), y = (maxDensity - (0.35 * maxDensity)), # coordinates of the text
-             labels = paste("Separation Score: ", round(separationScore, 3)),
-             adj = 1,
-             cex = 1,
-             font = 1)
+        mtext(paste("Separation Score: ", round(separationScore, 3)), side = 3)
       }
 
     }
@@ -135,7 +138,7 @@ computeGMM <- function(x, hist = FALSE){
   gmmTable <- gmmTable %>% relocate(MarkerID)
   gmmTable[is.na(gmmTable)] <- 0
 
-  return(list(gmmTable, gmm_model))
+  return(list(table = gmmTable, model = gmm_model))
 
 }
 

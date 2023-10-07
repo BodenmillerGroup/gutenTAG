@@ -53,8 +53,6 @@ the following analyses:
 To highlight the usability of these function, the `maldipackage` package
 also exports a number of [test data files](#test-data).
 
-### MALDI-imaging
-
 # Read in raw data and panel {#read-in-data}
 
 The raw imaging data can be read into R using the `readMSIData` function
@@ -71,7 +69,7 @@ molecular target into R.
 
 ```{r read in panel}
 panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
-panel <- maldipackage::readPanel(panel_path)
+panel <- readPanel(panel_path)
 
 ```
 
@@ -136,7 +134,7 @@ detection algorithm for robust noise evaluation.
 
 ```{r Peak detection}
 
-detected <- maldipackage::peakDetection(pre, snr = 3, cores = 2)
+detected <- peakDetection(pre, snr = 3, cores = 2)
 
 ```
 
@@ -163,7 +161,7 @@ from untargeted peaks.
 
 ```{r Metapeak generation}
 
-metapeaks <- maldipackage::generateMetapeaks(detected)
+metapeaks <- generateMetapeaks(detected)
 
 ```
 
@@ -186,7 +184,7 @@ for assignment to a reference peak during `assignMetapeaks`. These
 parameters can be adjusted to improve results.
 
 ```{r Generate final output}
-processed <- maldipackage::assignMetapeaks(metapeaks, refList = panel, pre = pre)
+processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
 
 ```
 
@@ -247,10 +245,11 @@ of data analysis. This package explicitly supports PCA, NMF and UMAP.
 
 PCA is a very commonly used techniques which linearly separates the data
 according to the orthogonal dimensions with greatest variance. This can
-be performed using the `computePCA` function. This function wraps the `irlba`
-implementation of PCA, requiring a set seed. This takes the targeted
-intensity dataframe as the main argument. The number of components,
-aswell as some plotting functions can also be chosen as arguments.
+be performed using the `computePCA` function. This function wraps the
+`irlba` implementation of PCA, requiring a set seed. This takes the
+targeted intensity dataframe as the main argument. The number of
+components, aswell as some plotting functions can also be chosen as
+arguments.
 
 Once this is performed, the loadings for each component can be accessed
 under `my_pca$rotation`.
@@ -260,7 +259,7 @@ under `my_pca$rotation`.
 my_pca <- computePCA(processed$IntensityDF, comp = 5, scree = TRUE)
 
 for (i in 1:ncol(my_pca$x)){
-  maldipackage::imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i)
+  imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i)
 }
 
 ```
@@ -269,15 +268,16 @@ for (i in 1:ncol(my_pca$x)){
 
 In practice, NMF often performs better than PCA in terms of decomposing
 the major dimensions of the data. NMF gives parts-based representation
-of the data in the feature factor matrix, denoted here as 'w'. NMF can be simply executed using the `computeNMF` function provided
-by this package.
+of the data in the feature factor matrix, denoted here as 'w'. NMF can
+be simply executed using the `computeNMF` function provided by this
+package.
 
 ```{r nmf}
 my_nmf <- computeNMF(processed$IntensityDF, comp = 5)
 
 # visualise the factored dimensions
-for (i in 1:ncol(my_pca$x)){
-  maldipackage::imageChannel(my_nmf$w, coords = processed$SpatialCoords, channel_number = i)
+for (i in 1:ncol(my_nmf$w)){
+  imageChannel(my_nmf$w, coords = processed$SpatialCoords, channel_number = i)
 }
 ```
 
@@ -291,7 +291,7 @@ This package includes the `computeUMAP` function, which computes the
 UMAP using the `uwot` package implementation.
 
 ```{r umap}
-my_umap <-computeUMAP(processed$IntensityDF)
+my_umap <- computeUMAP(processed$IntensityDF, seed = 3)
 
 ```
 
@@ -317,7 +317,7 @@ ggplot(umap_df) +
 
 # Community detection {#community-detection}
 
-The `maldipackage` exports the `louvain_cluster` function to detect the
+The `maldipackage` exports the `louvainCluster` function to detect the
 spatial community of each pixel. Here, each pixe is clustered based on
 its interactions as defined by a spatial object graph.
 
@@ -330,7 +330,7 @@ In more detail, the spatial community detection procedure is as follows:
 3.  Store the community IDs in a vector.
 
 ```{r community detection}
-clusters <- louvain_cluster(processed$IntensityDF)
+clusters <- louvainCluster(processed$IntensityDF, processed$SpatialCoords, k = 30)
 ```
 
 One of the ways in which these clusters can be visualised is to display
@@ -362,7 +362,7 @@ cluster_coords <- cbind(processed$SpatialCoords, clusters)
 
 # ggplot spatial distribution of clusters
 ggplot(cluster_coords, aes(x = x, y = y, color = clusters)) +
-  geom_point(size = 1) +
+  geom_point(size = 5) +
   scale_color_discrete(name="Cluster Membership") +
   #scale_color_brewer(palette = "Set1", name = "Cluster Membership") + # alternative colour set for clustering
   theme_minimal() +
@@ -378,7 +378,8 @@ generation step for data processing, as well as being instrumental in
 developing the architecture of the pipeline.\
 [Nils Eling](https://github.com/nilseling) assisted in designing and
 developing the structure of the package, as well as assisting in
-integrating the package with `cytomapper`, while [Lasse Meyer](https://github.com/lassedochreden) has contributed to integrating
+integrating the package with `cytomapper`, while [Lasse
+Meyer](https://github.com/lassedochreden) has contributed to integrating
 the package with `cytoviewer`.
 
 # Session info {.unnumbered}

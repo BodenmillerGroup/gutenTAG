@@ -3,7 +3,6 @@
 #' @param x A targeted intensity dataframe (rows: pixels, cols: features)
 #' @param comp The number of principal components to compute.
 #' @param scree Plot scree plot (bool)
-#' @param plot Scatter plot of first two principal components (bool)
 #'
 #' @return A PCA
 #'
@@ -19,7 +18,7 @@
 #' @examples
 #' pca(x$IntensityDF, comp = 5)
 
-computePCA <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
+computePCA <- function(x, comp = 5, seed = 123, scree = FALSE){
 
   # validity checks
   .valid.pca(x, comp, seed, scree, plot)
@@ -41,17 +40,6 @@ computePCA <- function(x, comp = 5, seed = 123, scree = FALSE, plot = FALSE){
 
     print(scree_plot)
 
-  }
-
-  if (plot == TRUE){
-
-    PCA_data <- data.frame(PCA$x)
-
-    scatter_plot <- ggplot(data = PCA_data, aes(x = PC1, y = PC2)) +
-      geom_point() +
-      labs(title = "Scatter plot of first two principal components", x = "PC1", y = "PC2")
-
-    print(scatter_plot)
   }
 
   return(PCA)

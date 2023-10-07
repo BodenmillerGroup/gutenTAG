@@ -4,13 +4,15 @@
 \alias{computeUMAP}
 \title{Uniform Manifold Approximate Projection (UMAP)}
 \usage{
-computeUMAP(x)
+computeUMAP(x, seed = NULL)
 }
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
+
+\item{seed}{A single number containing to the random number generator state for controlled randomness.}
 }
 \value{
-a dataframe containing UMAP coordinatees
+a dataframe containing UMAP coordinates
 }
 \description{
 Uniform Manifold Approximate Projection (UMAP)

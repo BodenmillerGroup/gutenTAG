@@ -21,7 +21,7 @@ test_that("pca works",{
                                                      6.24461353570202, 9.09662347324635, 6.15357788356246, 6.6490763080287))
 
   # make CytoImageList object
-  cur_test <- computePCA(processed$IntensityDF, comp = 5, seed = 123)
+  cur_test <- computePCA(processed$IntensityDF, comp = 5, seed = 123, scree = TRUE)
 
   # test that class of s3 object is correct
   expect_equal(class(cur_test), c("irlba_prcomp", "prcomp"))
@@ -38,11 +38,12 @@ test_that("pca works",{
 
 
   # test if arguments are in correct format
-  expect_error(computePCA("test", comp = 5, seed = 123, scree = FALSE, plot = FALSE))
-  expect_error(computePCA(processed, comp = 5, seed = 123, scree = FALSE, plot = FALSE))
-  expect_error(computePCA(processed$IntensityDF, comp = "5", seed = 123, scree = FALSE, plot = FALSE))
+  expect_error(computePCA("test", comp = 5, seed = 123, scree = FALSE))
+  # test if breaks when just input processed
+  expect_error(computePCA(processed, comp = 5, seed = 123, scree = FALSE))
+  expect_error(computePCA(processed$IntensityDF, comp = "5", seed = 123, scree = FALSE))
 
   # expect warning in normal case
-  expect_warning(computePCA(processed$IntensityDF, comp = 5, seed = 123, scree = FALSE, plot = FALSE))
+  expect_warning(computePCA(processed$IntensityDF, comp = 5, seed = 123, scree = FALSE))
 
 })

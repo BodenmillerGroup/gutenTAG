@@ -10,11 +10,12 @@ readPanel(path)
 \item{path}{The path to the panel.}
 }
 \value{
-The cleaned and ordered panel.
+A clean and ordered panel.
 }
 \description{
 Read .csv file panel
 }
 \examples{
-readPanel("/path/to/panel.csv")
+
+readPanel("extdata/ref_list.csv")
 }

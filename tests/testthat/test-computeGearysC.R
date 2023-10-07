@@ -1,4 +1,4 @@
-test_that("generateMetapeaks works",{
+test_that("computeGearysC works",{
 
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
@@ -23,7 +23,6 @@ test_that("generateMetapeaks works",{
   # test if character in first argument throws error
   expect_error(computeGearysC("processed", verbose = FALSE, update_correspondence = FALSE))
   expect_error(computeGearysC(processed, verbose = "FALSE", update_correspondence = FALSE))
-
 
 
 })

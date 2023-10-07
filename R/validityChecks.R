@@ -244,3 +244,137 @@
 }
 
 
+# imageChannel ####
+.valid.imageChannel <- function(x, coords, channel_number, quantile_lim, interpolate, axes, colna){
+
+  # break if intensity dataframe class is not a dataframe
+  #if (!is.list(x)) {
+  #  stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
+  #}
+
+  # break if spatial coords class is not a dataframe
+  if (!is.data.frame(coords)) {
+    stop("'coords' should be a dataframe.")
+  }
+
+  # break if channel_number is not a single numeric
+  if (!is.numeric(channel_number)) {
+    stop("'channel_number' should be a single numeric.")
+  }
+
+  # break if channel_number is not a single numeric
+  if (length(channel_number) > 1) {
+    stop("'channel_number' should be a single numeric.")
+  }
+
+  # break if quantile_lim is not a single numeric
+  if (!is.numeric(quantile_lim)) {
+    stop("'quantile_lim' should be a single numeric.")
+  }
+
+  # break if quantile_lim is not a single numeric
+  if (length(quantile_lim) > 1) {
+    stop("'quantile_lim' should be a single numeric.")
+  }
+
+  # break if interpolate is not bool
+  if(!is.logical(interpolate)){
+    stop("'interpolate' should be a boolean (TRUE/FALSE)")
+  }
+
+  # break if axes is not bool
+  if(!is.logical(axes)){
+    stop("'axes' should be a boolean (TRUE/FALSE)")
+  }
+
+  # break if colna is not either 'black' or 'white'
+  if(!(colna %in% c("black", "white"))){
+    stop("'colna' should be either 'black' or 'white'")
+  }
+
+
+}
+
+# computeGMM ####
+.valid.computeGMM <- function(x, hist){
+
+  # break if intensity dataframe class is not a dataframe
+  if (!is.list(x)) {
+    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+  }
+
+  # break if hist is not bool
+  if(!is.logical(hist)){
+    stop("'hist' should be a bool specifying TRUE/FALSE if you want to plot the histograms fitted with the GMM")
+  }
+
+
+}
+
+# computeUMAP ####
+.valid.computeUMAP <- function(x, seed){
+
+  # break if input is not a dataframe
+  if (!is.data.frame(x)) {
+    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
+  }
+
+  # break if seed is not a single numeric
+  if (!is.numeric(seed)) {
+    stop("'seed' should be a single numeric.")
+  }
+
+  # break if seed is not a single numeric
+  if (length(seed) > 1) {
+    stop("'seed' should be a single numeric.")
+  }
+
+}
+
+
+# scaleData ####
+.valid.scaleData <- function(x, method){
+
+  # break if spatial coords class is not a dataframe
+  if (!is.list(x)) {
+    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+  }
+
+  # break if method is not in list of acceptable strings
+  if (!method %in% c("corsd", "geary")) {
+    stop("method for scaling must be either 'corsd' or 'geary'")
+  }
+
+}
+
+
+# louvainCluster ####
+.valid.louvainCluster <- function(x, coords, k, metric, resolution){
+
+  # break if coords class is not a dataframe
+  if (!is.data.frame(coords)) {
+    stop("'coords' should be a data.frame. It should be the coordinates dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$SpatialCoords, where x is the output of the 'assignMetapeaks' function")
+  }
+
+  # break if k is not a single numeric
+  if (!is.numeric(k)) {
+    stop("'k' should be a single numeric.")
+  }
+
+  # break if k is not a single numeric
+  if (length(k) > 1) {
+    stop("'k' should be a single numeric.")
+  }
+
+  # break if resolution is not a single numeric
+  if (!is.numeric(resolution)) {
+    stop("'resolution' should be a single numeric.")
+  }
+
+  # break if resolution is not a single numeric
+  if (length(resolution) > 1) {
+    stop("'resolution' should be a single numeric.")
+  }
+
+}
+
