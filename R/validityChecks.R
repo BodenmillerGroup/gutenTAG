@@ -3,9 +3,9 @@
 # preProcess ####
 .valid.preProcess <- function(x, cores) {
 
-  # break if input is not a MSContinuousImagingExperiment
-  if (!is(x, "MSContinuousImagingExperiment")) {
-    stop("'x' should be of class 'MSContinuousImagingExperiment'")
+  # break if input is not a MSImagingExperiment
+  if (!is(x, "MSImagingExperiment")) {
+    stop("'x' should be of class 'MSImagingExperiment'")
   }
 
   # break if cores argument is anything other than a single number
@@ -23,9 +23,9 @@
 # peakDetection ####
 .valid.peakDetection <- function(x, snr, win, cores){
 
-  # break if input is not a MSContinuousImagingExperiment
-  if (!is(x, "MSContinuousImagingExperiment")) {
-    stop("'x' should be of class 'MSContinuousImagingExperiment'")
+  # break if input is not a MSImagingExperiment
+  if (!is(x, "MSImagingExperiment")) {
+    stop("'x' should be of class 'MSImagingExperiment'")
   }
 
   # break if snr is not a single numeric
@@ -57,7 +57,7 @@
 
   # break if input is
   if(!isS4(x)){
-    stop("'x' should be an MSContinuousExperiement object.")
+    stop("'x' should be an MSImagingExperiement object.")
   }
 
 }
@@ -107,9 +107,9 @@
     stop("'mz_threshold' should be a single numeric.")
   }
 
-  # break if pre is not a MSContinuousImagingExperiment
-  if (!is(pre, "MSContinuousImagingExperiment")) {
-    stop("'x' should be of class 'MSContinuousImagingExperiment'")
+  # break if pre is not a MSImagingExperiment
+  if (!is(pre, "MSImagingExperiment")) {
+    stop("'x' should be of class 'MSImagingExperiment'")
   }
 
 
