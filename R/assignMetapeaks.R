@@ -32,7 +32,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # Map metapeaks to panel
   mapping_meta <- N2R::crossKnn(mA = matrix(x$max),
-                                mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
+                                mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE) ## change to k = 1??
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
@@ -91,6 +91,17 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   colnames(final_intensity_targeted) <- correspondence_matrix$marker[!is.na(correspondence_matrix$marker)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
+
+  # add zero columns for markers that aren't assigned metapeaks
+  zeros_df <- data.frame(matrix(0, nrow = length(final_intensity_targeted[, 1]), ncol = length(refList$Name)))
+  colnames(zeros_df) <- refList$Name
+  cols_to_enter <- which(colnames(zeros_df) %in% colnames(final_intensity_targeted))
+  zeros_df[cols_to_enter] <- final_intensity_targeted
+
+  # update final_intensity_targeted with the new df containing zeros for channels that aren't picked up
+  final_intensity_targeted <- zeros_df
+
+
   # Remove all un-annotated peaks from correspondence matrix
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
@@ -129,8 +140,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   }
 
+  # add column names to filtered dataframe
   final_filtered <- data.frame(final_filtered)
   colnames(final_filtered) <- colnames(final_intensity_targeted)
+
+  # potentially change the columns with 0's to NA's
 
   return(list(CorrespondenceMatrix = correspondence_matrix_targeted,
               IntensityDF = final_intensity_targeted,

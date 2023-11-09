@@ -75,7 +75,7 @@ generateMetapeaks <- function(x, threshold = 0.01){
 
   # watershed for peak segmentation
   propagation_selection <- EBImage::propagate(freq_peak_smooth_thresholded,
-                                     seeds = local_maxima_peak_freq_reshaped,
+                                     seeds = local_maxima_peak_freq_reshaped, # potentially use panel as seeds
                                      mask = freq_peak_smooth_thresholded > threshold_detection)
 
 
