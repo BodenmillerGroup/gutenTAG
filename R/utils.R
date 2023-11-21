@@ -7,40 +7,40 @@
 #' @importFrom stats cutree
 #' @importFrom stats quantile
 #'
-# find peaks function ####
-.find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
+# .find_loc_max function ####
+.find_loc_max <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){ # rename
 
   # find peaks
   if(is.null(span)) {
 
-    pks <- x == max(x, na.rm = na.rm)
+    peaks <- x == max(x, na.rm = na.rm)
 
     if (strict && sum(pks) != 1L) {
       pks <- logical(length(x)) # all FALSE
     }
 
   } else {
-    pks <- splus2R::peaks(x = x, span = span, strict = strict)
+    peaks <- splus2R::peaks(x = x, span = span, strict = strict) # splus2R::peaks()
   }
 
   # apply threshold to found peaks
   if (abs(ignore_threshold) < 1e-5) {
-    pks
+    peaks
   } else {
 
-    range_x <- range(x, na.rm = na.rm, finite = TRUE)
-    min_x <- range_x[1]
-    max_x <- range_x[2]
-    x <- ifelse(!is.finite(x), min_x, x)
+    x_range <- range(x, na.rm = na.rm, finite = TRUE)
+    x_min <- x_range[1]
+    x_max <- x_range[2]
+    x <- ifelse(!is.finite(x), x_min, x)
 
     # this can cater for the case when max_x < 0, as with logs
-    delta <- max_x - min_x
-    top_flag <- ignore_threshold > 0.0
-    scaled_threshold <- delta * abs(ignore_threshold)
-    if (top_flag) {
-      ifelse(x - min_x > scaled_threshold, pks, FALSE)
+    diff <- x_max - x_min
+    limit <- ignore_threshold > 0.0
+    threshold_scaled <- diff * abs(ignore_threshold) # rename to ?
+    if (limit) {
+      ifelse(x - x_min > threshold_scaled, peaks, FALSE)
     } else {
-      ifelse(max_x - x > scaled_threshold, pks, FALSE)
+      ifelse(x_max - x > threshold_scaled, peaks, FALSE)
     }
   }
 }
@@ -244,7 +244,7 @@
 {
   if (is.factor(string)) {
 
-    string = as.character(string)
+    string <- as.character(string)
 
   }
 
@@ -254,12 +254,12 @@
       (break)("The number of colors must be equal to the number of unique elements.")
     }
     else {
-      conv = cbind(unique(string), colors)
+      conv <- cbind(unique(string), colors)
     }
   }
   else {
 
-    conv = cbind(unique(string), rainbow(length(unique(string))))
+    conv <- cbind(unique(string), rainbow(length(unique(string))))
 
   }
   unlist(lapply(string, FUN = function(x) {
@@ -267,10 +267,12 @@
   }))
 }
 
+
+# utility function for making matrix from flattened dataframe
 .curateMatrix <- function(dataframe, channel, coords){
-  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x))
-  x = dataframe[,channel]
-  Matrix_image[as.matrix(coords)] = x
+  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x)) # initialise matrix of correct shape
+  x = dataframe[,channel] # isolate single channel
+  Matrix_image[as.matrix(coords)] = x # input channel values into matrix
   return(Matrix_image)
 }
 

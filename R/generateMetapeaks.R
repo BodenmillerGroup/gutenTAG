@@ -18,7 +18,6 @@
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
 #' @importFrom stats convolve
-#' @importFrom ggpmisc find_peaks
 #' @export generateMetapeaks
 #'
 #' @examples
@@ -62,10 +61,7 @@ generateMetapeaks <- function(x, threshold = 0.01){
 
   # iv. Generate seeds, then metapeaks
   span_local_maxima <- 3 / mz_scaling_factor # constraint for how far apart metapeaks should be
-  local_maxima_peak_freq <- base::which(.find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima)) #
-
-  #local_maxima_peak_freq <- base::which(ggpmisc:::find_peaks(freq_peak_smooth_thresholded, span = span_local_maxima)) # find_peaks from ggpmisc package
-
+  local_maxima_peak_freq <- base::which(.find_loc_max(freq_peak_smooth_thresholded, span = span_local_maxima)) # takes the smooth histogram as input and outputs indices of which locations are local maxima
 
 
   local_maxima_peak_freq_reshaped <- matrix(rep(0, length(freq_peak_ordered)), ncol = 1)
@@ -105,7 +101,7 @@ generateMetapeaks <- function(x, threshold = 0.01){
     beginning_peak <- max(which(cumsum_freq < 0.01))
     end_peak <- min(which(cumsum_freq > 0.99)) #
     if (is.infinite(beginning_peak)) {
-      Beginning_peak = 1
+      Beginning_peak = 1 # why is this caps?
     }
     # beginning and end of peak location
     metapeak_delimitation <- rbind(metapeak_delimitation,
