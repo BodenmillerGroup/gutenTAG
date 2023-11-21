@@ -19,7 +19,7 @@ asSpatialExperiment <- function(x){
 
   # put intensity df and coordinates in correct form
   mat <- t(matter::as.matrix(x$IntensityDF))
-  crds <- as.matrix(x$SpatialCoords)
+  crds <- matter::as.matrix(x$SpatialCoords)
 
   # put into SpatialExperiment
   spe <- SpatialExperiment(

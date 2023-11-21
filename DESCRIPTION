@@ -39,8 +39,7 @@ Imports:
   graphics, 
   utils, 
   matter, 
-  SpatialExperiment, 
-  ggpmisc
+  SpatialExperiment
 License: MIT License
 Encoding: UTF-8
 LazyData: true
