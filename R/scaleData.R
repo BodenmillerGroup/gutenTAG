@@ -56,7 +56,13 @@ scaleData <- function(x, method = "corsd"){
     }
 
 
-    # add method for variogram, e.g. distance to 50% of semivariance ???
+    # add method for variogram, e.g. distance to 50% of semivariance ??
+
+    # if the columns is empty, simple replace the scaled data column with zeros
+    if (sum(channel) == 0){
+      x_prime_prime <- channel
+      alpha <- 0
+    }
 
     # calculate x_prime_prime
     if(alpha > 0){
@@ -67,6 +73,7 @@ scaleData <- function(x, method = "corsd"){
     if(alpha < 0){
       x_prime_prime <- x_prime * -sqrt(abs(alpha))
     }
+
 
     # bind columns
     scaled_data <- data.frame(cbind(scaled_data, x_prime_prime))

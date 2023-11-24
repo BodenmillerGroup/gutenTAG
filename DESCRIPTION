@@ -32,14 +32,15 @@ Imports:
   methods, 
   mclust, 
   splus2R, 
-  cytomapper,
-  cytoviewer, 
+  cytomapper, 
   Matrix, 
   grDevices, 
   graphics, 
   utils, 
   matter, 
-  SpatialExperiment
+  SpatialExperiment, 
+  BiocParallel, 
+  BiocStyle
 License: MIT License
 Encoding: UTF-8
 LazyData: true

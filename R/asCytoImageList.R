@@ -16,7 +16,7 @@
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw, cores = 2)
 #' peaks <- peakDetection(pre, core = 2)
-#' metapeaks <- metapeakGeneration(peaks)
+#' metapeaks <- generateMetapeaks(peaks)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
 #' cil <- asCytoImageList(processed, name = "test")

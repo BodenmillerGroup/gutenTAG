@@ -18,5 +18,9 @@ A pre-processed MSImagingExperiment object.
 Performs pre-processing steps on a raw MSImagingExperiment object. Steps include normalisation, spectral smoothing and baseline reduction.
 }
 \examples{
-preProcess(rawFile, 4)
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+preProcess(raw, 2)
 }

@@ -26,7 +26,7 @@ editor_options:
 
 ```{r, echo=FALSE, results="hide"}
 knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
-library(BiocStyle)
+#library(BiocStyle)
 ```
 
 ```{r library, echo=FALSE}
@@ -70,7 +70,6 @@ molecular target into R.
 ```{r read in panel}
 panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
 panel <- readPanel(panel_path)
-
 ```
 
 # Example data {#test-data}
@@ -133,9 +132,7 @@ spectra. This function is essentially a wrapper for
 detection algorithm for robust noise evaluation.
 
 ```{r Peak detection}
-
 detected <- peakDetection(pre, snr = 3, cores = 2)
-
 ```
 
 ## Metapeak generation
@@ -160,9 +157,7 @@ peaks. Many of the metapeaks generated will be formed by signal that is
 from untargeted peaks.
 
 ```{r Metapeak generation}
-
 metapeaks <- generateMetapeaks(detected)
-
 ```
 
 ## Assigning metapeaks
@@ -185,7 +180,6 @@ parameters can be adjusted to improve results.
 
 ```{r Generate final output}
 processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
-
 ```
 
 # Visualisation of processed data {#visualisation}
@@ -208,16 +202,19 @@ Now the channels can be visualised using the `plotPixels` function.
 Single channel and multichannel imaging is supported using this format.
 
 ```{r single channel imaging}
-cytomapper::plotPixels(image = cil, colour_by = "HLA.ABC")
-
+cytomapper::plotPixels(image = cil, 
+                       colour_by = "HLA.ABC", 
+                       scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
+                       interpolate = FALSE, 
+                       image_title = list(margin = c(1, 1)))
 ```
 
 ```{r multi-channel imaging}
-plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"), 
+plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
            legend = list(colour_by.title.cex = 0.7), 
-           scale_bar = list(length = 4, lwidth = 0.5, margin = c(1,1)),
-           image_title = list(margin = c(1, 1)))
-
+           scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
+           image_title = list(margin = c(1, 1)),
+           interpolate = FALSE)
 ```
 
 ## Cytoviewer
@@ -228,12 +225,9 @@ interactive visualistion of multi-channel images, supporting
 visualisation of up to 6 channels. It should be noted that the
 cell-level functionality of `cytomapper` and `cytoviewer` are not
 applicable for our data, since single-cell resolution is not yet
-possible.
+possible. Interactive visualisation of our images can't be performed
+through a vignette, but the call is very simple: `cytoviewer(cil)`.
 
-```{r cytoviewer}
-library(cytoviewer)
-cytoviewer(cil)
-```
 
 # Dimensionality Reduction {#dimensionality-reduction}
 
@@ -254,14 +248,16 @@ arguments.
 Once this is performed, the loadings for each component can be accessed
 under `my_pca$rotation`.
 
-```{r pca, echo=TRUE}
+```{r pca}
+#my_pca <- computePCA(processed$IntensityDF, comp = 3, seed = 123, scree = TRUE)
+```
 
-my_pca <- computePCA(processed$IntensityDF, comp = 5, scree = TRUE)
+Plot PCA
 
-for (i in 1:ncol(my_pca$x)){
-  imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i)
-}
-
+```{r plot pca}
+#for (i in 1:ncol(my_pca$x)){
+#  imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i, axes = FALSE, colna = "black")
+#}
 ```
 
 ## Non-negative Matrix Factorisation (NMF)
@@ -273,7 +269,7 @@ be simply executed using the `computeNMF` function provided by this
 package.
 
 ```{r nmf}
-my_nmf <- computeNMF(processed$IntensityDF, comp = 5)
+my_nmf <- computeNMF(processed$IntensityDF, comp = 3)
 
 # visualise the factored dimensions
 for (i in 1:ncol(my_nmf$w)){
@@ -292,7 +288,6 @@ UMAP using the `uwot` package implementation.
 
 ```{r umap}
 my_umap <- computeUMAP(processed$IntensityDF, seed = 3)
-
 ```
 
 One of the ways in which UMAP can be used is to display single-channel
@@ -375,8 +370,7 @@ ggplot(cluster_coords, aes(x = x, y = y, color = clusters)) +
 
 [Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
 generation step for data processing, as well as being instrumental in
-developing the architecture of the pipeline.\
-[Nils Eling](https://github.com/nilseling) assisted in designing and
+developing the architecture of the pipeline.\ [Nils Eling](https://github.com/nilseling) assisted in designing and
 developing the structure of the package, as well as assisting in
 integrating the package with `cytomapper`, while [Lasse
 Meyer](https://github.com/lassedochreden) has contributed to integrating

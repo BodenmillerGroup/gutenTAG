@@ -6,7 +6,7 @@ test_that("louvainCluster works",{
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
-  peaks <- peakDetection(pre, core = 2)
+  peaks <- peakDetection(pre, cores = 2)
   metapeaks <- generateMetapeaks(peaks)
   processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 
@@ -20,7 +20,7 @@ test_that("louvainCluster works",{
 
   # test that output is correct is correct
   expect_equal(length(cur_test), 256)
-  expect_equal(as.numeric(cur_test[1:10]), c(1, 1, 1, 2, 2, 3, 3, 3, 3, 2))
+  expect_equal(as.numeric(cur_test[1:10]), c(1, 1, 1, 2, 2, 2, 3, 2, 3, 2))
 
 
   # test if character in first argument throws error

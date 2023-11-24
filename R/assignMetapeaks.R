@@ -11,7 +11,14 @@
 #' @export
 #'
 #' @examples
-#' assignMetapeaks(metapeaks, peakAnnotation, peakPre)
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw, cores = 2)
+#' peaks <- peakDetection(pre, core = 2)
+#' metapeaks <- generateMetapeaks(peaks)
+#' assignMetapeaks(x = metapeaks, pre, panel)
 
 assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
@@ -106,6 +113,24 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
+  # NEW: add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
+
+  # get markers that didn't form metapeaks
+  names_to_add <- refList$Name[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
+  mass_to_add <- refList$FeatureMass[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
+
+  # create empty dataframe for markers that weren't observed
+  test_correspondence_matrix <- data.frame(matrix(NA, nrow = length(names_to_add), ncol = ncol(correspondence_matrix_targeted)))
+  colnames(test_correspondence_matrix) <- colnames(correspondence_matrix_targeted)
+
+  # fill in marker name and expected mass for non-observed markers
+  test_correspondence_matrix$marker <- names_to_add
+  test_correspondence_matrix$expected_mz_location <- mass_to_add
+
+  # bind to correspondence_matrix_targeted and sort by expected mass
+  final_correspondence_matrix <- rbind(correspondence_matrix_targeted, test_correspondence_matrix)
+  final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
+
 
   # filter on TIC
 
@@ -146,7 +171,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # potentially change the columns with 0's to NA's
 
-  return(list(CorrespondenceMatrix = correspondence_matrix_targeted,
+  return(list(CorrespondenceMatrix = final_correspondence_matrix,
               IntensityDF = final_intensity_targeted,
               SpatialCoords = coords,
               Untargeted = list(UntargetedIntensity = final_intensity,

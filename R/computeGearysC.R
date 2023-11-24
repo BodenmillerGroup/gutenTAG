@@ -1,6 +1,8 @@
 #' Compute Geary's C score for each marker.
 #'
 #' @param x Output from assignMetapeaks
+#' @param verbose Boolean flag for verbose output
+#' @param update_correspondence Should the output from computing Geary's C score be added to the Correspondence Matrix (bool)
 #'
 #' @return A vector of Geary's C score for each marker.
 #' @importFrom N2R Knn

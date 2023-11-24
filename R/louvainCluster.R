@@ -14,9 +14,7 @@
 #' @importFrom igraph membership
 #' @importFrom Matrix t
 #' @export louvainCluster
-#'
-#' @examples
-#' louvainCluster(final)
+
 louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 0.5){
 
   # validity checks

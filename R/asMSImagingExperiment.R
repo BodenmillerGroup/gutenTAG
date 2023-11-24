@@ -9,7 +9,16 @@
 #' @export
 #'
 #' @examples
-#' asMSImagingExperiment(x)
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw, cores = 2)
+#' peaks <- peakDetection(pre, core = 2)
+#' metapeaks <- generateMetapeaks(peaks)
+#' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+#'
+#' asMSImagingExperiment(processed)
 
 asMSImagingExperiment <- function(x){
 
@@ -25,13 +34,14 @@ asMSImagingExperiment <- function(x){
   idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
 
   # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
-  fdata <- MassDataFrame(mz = sort(x$CorrespondenceMatrix$mz_location),
+  fdata <- MassDataFrame(mz = sort(x$CorrespondenceMatrix$expected_mz_location),
+                         observed_mz = x$CorrespondenceMatrix$mz_location,
                          expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location))
 
   # put them all together
-  out <- MSImagingExperiment(imageData=idata,
-                             featureData=fdata,
-                             pixelData=pdata)
+  out <- MSImagingExperiment(imageData = idata,
+                             featureData = fdata,
+                             pixelData = pdata)
 
   return(out)
 

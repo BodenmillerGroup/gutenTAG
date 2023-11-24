@@ -52,7 +52,7 @@ computeGMM <- function(x, hist = FALSE){
   # otsu thresholding to define signal/noise threshold
   tic_threshold <- .otsu_thresholding(log10(tic_intensity))
 
-  #
+  # initialise variables
   columns <- c("MarkerID", "SeparationScore", "PositivePixels", "MeanNoiseIntensity", "MeanSignalIntensity")
   gmmTable <- data.frame(matrix(nrow = 0, ncol = length(columns)))
   colnames(gmmTable) <- columns
@@ -67,72 +67,81 @@ computeGMM <- function(x, hist = FALSE){
     # no thresholding
     ##x <- targeted_intensity[, k]
 
-    # remove zeros
-    x <- x[x > 0]
+    # if the column is empty, autofill all values with zero and skip, else apply the algorithm
+    if (sum(x) == 0){
+      # add markerID and separation score to dataframe
+      gmmTable[k, 1] <- as.character(markerID[k])
+      gmmTable[k, 2] <- 0
+      gmmTable[k, 3] <- 0
+      gmmTable[k, 4] <- 0
+      gmmTable[k, 5] <- 0
+    } else {
 
-    # optimal number of Gaussians
-    ICL_score <- mclustICL(data = log10(1 + x), G = 1:2, modelNames = c("V"))
-    ICL_score <- c(ICL_score[[1]], ICL_score[[2]])
+      # remove zeros
+      x <- x[x > 0]
 
-    N_gaussian_curves <- as.numeric(which.max((ICL_score)))
-    gmm_model <- Mclust(data = log10(1 + x), G = N_gaussian_curves, modelNames = "V")
+      # optimal number of Gaussians
+      ICL_score <- mclustICL(data = log10(1 + x), G = 1:2, modelNames = c("V"))
+      ICL_score <- c(ICL_score[[1]], ICL_score[[2]])
 
-    density <- densityMclust(x, plot = FALSE) # same as Mclust but has additional parameter density
-    density <- data.frame(density[17]) # convert to dataframe to get max value
-    maxDensity <- max(density)
+      N_gaussian_curves <- as.numeric(which.max((ICL_score)))
+      gmm_model <- Mclust(data = log10(1 + x), G = N_gaussian_curves, modelNames = "V")
 
-    # Define separation score
-    mean1 <- gmm_model$parameters$mean[1]
-    mean2 <- gmm_model$parameters$mean[2]
+      density <- densityMclust(x, plot = FALSE) # same as Mclust but has additional parameter density
+      density <- data.frame(density[17]) # convert to dataframe to get max value
+      maxDensity <- max(density)
 
-    # standard deviation of both Gaussians
-    sd1 <- sqrt(gmm_model$parameters$variance$sigmasq[1])
-    sd2 <- sqrt(gmm_model$parameters$variance$sigmasq[2])
+      # Define separation score
+      mean1 <- gmm_model$parameters$mean[1]
+      mean2 <- gmm_model$parameters$mean[2]
 
-    # calculate separation score
-    meanDiff <- abs(mean1 - mean2)
-    SNR <- mean2 / mean1
+      # standard deviation of both Gaussians
+      sd1 <- sqrt(gmm_model$parameters$variance$sigmasq[1])
+      sd2 <- sqrt(gmm_model$parameters$variance$sigmasq[2])
 
-    # proportion positive pixels
-    positivePixels <- length(which(gmm_model$classification == 2))
-    proportionPositive <- positivePixels / length(gmm_model$classification)
-    pi2 <- proportionPositive
-    pi1 <- 1 - pi2
+      # calculate separation score
+      meanDiff <- abs(mean1 - mean2)
+      SNR <- mean2 / mean1
 
-    denominator <- sqrt((sd1^2 / pi1) + (sd2^2 / pi2))
-    separationScore <- meanDiff / denominator
+      # proportion positive pixels
+      positivePixels <- length(which(gmm_model$classification == 2))
+      proportionPositive <- positivePixels / length(gmm_model$classification)
+      pi2 <- proportionPositive
+      pi1 <- 1 - pi2
 
-    # Create table for export
+      denominator <- sqrt((sd1^2 / pi1) + (sd2^2 / pi2))
+      separationScore <- meanDiff / denominator
 
-    # add markerID and separation score to dataframe
-    gmmTable[k, 1] <- as.character(markerID[k])
-    gmmTable[k, 2] <- separationScore
-    gmmTable[k, 3] <- proportionPositive
-    gmmTable[k, 4] <- mean1
-    gmmTable[k, 5] <- mean2
+      # Create table for export
 
-    # plot GMM
-    if(hist == TRUE){
+      # add markerID and separation score to dataframe
+      gmmTable[k, 1] <- as.character(markerID[k])
+      gmmTable[k, 2] <- separationScore
+      gmmTable[k, 3] <- proportionPositive
+      gmmTable[k, 4] <- mean1
+      gmmTable[k, 5] <- mean2
 
-      hist(log10(x + 1),
-           breaks = 50,
-           freq = FALSE,
-           main = paste(colnames(targeted_intensity[1, ])[k]),
-           xlab = paste(colnames(targeted_intensity[1, ])[k],"Intensity"),
-           cex.main = 1.5,
-           cex.lab = 1.2) # blank xlab for next line
-      for (j in 1:N_gaussian_curves) {
-        curve(dnorm(x,
-                    mean = gmm_model$parameters$mean[j],
-                    sd = sqrt(gmm_model$parameter$variance$sigmasq[j])) * gmm_model$parameters$pro[j],
-              add = TRUE,
-              lwd = 2,
-              col = rainbow(N_gaussian_curves)[j])
-        mtext(paste("Separation Score: ", round(separationScore, 3)), side = 3)
+      # plot GMM
+      if(hist == TRUE){
+
+        hist(log10(x + 1),
+             breaks = 50,
+             freq = FALSE,
+             main = paste(colnames(targeted_intensity[1, ])[k]),
+             xlab = paste(colnames(targeted_intensity[1, ])[k],"Intensity"),
+             cex.main = 1.5,
+             cex.lab = 1.2) # blank xlab for next line
+        for (j in 1:N_gaussian_curves) {
+          curve(dnorm(x,
+                      mean = gmm_model$parameters$mean[j],
+                      sd = sqrt(gmm_model$parameter$variance$sigmasq[j])) * gmm_model$parameters$pro[j],
+                add = TRUE,
+                lwd = 2,
+                col = rainbow(N_gaussian_curves)[j])
+          mtext(paste("Separation Score: ", round(separationScore, 3)), side = 3)
+        }
       }
-
     }
-
   }
 
   gmmTable <- gmmTable %>% relocate(MarkerID)

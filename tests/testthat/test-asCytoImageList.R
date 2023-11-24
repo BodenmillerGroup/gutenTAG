@@ -23,8 +23,8 @@ test_that("asCytoImageList works",{
   expect_s4_class(cur_test, "CytoImageList")
 
   # test that channelNames are correct
-  expect_equal(length(channelNames(cur_test)), 10)
-  expect_equal(channelNames(cur_test), c("CD98", "NFKB", "beta.actin", "Collagen.1A1", "AASM", "Caveolin1",
+  expect_equal(length(channelNames(cur_test)), 13)
+  expect_equal(channelNames(cur_test), c("CD98", "NFKB", "FN1", "CD73", "beta.actin", "VIM", "Collagen.1A1", "AASM", "Caveolin1",
                                          "NapsinA", "CK7", "ATP5a", "HLA.ABC"))
 
   # test that image values are correct

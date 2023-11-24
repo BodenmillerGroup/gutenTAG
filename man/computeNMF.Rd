@@ -11,6 +11,8 @@ computeNMF(x, comp, seed = 234, cntr = FALSE)
 
 \item{comp}{The number of principal components to compute.}
 
+\item{seed}{A number to generate a random seed}
+
 \item{cntr}{Center the data or not (bool)}
 }
 \value{
@@ -20,5 +22,13 @@ Non-ordered factors of the input dataset
 Non-negative matrix factorisation
 }
 \examples{
-computeNMF(x = IntensityDF, comp = 5)
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peaks <- peakDetection(pre, core = 2)
+metapeaks <- generateMetapeaks(peaks)
+processed <- assignMetapeaks(x = metapeaks, pre, panel)
+computeNMF(x = processed$IntensityDF, comp = 5)
 }

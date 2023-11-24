@@ -9,7 +9,9 @@ computePCA(x, comp = 5, seed = 123, scree = FALSE)
 \arguments{
 \item{x}{A targeted intensity dataframe (rows: pixels, cols: features)}
 
-\item{comp}{The number of principal components to compute.}
+\item{comp}{The number of principal components to compute}
+
+\item{seed}{A number to generate a random seed}
 
 \item{scree}{Plot scree plot (bool)}
 }
@@ -18,7 +20,4 @@ A PCA
 }
 \description{
 Principal Component Analysis
-}
-\examples{
-pca(x$IntensityDF, comp = 5)
 }

@@ -14,6 +14,7 @@
 #' }
 #'
 #' @param x A Cardinal MSImagingExperiment object after peak detection is performed.
+#' @param threshold A decimal number to determine the percentage of peaks below which detected peaks are filtered out.
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
@@ -21,12 +22,18 @@
 #' @export generateMetapeaks
 #'
 #' @examples
-#' generateMetapeaks(list_peaks)
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw, cores = 2)
+#' peaks <- peakDetection(pre, core = 2)
+#' generateMetapeaks(peaks)
 
 generateMetapeaks <- function(x, threshold = 0.01){
 
   # validity checks
-  .valid.metapeakGeneration(x, threshold)
+  .valid.generateMetapeaks(x, threshold)
 
   # 0. Set parameters
   mz_vector <- as.data.frame(mz(x))
@@ -92,7 +99,7 @@ generateMetapeaks <- function(x, threshold = 0.01){
     metapeak_center <- c(metapeak_center, location_centered_temp)
 
     location_max_temp <- (mz_vector$mz[as.numeric(propagation_selection) == k])[which.max(freq_peak_ordered[as.numeric(propagation_selection) == k])]
-    # vector of peak maximimum locations
+    # vector of peak maximum locations
     metapeak_max <- c(metapeak_max, location_max_temp)
 
     cumsum_freq <- (cumsum(freq_peak_ordered[as.numeric(propagation_selection) == k]) / sum(freq_peak_ordered[as.numeric(propagation_selection) == k]))

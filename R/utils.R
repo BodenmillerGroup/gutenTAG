@@ -69,7 +69,7 @@
 
 
 # Get the name of the experiment and the sample (applicable only for JA's directory structure)
-.sampleNameFinder <- function(path = Path_to_imzml_file){
+.sampleNameFinder <- function(path){
 
   sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
   h <- 1

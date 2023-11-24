@@ -8,10 +8,7 @@
 #' @importFrom dplyr relocate
 #'
 #' @export
-#'
-#' @examples
-#'
-#' readPanel("extdata/ref_list.csv")
+
 
 readPanel <- function(path){
 
