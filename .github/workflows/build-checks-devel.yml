@@ -31,7 +31,8 @@ jobs:
         run: |
           options(warn = 2)
           install.packages("BiocManager")
-          BiocManager::install(version = "devel", update = TRUE, ask = FALSE, force = TRUE) 
+          BiocManager::install(version = "devel", update = TRUE, ask = FALSE, force = TRUE)
+          BiocManager::install("BiocStyle")
           remotes::install_deps(dependencies = TRUE, repos = BiocManager::repositories(), Ncpu = 2L)
         shell: Rscript {0}
         
