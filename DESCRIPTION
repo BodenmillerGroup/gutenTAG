@@ -40,7 +40,9 @@ Imports:
   utils, 
   matter, 
   SpatialExperiment, 
-  ggpmisc
+  ggpmisc,
+  BiocStyle,
+  BiocParallel
 License: MIT License
 Encoding: UTF-8
 LazyData: true
