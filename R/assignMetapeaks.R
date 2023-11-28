@@ -69,6 +69,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   }
 
+  # get names
+  metapeak_mz <- paste0(as.character(round(x$center, 2)), " m/z")
+  colnames(final_intensity) <- metapeak_mz
+
   # Summary statistics and expand correspondence matrix
   mean_intensity <- colMeans(final_intensity)
   sd_intensity <- apply(final_intensity, MARGIN = 2, FUN = sd)
@@ -83,7 +87,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix$corrected_sd <- residuals + sd_intensity / sd_intensity
   # former definition: correspondence_matrix$corrected_sd <- corrected_sd$residuals
 
-  correspondence_matrix$peak_width <- x$metapeaks$width
+  correspondence_matrix$peak_width <- x$width
 
   # Total signal of each peak
   total_signal <- colSums(raw_intensity)
