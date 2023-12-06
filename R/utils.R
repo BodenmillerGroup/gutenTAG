@@ -1,51 +1,5 @@
 ############################# Reader helpers ###################################
 
-#' @importFrom splus2R  peaks
-#' @importFrom dplyr arrange
-#' @importFrom dplyr relocate
-#' @importFrom stats hclust
-#' @importFrom stats cutree
-#' @importFrom stats quantile
-#'
-# find peaks function ####
-.find_peaks <- function(x, ignore_threshold = 0, span = 3, strict = TRUE, na.rm = FALSE){
-
-  # find peaks
-  if(is.null(span)) {
-
-    pks <- x == max(x, na.rm = na.rm)
-
-    if (strict && sum(pks) != 1L) {
-      pks <- logical(length(x)) # all FALSE
-    }
-
-  } else {
-    pks <- splus2R::peaks(x = x, span = span, strict = strict)
-  }
-
-  # apply threshold to found peaks
-  if (abs(ignore_threshold) < 1e-5) {
-    pks
-  } else {
-
-    range_x <- range(x, na.rm = na.rm, finite = TRUE)
-    min_x <- range_x[1]
-    max_x <- range_x[2]
-    x <- ifelse(!is.finite(x), min_x, x)
-
-    # this can cater for the case when max_x < 0, as with logs
-    delta <- max_x - min_x
-    top_flag <- ignore_threshold > 0.0
-    scaled_threshold <- delta * abs(ignore_threshold)
-    if (top_flag) {
-      ifelse(x - min_x > scaled_threshold, pks, FALSE)
-    } else {
-      ifelse(max_x - x > scaled_threshold, pks, FALSE)
-    }
-  }
-}
-
-
 # Find sample name function ####
 
 # experimental function, could be nice but doesn't currently support getting experiement name
@@ -159,6 +113,7 @@
 }
 
 # If the x coordinates don't begin at 1, adjust the coordinates
+# TODO rename to .translate_coordinates
 .correctCoordinates <- function(coords){
 
   if(!min(coords$x) == 1){
@@ -200,7 +155,8 @@
 
 
 # which_max_modified function ####
-
+# TODO rename this function
+# returns which.min ignoring 0 values
 .which_max_modified <- function(x) {
 
   if (sum(x) == 0) {
