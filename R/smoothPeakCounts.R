@@ -4,7 +4,7 @@
 #'
 #' @return A data frame with the same mz values and the smoothed counts.
 #' @export
-.smoothPeakCounts <- function(count_df) {
+smoothPeakCounts <- function(count_df) {
   n_features <- nrow(count_df)
   sigma_smoothing_isotopic <- 1 / .mzScalingFactor(count_df)
   list_values <- seq(-n_features / 2, n_features / 2, length.out = n_features)

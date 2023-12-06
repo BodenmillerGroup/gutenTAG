@@ -18,10 +18,10 @@ estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0) {
   .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
   # 1. Gaussian smoothing over counts
-  count_smooth_df <- .smoothPeakCounts(count_df)
+  count_smooth_df <- smoothPeakCounts(count_df)
 
   # 2. Segment the count_df histogram using the seed_mz values.
-  propagation_selection <- .segmentPeakCounts(count_smooth_df, seed_mz, detection_threshold=detection_threshold)
+  propagation_selection <- segmentPeakCounts(count_smooth_df, seed_mz, detection_threshold=detection_threshold)
 
   # 3. Get metapeak parameters
   num_metapeaks <- max(propagation_selection)

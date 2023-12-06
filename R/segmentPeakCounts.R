@@ -11,7 +11,7 @@
 #' @param seed_mz A seed mass-to-charge ratio (mz).
 #' @param detection_threshold The minimum number of counts to be considered a peak.
 #' @export
-.segmentPeakCounts <- function(count_df, seed_mz, detection_threshold) {
+segmentPeakCounts <- function(count_df, seed_mz, detection_threshold) {
   # Convert the mz to row indices in the count_df
   target_indices <- findInterval(seed_mz, count_df$mz)
 

@@ -28,7 +28,7 @@ generateMetapeaks <- function(x, threshold = 0.01) {
   count_df <- countPeaks(x)
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
-  seed_mz <- generateSeedMz(.smoothPeakCounts(count_df), detection_threshold=detection_threshold)
+  seed_mz <- generateSeedMz(smoothPeakCounts(count_df), detection_threshold=detection_threshold)
   metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold=detection_threshold)
   
   return(metapeaks)
