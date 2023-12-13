@@ -9,6 +9,7 @@
 #'
 #' @importFrom N2R crossKnn
 #' @importFrom Cardinal mz
+#' @importFrom Cardinal mz
 #' @export
 #'
 #' @examples
@@ -47,12 +48,15 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   final_intensity <- c()
   eps <- sqrt(.Machine$double.eps)
+  eps <- sqrt(.Machine$double.eps)
   for (k in 1:nrow(correspondence_matrix)) {
     # which mz locations are inside the peak (boolean)
+    selected_mz_location <- mz_vector$mz >= x$limits[k,1] - eps & mz_vector$mz <= x$limits[k,2] + eps
     selected_mz_location <- mz_vector$mz >= x$limits[k,1] - eps & mz_vector$mz <= x$limits[k,2] + eps
     # those mz values
     mz_vector$mz[which(selected_mz_location == TRUE)]
     if (sum(selected_mz_location) > 1) {
+      intensity_temp <- colSums(raw_intensity[selected_mz_location, ])
       intensity_temp <- colSums(raw_intensity[selected_mz_location, ])
     }
     # if there is only one mz location, the intensity list is only the intensity values of the one mz location

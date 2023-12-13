@@ -9,7 +9,7 @@ generateMetapeaks(x, threshold = 0.01)
 \arguments{
 \item{x}{A Cardinal MSImagingExperiment object after peak detection is performed.}
 
-\item{threshold}{A decimal number to determine the percentage of peaks below which detected peaks are filtered out.}
+\item{threshold}{A threshold for peak detection.}
 }
 \value{
 A list containing information on the location, delimitations and width of metapeaks

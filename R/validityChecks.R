@@ -89,6 +89,28 @@
 }
 
 
+# estimateMetapeaks ####
+.valid.estimateMetapeaks <- function(count_df, seed_mz, detection_threshold) {
+  if (!is.data.frame(count_df)) {
+    stop("count_df must be a data frame")
+  }
+  
+  if (!all(c("mz", "count") %in% names(count_df))) {
+    stop("count_df must contain 'mz' and 'count' columns")
+  }
+  
+  if (!is.numeric(seed_mz)) {
+    stop("seed_mz must be a numeric vector")
+  }
+  
+  if (!is.numeric(detection_threshold) || length(detection_threshold) != 1) {
+    stop("detection_threshold must be a single numeric value")
+  }
+  
+  return(TRUE)
+}
+
+
 # assignMetapeaks ####
 .valid.assignMetapeaks <- function(x, pre, refList, mz_threshold){
 
