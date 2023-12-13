@@ -8,17 +8,11 @@
 #' @return List containing a). A dataframe of intensity values for all markers that are associated with an observed metapeak, and b). A dataframe that references metapeaks to expected peaks, aswell as optional additional features. c). A spatial coordinate dataframe for each pixel.
 #'
 #' @importFrom N2R crossKnn
+#' @importFrom Cardinal mz
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
-#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
-#' panel <- readPanel(path = panel_path)
-#' raw <- readMSIData(path)
-#' pre <- preProcess(raw, cores = 2)
-#' peaks <- peakDetection(pre, core = 2)
-#' metapeaks <- generateMetapeaks(peaks)
-#' assignMetapeaks(x = metapeaks, pre, panel)
+#' assignMetapeaks(metapeaks, peakAnnotation, peakPre)
 
 assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
@@ -39,7 +33,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # Map metapeaks to panel
   mapping_meta <- N2R::crossKnn(mA = matrix(x$max),
-                                mB= matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE) ## change to k = 1??
+                                mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE) ## change to k = 1??
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
@@ -52,13 +46,14 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   rownames(refList) <- refList$Name
 
   final_intensity <- c()
+  eps <- sqrt(.Machine$double.eps)
   for (k in 1:nrow(correspondence_matrix)) {
     # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= x$limits[k,1] & mz_vector$mz <= x$limits[k,2]
+    selected_mz_location <- mz_vector$mz >= x$limits[k,1] - eps & mz_vector$mz <= x$limits[k,2] + eps
     # those mz values
     mz_vector$mz[which(selected_mz_location == TRUE)]
     if (sum(selected_mz_location) > 1) {
-      intensity_temp = colSums(raw_intensity[selected_mz_location, ])
+      intensity_temp <- colSums(raw_intensity[selected_mz_location, ])
     }
     # if there is only one mz location, the intensity list is only the intensity values of the one mz location
     if (sum(selected_mz_location) == 1) {
@@ -87,7 +82,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix$corrected_sd <- residuals + sd_intensity / sd_intensity
   # former definition: correspondence_matrix$corrected_sd <- corrected_sd$residuals
 
-  correspondence_matrix$peak_width <- x$width
+  correspondence_matrix$peak_width <- x$metapeaks$width
 
   # Total signal of each peak
   total_signal <- colSums(raw_intensity)
