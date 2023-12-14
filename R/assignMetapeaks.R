@@ -111,7 +111,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
-  # NEW: add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
+  # add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
 
   # get markers that didn't form metapeaks
   names_to_add <- refList$Name[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
