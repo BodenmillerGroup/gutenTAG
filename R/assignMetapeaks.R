@@ -98,13 +98,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
 
   # add zero columns for markers that aren't assigned metapeaks
-  zeros_df <- data.frame(matrix(0, nrow = length(final_intensity_targeted[, 1]), ncol = length(refList$Name)))
-  colnames(zeros_df) <- refList$Name
-  cols_to_enter <- which(colnames(zeros_df) %in% colnames(final_intensity_targeted))
-  zeros_df[cols_to_enter] <- final_intensity_targeted
-
-  # update final_intensity_targeted with the new df containing zeros for channels that aren't picked up
-  final_intensity_targeted <- zeros_df
+  final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
+  final_intensity_targeted <- final_intensity_targeted[refList$Name]
 
 
   # Remove all un-annotated peaks from correspondence matrix
