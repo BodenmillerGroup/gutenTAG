@@ -112,16 +112,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   names_to_add <- refList$Name[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
   mass_to_add <- refList$FeatureMass[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
 
-  # create empty dataframe for markers that weren't observed
-  test_correspondence_matrix <- data.frame(matrix(NA, nrow = length(names_to_add), ncol = ncol(correspondence_matrix_targeted)))
-  colnames(test_correspondence_matrix) <- colnames(correspondence_matrix_targeted)
-
-  # fill in marker name and expected mass for non-observed markers
-  test_correspondence_matrix$marker <- names_to_add
-  test_correspondence_matrix$expected_mz_location <- mass_to_add
-
-  # bind to correspondence_matrix_targeted and sort by expected mass
-  final_correspondence_matrix <- rbind(correspondence_matrix_targeted, test_correspondence_matrix)
+  final_correspondence_matrix <- correspondence_matrix_targeted
+  new_row_indices <- seq_along(names_to_add) + nrow(final_correspondence_matrix)
+  final_correspondence_matrix[new_row_indices, c("marker", "expected_mz_location")] <- cbind(names_to_add, mass_to_add)
+  # sort by expected mass
   final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
 
 
