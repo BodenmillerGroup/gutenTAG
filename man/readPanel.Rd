@@ -15,7 +15,3 @@ A clean and ordered panel.
 \description{
 Read .csv file panel
 }
-\examples{
-
-readPanel("extdata/ref_list.csv")
-}

@@ -3,7 +3,7 @@
 #' @param x A targeted intensity dataframe (rows: pixels, cols: features) OR output of assignMetapeaks If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.
 #' @param coords A spatial coordinates dataframe.
 #' @param channel_number The index of the channel to be imaged.
-#' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99%. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
+#' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99 percent. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
 #' @param interpolate Perform pixel-wise interpolation.
 #' @param axes Plot axes when imaging.
 #' @param colna If NA values are present, should they be plotted as black background or as transparent?
@@ -16,7 +16,6 @@
 #' @importFrom imager G
 #' @export
 #'
-#' @examples imageChannel(IntensityDF, coords, channel_number = 4)
 
 imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99, interpolate = FALSE, axes = FALSE, colna = "black") {
 

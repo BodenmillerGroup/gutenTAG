@@ -8,6 +8,10 @@ computeGearysC(x, verbose = FALSE, update_correspondence = FALSE)
 }
 \arguments{
 \item{x}{Output from assignMetapeaks}
+
+\item{verbose}{Boolean flag for verbose output}
+
+\item{update_correspondence}{Should the output from computing Geary's C score be added to the Correspondence Matrix (bool)}
 }
 \value{
 A vector of Geary's C score for each marker.

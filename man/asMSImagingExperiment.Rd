@@ -16,5 +16,14 @@ An object of the class MSImagingExperiment from Cardinal.
 Make MSImagingExperiment object
 }
 \examples{
-asMSImagingExperiment(x)
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peaks <- peakDetection(pre, core = 2)
+metapeaks <- generateMetapeaks(peaks)
+processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+
+asMSImagingExperiment(processed)
 }

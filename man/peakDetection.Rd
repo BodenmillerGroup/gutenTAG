@@ -22,5 +22,10 @@ An MSImagingExperiment object containing a list of detected peaks
 Performs peak detection using a Median Adaptive Deviation (MAD) algorithm to discern peaks from noise.
 }
 \examples{
-peakDetection(peakPre)
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peakDetection(pre)
 }

@@ -64,6 +64,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   }
 
+  # get names
+  colnames(final_intensity) <- paste0(as.character(round(x$center, 2)), " m/z")
+
   # Summary statistics and expand correspondence matrix
   mean_intensity <- colMeans(final_intensity)
   sd_intensity <- apply(final_intensity, MARGIN = 2, FUN = sd)
@@ -93,9 +96,27 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   colnames(final_intensity_targeted) <- correspondence_matrix$marker[!is.na(correspondence_matrix$marker)]
   final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
+
+  # add zero columns for markers that aren't assigned metapeaks
+  final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
+  final_intensity_targeted <- final_intensity_targeted[refList$Name]
+
+
   # Remove all un-annotated peaks from correspondence matrix
   correspondence_matrix_targeted <- na.omit(correspondence_matrix)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
+
+  # add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
+
+  # get markers that didn't form metapeaks
+  names_to_add <- refList$Name[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
+  mass_to_add <- refList$FeatureMass[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
+
+  final_correspondence_matrix <- correspondence_matrix_targeted
+  new_row_indices <- seq_along(names_to_add) + nrow(final_correspondence_matrix)
+  final_correspondence_matrix[new_row_indices, c("marker", "expected_mz_location")] <- cbind(names_to_add, mass_to_add)
+  # sort by expected mass
+  final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
 
 
   # filter on TIC
@@ -131,10 +152,13 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   }
 
+  # add column names to filtered dataframe
   final_filtered <- data.frame(final_filtered)
   colnames(final_filtered) <- colnames(final_intensity_targeted)
 
-  return(list(CorrespondenceMatrix = correspondence_matrix_targeted,
+  # TODO potentially change the columns with 0's to NA's
+
+  return(list(CorrespondenceMatrix = final_correspondence_matrix,
               IntensityDF = final_intensity_targeted,
               SpatialCoords = coords,
               Untargeted = list(UntargetedIntensity = final_intensity,

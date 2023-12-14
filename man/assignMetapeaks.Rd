@@ -22,5 +22,12 @@ List containing a). A dataframe of intensity values for all markers that are ass
 Obtain Intensity dataframe of targeted peaks
 }
 \examples{
-assignMetapeaks(metapeaks, peakAnnotation, peakPre)
+path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peaks <- peakDetection(pre, core = 2)
+metapeaks <- generateMetapeaks(peaks)
+assignMetapeaks(x = metapeaks, pre, panel)
 }

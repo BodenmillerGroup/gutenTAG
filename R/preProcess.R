@@ -8,10 +8,15 @@
 #'
 #' @rawNamespace import(Cardinal, except = peaks)
 #' @import BiocParallel
+#' @import BiocStyle
+#'
 #' @export
 #' @examples
-#' preProcess(rawFile, 4)
-
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' preProcess(raw, 2)
 
 preProcess <- function(x, cores){
 

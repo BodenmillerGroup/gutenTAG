@@ -1,22 +1,21 @@
 #' Principal Component Analysis
 #'
 #' @param x A targeted intensity dataframe (rows: pixels, cols: features)
-#' @param comp The number of principal components to compute.
+#' @param comp The number of principal components to compute
+#' @param seed A number to generate a random seed
 #' @param scree Plot scree plot (bool)
 #'
 #' @return A PCA
 #'
 #' @importFrom irlba prcomp_irlba
+#' @importFrom methods is
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 geom_bar
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 scale_y_continuous
 #' @importFrom ggplot2 theme
-#' @export computePCA
-#'
-#' @examples
-#' pca(x$IntensityDF, comp = 5)
+#' @export
 
 computePCA <- function(x, comp = 5, seed = 123, scree = FALSE){
 

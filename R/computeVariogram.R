@@ -1,6 +1,6 @@
 #' Construct a variogram for each dataframe channel.
 #'
-#' @param x A targeted intensity dataframe.
+#' @param df A targeted intensity dataframe.
 #' @param coords A spatial coordinates dataframe.
 #'
 #' @return A list of variograms for each marker.

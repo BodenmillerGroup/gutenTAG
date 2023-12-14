@@ -64,7 +64,7 @@
 
 
 # metapeakGeneration ####
-.valid.metapeakGeneration <- function(x, threshold){
+.valid.generateMetapeaks <- function(x, threshold){
 
   # break if input is not a MSProcessedImagingExperiment
   if (!is(x, "MSProcessedImagingExperiment")) {

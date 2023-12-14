@@ -12,7 +12,12 @@
 #' @export
 #'
 #' @examples
-#' peakDetection(peakPre)
+#' path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+#' panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+#' panel <- readPanel(path = panel_path)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw, cores = 2)
+#' peakDetection(pre)
 
 peakDetection <- function(x, snr = 3, win = 50, cores = 1){
 

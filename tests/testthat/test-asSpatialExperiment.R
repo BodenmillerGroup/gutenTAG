@@ -20,12 +20,10 @@ test_that("asSpatialExperiment works",{
   expect_s4_class(cur_test, "SpatialExperiment")
 
   # test that intensity df is the same
-  expect_equal(cur_test@assays@data$intenity[1:20], c(7.82970978419113, 17.7493402240123, 38.21930389974, 38.121208173945,
-                                                      14.2061520368805, 7.78127437244719, 10.8479657773842, 1.55775389316223,
-                                                      9.09659022610243, 14.9059079381073, 7.46634943048983, 15.5531491674357,
-                                                      41.2465855848849, 31.0258658353397, 10.2214001836892, 5.56030582961501,
-                                                      11.3153908137445, 1.40445876111842, 8.36483431490866, 15.8295464224676
-  ))
+  expect_equal(cur_test@assays@data$intenity[1:20], c(7.82970978419113, 17.7493402240123, 0, 0, 38.21930389974, 0,
+                                                      38.121208173945, 14.2061520368805, 7.78127437244719, 10.8479657773842,
+                                                      1.55775389316223, 9.09659022610243, 14.9059079381073, 7.46634943048983,
+                                                      15.5531491674357, 0, 0, 41.2465855848849, 0, 31.0258658353397))
 
   # test that first entries into cur_test are equal to first 20 entries into processed intensity df
   expect_equal(cur_test@assays@data$intenity[1, ][1:20], processed$IntensityDF[[1]][1:20])

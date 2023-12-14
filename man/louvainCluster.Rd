@@ -23,6 +23,3 @@ The cluster membership for each pixel.
 \description{
 Title Perform Louvain clustering
 }
-\examples{
-louvainCluster(final)
-}

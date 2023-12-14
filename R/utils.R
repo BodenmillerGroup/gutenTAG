@@ -23,7 +23,7 @@
 
 
 # Get the name of the experiment and the sample (applicable only for JA's directory structure)
-.sampleNameFinder <- function(path = Path_to_imzml_file){
+.sampleNameFinder <- function(path){
 
   sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
   h <- 1
@@ -200,7 +200,7 @@
 {
   if (is.factor(string)) {
 
-    string = as.character(string)
+    string <- as.character(string)
 
   }
 
@@ -210,12 +210,12 @@
       (break)("The number of colors must be equal to the number of unique elements.")
     }
     else {
-      conv = cbind(unique(string), colors)
+      conv <- cbind(unique(string), colors)
     }
   }
   else {
 
-    conv = cbind(unique(string), rainbow(length(unique(string))))
+    conv <- cbind(unique(string), rainbow(length(unique(string))))
 
   }
   unlist(lapply(string, FUN = function(x) {
@@ -223,10 +223,12 @@
   }))
 }
 
+
+# utility function for making matrix from flattened dataframe
 .curateMatrix <- function(dataframe, channel, coords){
-  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x))
-  x = dataframe[,channel]
-  Matrix_image[as.matrix(coords)] = x
+  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x)) # initialise matrix of correct shape
+  x = dataframe[,channel] # isolate single channel
+  Matrix_image[as.matrix(coords)] = x # input channel values into matrix
   return(Matrix_image)
 }
 
