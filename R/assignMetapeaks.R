@@ -65,8 +65,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   }
 
   # get names
-  metapeak_mz <- paste0(as.character(round(x$center, 2)), " m/z")
-  colnames(final_intensity) <- metapeak_mz
+  colnames(final_intensity) <- paste0(as.character(round(x$center, 2)), " m/z")
 
   # Summary statistics and expand correspondence matrix
   mean_intensity <- colMeans(final_intensity)
