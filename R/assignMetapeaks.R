@@ -168,7 +168,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   final_filtered <- data.frame(final_filtered)
   colnames(final_filtered) <- colnames(final_intensity_targeted)
 
-  # potentially change the columns with 0's to NA's
+  # TODO potentially change the columns with 0's to NA's
 
   return(list(CorrespondenceMatrix = final_correspondence_matrix,
               IntensityDF = final_intensity_targeted,
