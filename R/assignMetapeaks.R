@@ -43,6 +43,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix <- data.frame(mz_location = x$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
+  was_na <- is.na(correspondence_matrix$marker)
+  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker)
+  correspondence_matrix$marker[was_na] <- NA
 
   rownames(refList) <- refList$Name
 
@@ -91,7 +94,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # add zero columns for markers that aren't assigned metapeaks
   final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
-  final_intensity_targeted <- final_intensity_targeted[refList$Name]
+  final_intensity_targeted <- final_intensity_targeted[order(colnames(final_intensity_targeted))]
 
 
   # Remove all un-annotated peaks from correspondence matrix
