@@ -44,7 +44,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
   was_na <- is.na(correspondence_matrix$marker)
-  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker)
+  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker, sep=".duplicate.")
   correspondence_matrix$marker[was_na] <- NA
 
   rownames(refList) <- refList$Name
