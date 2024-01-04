@@ -122,7 +122,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   tic <- na.omit(tic)
 
   # otsu threshold on TIC
-  tic_threshold = .otsu_thresholding(log10(tic))
+  tic_threshold <- .otsu_thresholding(log10(tic))
   # filter out TIC pixels below threshold
   tic_filtered <- tic[log10(tic) > tic_threshold]
 
