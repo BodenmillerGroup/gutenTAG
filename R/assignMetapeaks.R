@@ -9,6 +9,7 @@
 #'
 #' @importFrom N2R crossKnn
 #' @importFrom Cardinal mz
+#' @importFrom matter colSums rowSums
 #' @export
 #'
 #' @examples
@@ -42,26 +43,20 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
   correspondence_matrix <- data.frame(mz_location = x$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
+  was_na <- is.na(correspondence_matrix$marker)
+  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker)
+  correspondence_matrix$marker[was_na] <- NA
 
   rownames(refList) <- refList$Name
 
   final_intensity <- c()
   eps <- sqrt(.Machine$double.eps)
-  for (k in 1:nrow(correspondence_matrix)) {
+  for (k in seq_len(nrow(correspondence_matrix))) {
     # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= x$limits[k,1] - eps & mz_vector$mz <= x$limits[k,2] + eps
-    # those mz values
-    mz_vector$mz[which(selected_mz_location == TRUE)]
-    if (sum(selected_mz_location) > 1) {
-      intensity_temp <- colSums(raw_intensity[selected_mz_location, ])
-    }
-    # if there is only one mz location, the intensity list is only the intensity values of the one mz location
-    if (sum(selected_mz_location) == 1) {
-      intensity_temp <- (raw_intensity[selected_mz_location, ])
-    }
-    #intensity_temp = Correspondence_matrix$Annotation_peaks[k]
+    selected_mz_location <- mz_vector$mz >= x$limits[k, 1] - eps & mz_vector$mz <= x$limits[k, 2] + eps
+    # sum the intensity of the mz locations inside the peak
+    intensity_temp <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
     final_intensity <- cbind(final_intensity, intensity_temp)
-
   }
 
   # get names
@@ -99,7 +94,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1){
 
   # add zero columns for markers that aren't assigned metapeaks
   final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
-  final_intensity_targeted <- final_intensity_targeted[refList$Name]
+  final_intensity_targeted <- final_intensity_targeted[order(colnames(final_intensity_targeted))]
 
 
   # Remove all un-annotated peaks from correspondence matrix
