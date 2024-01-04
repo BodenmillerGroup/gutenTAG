@@ -15,7 +15,7 @@
 #'
 #' @param x A Cardinal MSImagingExperiment object after peak detection is performed.
 #' @param threshold A threshold for peak detection.
-#' @param hist_smooth_factor An optional factor for smoothing histogram of peak counts.
+#' @param hist_smooth_factor An optional factor for smoothing the histogram of peak counts differently (default: 1.0).
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
@@ -31,7 +31,7 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' generateMetapeaks(peaks)
 
-generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1) {
+generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0) {
   count_df <- countPeaks(x)
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
