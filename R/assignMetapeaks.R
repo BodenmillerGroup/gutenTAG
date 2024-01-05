@@ -101,7 +101,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # add zero columns for markers that aren't assigned metapeaks
   final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
-  final_intensity_targeted <- final_intensity_targeted[order(colnames(final_intensity_targeted))]
+  final_intensity_targeted <- final_intensity_targeted[
+    order(match(colnames(final_intensity_targeted), correspondence_matrix$marker))
+  ]
 
 
   # Remove all un-annotated peaks from correspondence matrix
