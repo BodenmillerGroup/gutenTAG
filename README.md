@@ -101,4 +101,7 @@ The output of processing is a simple object containing 5 elements
 - `CorrespondenceMatrix` A targeted correspondence matrix detailing which metapeaks were associated to which mass tags.
 - `SpatialCoords` The spatial coordinates for each pixel.
 - `FilteredDF` An intensity dataframe for all markers assigned to a metapeak, with background pixels filtered out. Useful for clustering analysis.
-- `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix. 
+- `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix.
+
+- `asSpatialExperiment()`
+- `asMSImagingExperiment()`
