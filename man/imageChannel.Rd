@@ -11,7 +11,8 @@ imageChannel(
   quantile_lim = 0.99,
   interpolate = FALSE,
   axes = FALSE,
-  colna = "black"
+  colna = "black",
+  cmap = NA
 )
 }
 \arguments{
