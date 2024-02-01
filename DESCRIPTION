@@ -36,6 +36,7 @@ Imports:
   Matrix, 
   grDevices, 
   graphics, 
+  viridisLite,
   utils, 
   matter, 
   SpatialExperiment, 
