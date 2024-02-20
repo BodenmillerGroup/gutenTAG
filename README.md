@@ -1,4 +1,4 @@
-<img src="vignettes/gutenTAG_logo.png" align="right" alt="" width="100" />
+<img src="vignettes/gutenTAG_logo_v0.2.png" align="right" alt="" width="100" />
 
 
 # gutenTAG
