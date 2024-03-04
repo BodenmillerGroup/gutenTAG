@@ -1,0 +1,3 @@
+- make sure default parameter for watershed threshold is 0.01.
+- make sure processed$IntensityDF is ordered by m/z value
+- make sure that untargeted metapeaks that are weirdly actually assigned to markers are removed
