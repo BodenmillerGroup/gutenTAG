@@ -25,5 +25,4 @@ peaks <- peakDetection(pre, core = 2)
 metapeaks <- generateMetapeaks(peaks)
 processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 
-asMSImagingExperiment(processed)
 }

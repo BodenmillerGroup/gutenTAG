@@ -18,7 +18,6 @@
 #' metapeaks <- generateMetapeaks(peaks)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
-#' asMSImagingExperiment(processed)
 
 asMSImagingExperiment <- function(x){
 
