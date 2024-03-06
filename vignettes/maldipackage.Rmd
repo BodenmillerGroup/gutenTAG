@@ -179,7 +179,7 @@ for assignment to a reference peak during `assignMetapeaks`. These
 parameters can be adjusted to improve results.
 
 ```{r Generate final output}
-processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
+processed <- assignMetapeaks(x = metapeaks, refList = panel, pre = pre)
 ```
 
 # Visualisation of processed data {#visualisation}

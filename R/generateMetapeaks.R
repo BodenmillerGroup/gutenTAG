@@ -31,11 +31,17 @@
 #' generateMetapeaks(peaks)
 
 generateMetapeaks <- function(x, threshold = 0.01) {
+  # get counts for each m/z peak
   count_df <- countPeaks(x)
+
+  # define a detection threshold for how many pixels a peak should be in
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
+  # get smoothed peak counts and then use this to generate the seeds for metapeak algorithm
   seed_mz <- generateSeedMz(smoothPeakCounts(count_df), detection_threshold=detection_threshold)
+
+  # get metapeaks
   metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold=detection_threshold)
-  
+
   return(metapeaks)
 }

@@ -25,14 +25,14 @@
 assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # validity checks
-  #.valid.assignMetapeaks(x, pre, refList, mz_threshold)
+  .valid.assignMetapeaks(x, pre, refList, mz_threshold)
 
   # get spatial coordinates and correct if needed
   coords <- as.data.frame(pData(pre))[, c("x","y")]
   coords <- .correctCoordinates(coords)
 
   # 1. generate the initial correspondence matrix
-  initial_correspondence <- .generateCorrespondence(x, pre, refList, mz_threshold = mz_threshold)
+  initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
   # 2. generate the final intensity dataframe
   final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence)
   # 3. add elements to correspondence matrix
@@ -63,6 +63,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # extract metepeaks and propagation_selection from x
   metapeaks <- x$metapeaks
+
+  # get m/z vector
+  mz_vector <- as.data.frame(mz(pre))
 
   # Map metapeaks to panel
   mapping_meta <- N2R::crossKnn(mA = matrix(metapeaks$max),
