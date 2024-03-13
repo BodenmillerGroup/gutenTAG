@@ -10,6 +10,7 @@
 #' @importFrom N2R crossKnn
 #' @importFrom Cardinal mz
 #' @importFrom matter colSums rowSums
+#' @importFrom dplyr arrange bind_cols
 #' @export
 #'
 #' @examples
@@ -118,7 +119,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   final_correspondence_matrix <- correspondence_matrix_targeted
   new_row_indices <- seq_along(names_to_add) + nrow(final_correspondence_matrix)
+
+  ### BUG ### characters are infectious, so when you bind the names together with the m/z values, they are also converted to characters.
   final_correspondence_matrix[new_row_indices, c("marker", "expected_mz_location")] <- cbind(names_to_add, mass_to_add)
+  # convert sorting column to numeric. More elegant to use dplyr::bind_rows
+  final_correspondence_matrix$expected_mz_location <- as.numeric(final_correspondence_matrix$expected_mz_location)
   # sort by expected mass
   final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
 
