@@ -49,6 +49,7 @@ Suggests:
     knitr,
     rmarkdown,
     markdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    plotly,
 VignetteBuilder: knitr
 Config/testthat/edition: 3
