@@ -10,6 +10,7 @@
 #' @importFrom N2R crossKnn
 #' @importFrom Cardinal mz
 #' @importFrom matter colSums rowSums
+#' @importFrom dplyr relocate
 #' @export
 #'
 #' @examples
@@ -34,7 +35,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # 1. generate the initial correspondence matrix
   initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
   # 2. generate the final intensity dataframe
-  final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence)
+  final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence, refList = refList)
   # 3. add elements to correspondence matrix
   final_correspondence_matrix <- .finaliseCorrespondence(x, pre, refList, prev_output = final_intensity_dataframe)
   # 4. create filtered dataframe
@@ -44,7 +45,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   Correspondence <- final_correspondence_matrix$final_correspondence
   Intensity <- final_intensity_dataframe$final_intensity_targeted
   UntargetedDF <- final_intensity_dataframe$final_intensity
-  UntargetedCorrespondence <- initial_correspondence$correspondence_matrix
+  UntargetedCorrespondence <- final_correspondence_matrix$untargeted_correspondence
 
   # values to return
   return(list(CorrespondenceMatrix = Correspondence,
@@ -93,7 +94,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 }
 
 # function for generating final intensity dataframe
-.generateFinalIntensityDF <- function(x, pre, prev_output){
+.generateFinalIntensityDF <- function(x, pre, prev_output, refList){
 
   rownames(refList) <- refList$Name
   # extract raw intensity dataframe from pre-processed data
@@ -192,7 +193,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   return(list(
     final_correspondence = final_correspondence_matrix,
-    final_intensity_targeted = final_intensity_targeted
+    final_intensity_targeted = final_intensity_targeted,
+    untargeted_correspondence = correspondence
   ))
 
 }
@@ -201,7 +203,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 # function for generating filtered intensity dataframe
 .filterTIC <- function(x, prev_output){
 
-  final_intensity_targeted <- final_correspondence_matrix$final_intensity_targeted
+  final_intensity_targeted <- prev_output$final_intensity_targeted
 
   # filter on TIC
   tic <- rowSums(final_intensity_targeted)
