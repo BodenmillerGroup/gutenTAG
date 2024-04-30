@@ -10,7 +10,7 @@
 #' @importFrom N2R crossKnn
 #' @importFrom Cardinal mz
 #' @importFrom matter colSums rowSums
-#' @importFrom dplyr arrange bind_cols
+#' @importFrom dplyr relocate
 #' @export
 #'
 #' @examples
@@ -28,87 +28,155 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # validity checks
   .valid.assignMetapeaks(x, pre, refList, mz_threshold)
 
-  # get variables from pre-processed object
-  mz_vector <- as.data.frame(mz(pre))
-  colnames(mz_vector) <- "mz"
-  raw_intensity <- iData(pre)
-
   # get spatial coordinates and correct if needed
   coords <- as.data.frame(pData(pre))[, c("x","y")]
   coords <- .correctCoordinates(coords)
 
+  # 1. generate the initial correspondence matrix
+  initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
+  # 2. generate the final intensity dataframe
+  final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence, refList = refList)
+  # 3. add elements to correspondence matrix
+  final_correspondence_matrix <- .finaliseCorrespondence(x, pre, refList, prev_output = final_intensity_dataframe)
+  # 4. create filtered dataframe
+  final_filtered <- .filterTIC(x, prev_output = final_correspondence_matrix)
+
+  # extract for return
+  Correspondence <- final_correspondence_matrix$final_correspondence
+  Intensity <- final_intensity_dataframe$final_intensity_targeted
+  UntargetedDF <- final_intensity_dataframe$final_intensity
+  UntargetedCorrespondence <- final_correspondence_matrix$untargeted_correspondence
+
+  # values to return
+  return(list(CorrespondenceMatrix = Correspondence,
+              IntensityDF = Intensity,
+              SpatialCoords = coords,
+              Untargeted = list(UntargetedIntensity = UntargetedDF,
+                                UntargetedCorrespondence = UntargetedCorrespondence),
+              FilteredDF = final_filtered))
+
+}
+
+### Hidden functions ###
+
+# function for generating the correspondence matrix
+.generateCorrespondence <- function(x, pre, refList, mz_threshold = mz_threshold){
+
   # extract metepeaks and propagation_selection from x
-  x <- x$metapeaks
+  metapeaks <- x$metapeaks
+
+  # get m/z vector
+  mz_vector <- as.data.frame(mz(pre))
 
   # Map metapeaks to panel
-  mapping_meta <- N2R::crossKnn(mA = matrix(x$max),
+  mapping_meta <- N2R::crossKnn(mA = matrix(metapeaks$max),
                                 mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
   mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_max_modified)
-
-  correspondence_matrix <- data.frame(mz_location = x$max,
+  #construct correspondence matrix
+  correspondence_matrix <- data.frame(mz_location = metapeaks$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
+  # get NA cols
   was_na <- is.na(correspondence_matrix$marker)
-  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker, sep=".duplicate.")
+  # rename duplicates
+  correspondence_matrix$marker <- make.unique(correspondence_matrix$marker, sep = ".duplicate.")
   correspondence_matrix$marker[was_na] <- NA
 
-  rownames(refList) <- refList$Name
+  return(list(
+    correspondence_matrix = correspondence_matrix,
+    metapeaks = metapeaks,
+    mz_vector = mz_vector)
+  )
 
+}
+
+# function for generating final intensity dataframe
+.generateFinalIntensityDF <- function(x, pre, prev_output, refList){
+
+  rownames(refList) <- refList$Name
+  # extract raw intensity dataframe from pre-processed data
+  raw_intensity <- iData(pre)
+
+  # extract from prev_output
+  correspondence <- prev_output$correspondence_matrix
+  mz_vector <- prev_output$mz_vector
+  metapeaks <- prev_output$metapeaks
+
+  # create untargeted final intensity dataframe
   final_intensity <- c()
   eps <- sqrt(.Machine$double.eps)
-  for (k in seq_len(nrow(correspondence_matrix))) {
+  for (k in seq_len(nrow(correspondence))) {
     # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= x$limits[k, 1] - eps & mz_vector$mz <= x$limits[k, 2] + eps
+    selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps & mz_vector$mz <= metapeaks$limits[k, 2] + eps
     # sum the intensity of the mz locations inside the peak
     intensity_temp <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
     final_intensity <- cbind(final_intensity, intensity_temp)
   }
 
-  # get names
-  colnames(final_intensity) <- paste0(as.character(round(x$center, 2)), " m/z")
+  # get names for metapeak values
+  colnames(final_intensity) <- paste0(as.character(round(metapeaks$center, 2)), " m/z")
+
+  # Annotated metapeaks only
+  final_intensity_targeted <- final_intensity[, !is.na(correspondence$marker)]
+  colnames(final_intensity_targeted) <- correspondence$marker[!is.na(correspondence$marker)]
+  final_intensity_targeted <- as.data.frame(final_intensity_targeted)
+
+  # add zero columns for markers that aren't assigned metapeaks
+  final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
+  final_intensity_targeted <- final_intensity_targeted[
+    order(match(colnames(final_intensity_targeted), correspondence$marker))
+  ]
+
+  return(list(
+    final_intensity = final_intensity,
+    final_intensity_targeted = final_intensity_targeted,
+    metapeaks = metapeaks,
+    correspondence = correspondence
+  ))
+
+}
+
+# finalise the correspondence matrix
+.finaliseCorrespondence <- function(x, pre, refList, prev_output){
+
+  # extract raw intensity dataframe from pre-processed data
+  raw_intensity <- iData(pre)
+
+  # extract from previous output
+  final_intensity_targeted <- prev_output$final_intensity_targeted
+  final_intensity <- prev_output$final_intensity
+  correspondence <- prev_output$correspondence
+  metapeaks <- prev_output$metapeaks
 
   # Summary statistics and expand correspondence matrix
   mean_intensity <- colMeans(final_intensity)
   sd_intensity <- apply(final_intensity, MARGIN = 2, FUN = sd)
 
   # add mean and sd to correspondence matrix
-  correspondence_matrix$mean <- mean_intensity
-  correspondence_matrix$sd <- sd_intensity
+  correspondence$mean <- mean_intensity
+  correspondence$sd <- sd_intensity
 
   # set corrected sd as the ratio between the residuals (plus sd) and the sd
-  corrected_sd <- lm(log(1+sd_intensity) ~ log(1+mean_intensity))
+  corrected_sd <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
   residuals <- corrected_sd$residuals
-  correspondence_matrix$corrected_sd <- residuals + sd_intensity / sd_intensity
+  correspondence$corrected_sd <- residuals + sd_intensity / sd_intensity
   # former definition: correspondence_matrix$corrected_sd <- corrected_sd$residuals
 
-  correspondence_matrix$peak_width <- x$metapeaks$width
+  # store metapeak width in correspondence matrix
+  correspondence$peak_width <- metapeaks$metapeaks$width
 
-  # Total signal of each peak
+  # total signal of each peak
   total_signal <- colSums(raw_intensity)
 
   # correlation between the marker intensity and total raw signal intensity
   total_signal_correlation <- apply(final_intensity, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
-  correspondence_matrix$total_signal_correlation <- total_signal_correlation^2
-
-
-  # Annotated metapeaks only
-  final_intensity_targeted <- final_intensity[, !is.na(correspondence_matrix$marker)]
-  colnames(final_intensity_targeted) <- correspondence_matrix$marker[!is.na(correspondence_matrix$marker)]
-  final_intensity_targeted <- as.data.frame(final_intensity_targeted)
-
-
-  # add zero columns for markers that aren't assigned metapeaks
-  final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
-  final_intensity_targeted <- final_intensity_targeted[
-    order(match(colnames(final_intensity_targeted), correspondence_matrix$marker))
-  ]
-
+  correspondence$total_signal_correlation <- total_signal_correlation^2
 
   # Remove all un-annotated peaks from correspondence matrix
-  correspondence_matrix_targeted <- na.omit(correspondence_matrix)
+  correspondence_matrix_targeted <- na.omit(correspondence)
   correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
 
   # add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
@@ -119,17 +187,25 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   final_correspondence_matrix <- correspondence_matrix_targeted
   new_row_indices <- seq_along(names_to_add) + nrow(final_correspondence_matrix)
-
-  ### BUG ### characters are infectious, so when you bind the names together with the m/z values, they are also converted to characters.
   final_correspondence_matrix[new_row_indices, c("marker", "expected_mz_location")] <- cbind(names_to_add, mass_to_add)
-  # convert sorting column to numeric. More elegant to use dplyr::bind_rows
-  final_correspondence_matrix$expected_mz_location <- as.numeric(final_correspondence_matrix$expected_mz_location)
   # sort by expected mass
   final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
 
+  return(list(
+    final_correspondence = final_correspondence_matrix,
+    final_intensity_targeted = final_intensity_targeted,
+    untargeted_correspondence = correspondence
+  ))
+
+}
+
+
+# function for generating filtered intensity dataframe
+.filterTIC <- function(x, prev_output){
+
+  final_intensity_targeted <- prev_output$final_intensity_targeted
 
   # filter on TIC
-
   tic <- rowSums(final_intensity_targeted)
   # remove NAs
   tic[tic == 0] <- NA
@@ -165,13 +241,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   final_filtered <- data.frame(final_filtered)
   colnames(final_filtered) <- colnames(final_intensity_targeted)
 
-  # TODO potentially change the columns with 0's to NA's
-
-  return(list(CorrespondenceMatrix = final_correspondence_matrix,
-              IntensityDF = final_intensity_targeted,
-              SpatialCoords = coords,
-              Untargeted = list(UntargetedIntensity = final_intensity,
-                                UntargetedCorrespondence = correspondence_matrix),
-              FilteredDF = final_filtered))
+  return(final_filtered = final_filtered)
 
 }
+
