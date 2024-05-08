@@ -13,7 +13,7 @@
 #' @importFrom imager as.cimg
 #' @importFrom imager add.colour
 #' @importFrom imager R
-#' @importFrom imager G
+#' @importFrom imager B
 #' @export
 #'
 
