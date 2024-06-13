@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(maldipackage)
+library(gutenTAG)
 
-test_check("maldipackage")
+test_check("gutenTAG")

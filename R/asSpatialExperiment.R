@@ -32,7 +32,7 @@ asSpatialExperiment <- function(x){
 
   # put into SpatialExperiment
   spe <- SpatialExperiment(
-    assay = list(intenity = mat),
+    assay = list(intensity = mat),
     colData = crds,
     spatialCoordsNames = c("x", "y"))
 

@@ -1,8 +1,8 @@
 test_that("asSpatialExperiment works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
-  panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
@@ -29,7 +29,7 @@ test_that("asSpatialExperiment works",{
   #                                                    15.5531491674357, 0, 0, 41.2465855848849, 0, 31.0258658353397))
 
   # test that first entries into cur_test are equal to first 20 entries into processed intensity df
-  expect_equal(cur_test@assays@data$intenity[1, ][1:20], processed$IntensityDF[[1]][1:20])
+  expect_equal(cur_test@assays@data$intensity[1, ][1:20], processed$IntensityDF[[1]][1:20])
 
   # test if character in first argument throws error
   expect_error(asSpatialExperiment("test"))
