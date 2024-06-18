@@ -1,22 +1,32 @@
 ---
 title: "Processing and analysis of MALDI-imaging data"
 date: "`r BiocStyle::doc_date()`"
-package: "`r BiocStyle::pkg_ver('maldipackage')`"
+package: "`r BiocStyle::pkg_ver('gutenTAG')`"
 author:
 - name: John Abbey
   affiliation: 
   - Department for Quantitative Biomedicine, University of Zurich
   - Institute for Molecular Health Sciences, ETH Zurich
+  - Functional Genomics Center Zurich
   email: john.abbey@uzh.ch
+  
+- name: Pierre Bost
+  affiliation:
+  - Department for Quantitative Biomedicine, University of Zurich
+
+- name: Leonardo Schwarz
+  affiliation:
+    - Functional Genomics Center Zurich
+    
 output:
     BiocStyle::html_document:
         toc_float: yes
-#bibliography: library.bib
+bibliography: library.bib
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. The data handling capabilities (import, pre-processing, export) build heavily on the R package Cardinal, designed for general Mass Spectrometry Imaging data. The main functionality of this package includes reliable data processing, extensive quality control and data analysis. First, data is processing using a novel approach involving the construction of metapeaks to account for mass shift and the presence of isotopic peaks. Then image-level and spatial quality control statistics, such as computing Geary's C scores can be computed for every marker. Furthermore, spatial analysis can be performed on the high-dimensional images, including constructing variograms and a variety of clustering algorithms. The package also supports dimensionality reduction methods, including PCA, NMF and UMAP. Additionally, the package supports image visualisation from cytomapper (and cytoviewer) through the construction of a CytoImageList object. As such, once the data is coerced to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
+    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package Cardinal, a very useful tool for general process and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
-    %\VignetteIndexEntry{"Tools for IMC data analysis"}
+    %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
     %\VignetteEncoding{UTF-8}
     %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -30,27 +40,27 @@ knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
 ```
 
 ```{r library, echo=FALSE}
-library(maldipackage)
+library(gutenTAG)
 ```
 
 # Introduction
 
 `r Biocpkg("Cardinal")`
 
+Need to write introduction.
+
 ## Overview
 
-The `maldipackage` package exports functions and example data to perform
+The `gutenTAG` package exports functions and example data to perform
 the following analyses:
 
 1.  [Read in raw datadata](#read-in-data)
 2.  [Perform data pre-processing](#preprocessing)
 3.  [Data processing](#processing)
 4.  [Visualisation](#visualisation) of processed targeted images
-5.  [Dimensionality reduction](#dimensionality-reduction) of processed
-    targeted images
-6.  [Community detection](#community-detection)
 
-To highlight the usability of these function, the `maldipackage` package
+
+To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
 
 # Read in raw data and panel {#read-in-data}
@@ -59,7 +69,7 @@ The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
 
 ```{r read in data}
-imzML_path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+imzML_path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 rawFile <- Cardinal::readMSIData(imzML_path)
 ```
 
@@ -68,7 +78,7 @@ containing the information for the mass of the peptide tag and the
 molecular target into R.
 
 ```{r read in panel}
-panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(panel_path)
 ```
 
@@ -77,13 +87,13 @@ panel <- readPanel(panel_path)
 If you want to see how the package functions on test data, or do not
 have access to the required data yet, a good place to start is by
 loading in the example data from the github repository. The
-`maldipackage` package contains example data generated by the RapiFlex
+`gutenTAG` package contains example data generated by Bruker's RapiFlex
 imaging system. The following section gives an overview of these files.
 
 These files are accessible via:
 
 ```{r example data}
-path <- system.file("extdata", package = "maldipackage")
+path <- system.file("extdata", package = "gutenTAG")
 list.files(path, recursive = TRUE)
 ```
 
@@ -141,13 +151,11 @@ Once `peakDetection` has been performed, the detected peaks per pixel
 can be used to generate metapeaks. Here, metapeaks are defined as single
 peaks that correspond to clusters of peaks that contain information on
 the same molecular species. The function used to generate these
-metapeaks is `generateMetapeaks`. This step is implemented to account
-for loss of signal through technical shift and isotopic peaks in the
-spectra. Inside this function, metapeaks are constructed by
+metapeaks is `generateMetapeaks`. This step is motivated by the loss of signal through technical mass shifts as well as the presence of isotopic peaks in our spectra. The following steps are required to be construct metapeaks.
 
-1.  Obtaining the number of pixels in which each detected peak is
-    present.
-2.  Gaussian smoothing over the spectrum
+1.  Obtain the number of pixels in which each detected peak is
+    present (counts histogram).
+2.  Gaussian smoothing over the counts histogram.
 3.  Watershed algorithm to cluster detected peaks
 4.  Filter peaks present in less than a given threshold of pixels, which
     can be controlled using the `threshold` parameter.
@@ -228,143 +236,6 @@ applicable for our data, since single-cell resolution is not yet
 possible. Interactive visualisation of our images can't be performed
 through a vignette, but the call is very simple: `cytoviewer(cil)`.
 
-
-# Dimensionality Reduction {#dimensionality-reduction}
-
-## Principal Component Analysis (PCA)
-
-Dimensionality reduction techniques can be helpful in revealing the
-overall structure of the data, especially during the exploratory phase
-of data analysis. This package explicitly supports PCA, NMF and UMAP.
-
-PCA is a very commonly used techniques which linearly separates the data
-according to the orthogonal dimensions with greatest variance. This can
-be performed using the `computePCA` function. This function wraps the
-`irlba` implementation of PCA, requiring a set seed. This takes the
-targeted intensity dataframe as the main argument. The number of
-components, aswell as some plotting functions can also be chosen as
-arguments.
-
-Once this is performed, the loadings for each component can be accessed
-under `my_pca$rotation`.
-
-```{r pca}
-#my_pca <- computePCA(processed$IntensityDF, comp = 3, seed = 123, scree = TRUE)
-```
-
-Plot PCA
-
-```{r plot pca}
-#for (i in 1:ncol(my_pca$x)){
-#  imageChannel(my_pca$x, coords = processed$SpatialCoords, channel_number = i, axes = FALSE, colna = "black")
-#}
-```
-
-## Non-negative Matrix Factorisation (NMF)
-
-In practice, NMF often performs better than PCA in terms of decomposing
-the major dimensions of the data. NMF gives parts-based representation
-of the data in the feature factor matrix, denoted here as 'w'. NMF can
-be simply executed using the `computeNMF` function provided by this
-package.
-
-```{r nmf}
-my_nmf <- computeNMF(processed$IntensityDF, comp = 3)
-
-# visualise the factored dimensions
-for (i in 1:ncol(my_nmf$w)){
-  imageChannel(my_nmf$w, coords = processed$SpatialCoords, channel_number = i)
-}
-```
-
-## Uniform Manifold Approximate Projection (UMAP)
-
-UMAP is a non-linear dimensionality technique that embeds high
-dimensional data into two dimensions, providing an overview of the
-global structure of the data.
-
-This package includes the `computeUMAP` function, which computes the
-UMAP using the `uwot` package implementation.
-
-```{r umap}
-my_umap <- computeUMAP(processed$IntensityDF, seed = 3)
-```
-
-One of the ways in which UMAP can be used is to display single-channel
-intensity information on top of the UMAP.
-
-```{r visualise single channel intensities on umap}
-# create data frame
-umap_df <- cbind(my_umap, processed$IntensityDF)
-
-# plot UMAP with channel intensity
-library(ggplot2)
-ggplot(umap_df) +
-  geom_point(aes(x = UMAP1, y = UMAP2, color = HLA.ABC), alpha = 0.6, size = 1) +
-  scale_color_viridis_c() +
-  theme_minimal() +
-  theme(legend.position = "right") +
-  labs(title = "HLA.DR",
-       x = "UMAP 1",
-       y = "UMAP 2",
-       color = "Intensity")
-```
-
-# Community detection {#community-detection}
-
-The `maldipackage` exports the `louvainCluster` function to detect the
-spatial community of each pixel. Here, each pixe is clustered based on
-its interactions as defined by a spatial object graph.
-
-In more detail, the spatial community detection procedure is as follows:
-
-1.  Create an igraph object.
-
-2.  Perform community detection using the louvain algorithm.
-
-3.  Store the community IDs in a vector.
-
-```{r community detection}
-clusters <- louvainCluster(processed$IntensityDF, processed$SpatialCoords, k = 30)
-```
-
-One of the ways in which these clusters can be visualised is to display
-the cluster memberships over the UMAP. This shows us how cluster
-formation corresponds to the global structure of the data.
-
-```{r visualise single channel intensities on spatial coords}
-# create data frame
-cluster_df <- cbind(my_umap, clusters)
-
-# plot UMAP with channel intensity
-ggplot(cluster_df, aes(x = UMAP1, y = UMAP2, color = clusters)) +
-  geom_point(size = 1) +
-  scale_color_discrete(name = "Cluster Membership") +
-  theme_minimal() +
-  labs(title = "Cluster Memberships on Spatial Coordinates",
-       x = "x",
-       y = "y")
-
-```
-
-Perhaps more informatively, the cluster memberships can be plotted onto
-the spatial coordinates, revealing how the spatial context of the tissue
-informs the cluster membership.
-
-```{r visualise single channel intensities on spatial coordinates}
-# create data frame
-cluster_coords <- cbind(processed$SpatialCoords, clusters)
-
-# ggplot spatial distribution of clusters
-ggplot(cluster_coords, aes(x = x, y = y, color = clusters)) +
-  geom_point(size = 5) +
-  scale_color_discrete(name="Cluster Membership") +
-  #scale_color_brewer(palette = "Set1", name = "Cluster Membership") + # alternative colour set for clustering
-  theme_minimal() +
-  labs(title = "Cluster Memberships on Spatial Coordinates",
-       x = "X Coordinate",
-       y = "Y Coordinate")
-```
 
 # Contributions
 
