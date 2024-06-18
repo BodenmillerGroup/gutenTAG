@@ -21,9 +21,11 @@ author:
 output:
     BiocStyle::html_document:
         toc_float: yes
+        
 bibliography: library.bib
+
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package Cardinal, a very useful tool for general process and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
+    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package Cardinal, a very useful tool for general process and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` [@spe2022] objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
     %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
@@ -66,7 +68,7 @@ also exports a number of [test data files](#test-data).
 # Read in raw data and panel {#read-in-data}
 
 The raw imaging data can be read into R using the `readMSIData` function
-from Cardinal.
+from Cardinal [@bemis2023cardinal].
 
 ```{r read in data}
 imzML_path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
@@ -195,7 +197,7 @@ processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
 ## Cytomapper
 
 This package supports visualisation of MALDI images through the
-`cytomapper` framework developed by Eling et al (reference). In order to
+`cytomapper` [@Eling2020]  framework developed by Eling et al (reference). In order to
 use the `plotPixels` function, the data must first be coerced to a
 `CytoImageList` object using the `asCytoImageList` function from this
 package.
@@ -228,7 +230,7 @@ plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
 ## Cytoviewer
 
 Additionally, the images can be visualised using the `cytoviewer` R
-Shiny app developed by Meyer et al 2023 (ref). `cytoviewer` allows
+Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer` allows
 interactive visualistion of multi-channel images, supporting
 visualisation of up to 6 channels. It should be noted that the
 cell-level functionality of `cytomapper` and `cytoviewer` are not
