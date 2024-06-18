@@ -5,6 +5,7 @@
 #' @return A vector of seeds in terms of m/z values
 #' @export
 generateSeedMz <- function(count_df, detection_threshold = 0) {
+
   # constraint for how far apart metapeaks should be
   span_local_maxima <- 3 / .mzScalingFactor(count_df)
 

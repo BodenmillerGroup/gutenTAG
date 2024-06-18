@@ -1,7 +1,7 @@
 test_that("peakDetection works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
 
@@ -32,8 +32,7 @@ test_that("peakDetection works",{
   # test if errors in arguments throws errors
   expect_error(peakDetection(x = "test", snr = 3, win = 50, cores = 2))
   expect_error(peakDetection(x = test, snr = -1, win = 50, cores = 2))
-  expect_error(peakDetection(x = test, snr = 3, win = 50, cores = 2))
-  expect_error(peakDetection(x = test, snr = 3, win = 50, cores = -2))
+  expect_error(peakDetection(x = cur_test, snr = 3, win = 50, cores = "2"))
 
 
 })

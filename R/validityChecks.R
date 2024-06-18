@@ -94,19 +94,19 @@
   if (!is.data.frame(count_df)) {
     stop("count_df must be a data frame")
   }
-  
+
   if (!all(c("mz", "count") %in% names(count_df))) {
     stop("count_df must contain 'mz' and 'count' columns")
   }
-  
+
   if (!is.numeric(seed_mz)) {
     stop("seed_mz must be a numeric vector")
   }
-  
+
   if (!is.numeric(detection_threshold) || length(detection_threshold) != 1) {
     stop("detection_threshold must be a single numeric value")
   }
-  
+
   return(TRUE)
 }
 
@@ -173,61 +173,61 @@
 
 
 # pca ####
-.valid.pca <- function(x, comp, seed, scree, plot){
-
-  # break if input class is not a dataframe
-  if (!is.data.frame(x)) {
-    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
-  }
-
-  # break if comp is not a single numeric
-  if (!is.numeric(comp)) {
-    stop("'comp' should be a single numeric.")
-  }
-
-  # break if comp is not a single numeric
-  if (length(comp) > 1) {
-    stop("'comp' should be a single numeric.")
-  }
-
-  # break if seed is not a single numeric
-  if (!is.numeric(seed)) {
-    stop("'seed' should be a single numeric.")
-  }
-
-  # break if seed is not a single numeric
-  if (length(seed) > 1) {
-    stop("'seed' should be a single numeric.")
-  }
-
-  # break if scree is not a bool
-  #if (!is(x, "bool") {
-  #  stop("'scree' should be a single numeric.")
-  #}
-
-}
+#.valid.pca <- function(x, comp, seed, scree, plot){
+#
+#  # break if input class is not a dataframe
+#  if (!is.data.frame(x)) {
+#    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
+#  }
+#
+#  # break if comp is not a single numeric
+#  if (!is.numeric(comp)) {
+#    stop("'comp' should be a single numeric.")
+#  }
+#
+#  # break if comp is not a single numeric
+#  if (length(comp) > 1) {
+#    stop("'comp' should be a single numeric.")
+#  }
+#
+#  # break if seed is not a single numeric
+#  if (!is.numeric(seed)) {
+#    stop("'seed' should be a single numeric.")
+#  }
+#
+#  # break if seed is not a single numeric
+#  if (length(seed) > 1) {
+#    stop("'seed' should be a single numeric.")
+#  }
+#
+#  # break if scree is not a bool
+#  #if (!is(x, "bool") {
+#  #  stop("'scree' should be a single numeric.")
+#  #}
+#
+#}
 
 
 # computeNMF ####
-.valid.computeNMF <- function(x, comp, cntr){
-
-  # break if input class is not a dataframe
-  if (!is.data.frame(x)) {
-    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
-  }
-
-  # break if comp is not a single numeric
-  if (!is.numeric(comp)) {
-    stop("'comp' should be a single numeric.")
-  }
-
-  # break if comp is not a single numeric
-  if (length(comp) > 1) {
-    stop("'comp' should be a single numeric.")
-  }
-
-
-}
+#.valid.computeNMF <- function(x, comp, cntr){
+#
+#  # break if input class is not a dataframe
+#  if (!is.data.frame(x)) {
+#    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
+#  }
+#
+#  # break if comp is not a single numeric
+#  if (!is.numeric(comp)) {
+#    stop("'comp' should be a single numeric.")
+#  }
+#
+#  # break if comp is not a single numeric
+#  if (length(comp) > 1) {
+#    stop("'comp' should be a single numeric.")
+#  }
+#
+#
+#}
 
 # computeGearysC ####
 .valid.computeGearysC <- function(x, verbose, update_correspondence){
@@ -318,56 +318,56 @@
 }
 
 # computeGMM ####
-.valid.computeGMM <- function(x, hist){
-
-  # break if intensity dataframe class is not a dataframe
-  if (!is.list(x)) {
-    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
-  }
-
-  # break if hist is not bool
-  if(!is.logical(hist)){
-    stop("'hist' should be a bool specifying TRUE/FALSE if you want to plot the histograms fitted with the GMM")
-  }
-
-
-}
+#.valid.computeGMM <- function(x, hist){
+#
+#  # break if intensity dataframe class is not a dataframe
+#  if (!is.list(x)) {
+#    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+#  }
+#
+#  # break if hist is not bool
+#  if(!is.logical(hist)){
+#    stop("'hist' should be a bool specifying TRUE/FALSE if you want to plot the histograms fitted with the GMM")
+#  }
+#
+#
+#}
 
 # computeUMAP ####
-.valid.computeUMAP <- function(x, seed){
-
-  # break if input is not a dataframe
-  if (!is.data.frame(x)) {
-    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
-  }
-
-  # break if seed is not a single numeric
-  if (!is.numeric(seed)) {
-    stop("'seed' should be a single numeric.")
-  }
-
-  # break if seed is not a single numeric
-  if (length(seed) > 1) {
-    stop("'seed' should be a single numeric.")
-  }
-
-}
+#.valid.computeUMAP <- function(x, seed){
+#
+#  # break if input is not a dataframe
+#  if (!is.data.frame(x)) {
+#    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
+#  }
+#
+#  # break if seed is not a single numeric
+#  if (!is.numeric(seed)) {
+#    stop("'seed' should be a single numeric.")
+#  }
+#
+#  # break if seed is not a single numeric
+#  if (length(seed) > 1) {
+#    stop("'seed' should be a single numeric.")
+#  }
+#
+#}
 
 
 # scaleData ####
-.valid.scaleData <- function(x, method){
-
-  # break if spatial coords class is not a dataframe
-  if (!is.list(x)) {
-    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
-  }
-
-  # break if method is not in list of acceptable strings
-  if (!method %in% c("corsd", "geary")) {
-    stop("method for scaling must be either 'corsd' or 'geary'")
-  }
-
-}
+#.valid.scaleData <- function(x, method){
+#
+#  # break if spatial coords class is not a dataframe
+#  if (!is.list(x)) {
+#    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+#  }
+#
+#  # break if method is not in list of acceptable strings
+#  if (!method %in% c("corsd", "geary")) {
+#    stop("method for scaling must be either 'corsd' or 'geary'")
+#  }
+#
+#}
 
 
 # louvainCluster ####
