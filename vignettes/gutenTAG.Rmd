@@ -25,7 +25,7 @@ output:
 bibliography: library.bib
 
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package `Cardinal`,  a very useful tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` [@spe2022] objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
+    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package `Cardinal`,  a very useful tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
     %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
@@ -97,7 +97,7 @@ system of choice lifts the lid on the existing plexity ceiling in
 current one-shot imaging proteomic technologies, as it is no longer
 capped by the abundance of heavy metals as in IMC.
 
-## Motivation
+## MALDI-IHC
 
 MALDI-IHC data shows some persistent features which must be taken into
 consideration for analysis. Firstly, it is large. Very large. Depending
@@ -136,9 +136,9 @@ packages. Functions for easily generating many of the common object
 classes in the spatial biology field are provided. The object classes
 supported by `gutenTAG` include the `MSImagingExperiment` object from
 `Cardinal`, the `CytoImageList` object for `cytomapper` and `cytoviewer`
-and the popular `SpatialExperiment` and `AnnData` objects. This is a
-design choice, since the MALDI-IHC project bridges people from many
-communities who may be familiar with different frameworks.
+and the popular `SpatialExperiment` [@spe2022] and `AnnData` objects.
+This is a design choice, since the MALDI-IHC project bridges people from
+many communities who may be familiar with different frameworks.
 
 # gutenTAG pipeline
 
@@ -154,7 +154,7 @@ following analyses:
 To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
 
-## 1. Read in raw data and panel {#read-in-data}
+## Read in raw data and panel {#read-in-data}
 
 The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
@@ -173,7 +173,7 @@ panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(panel_path)
 ```
 
-### 1.1 Example data {#test-data}
+### Example data {#test-data}
 
 If you want to see how the package functions on test data, or do not
 have access to the required data yet, a good place to start is by
@@ -188,11 +188,12 @@ path <- system.file("extdata", package = "gutenTAG")
 list.files(path, recursive = TRUE)
 ```
 
-By default, the imaging data is read into a
+By default, the imaging data is read into an
 `r BiocStyle::Biocpkg("MSImagingExperiment")` object. Here, the
-extracted channel-specific intensities are stored in the `imageData` slot, accessible via the `iData` getter function from `Cardinal`.
+extracted channel-specific intensities are stored in the `imageData`
+slot, accessible via the `iData` getter function from `Cardinal`.
 
-## 2. Pre-processing {#preprocessing}
+## Pre-processing {#preprocessing}
 
 When acquiring the raw data, the resulting spectra can often be noisy
 and messy. To correct for this, some pre-processing steps are required.
@@ -219,13 +220,13 @@ pre <- rawFile %>%
 
 ```
 
-## 3. Processing {#processing}
+## Processing {#processing}
 
 Full processing of the pre-processed MALDI-imaging data can be performed
 using the `peakDetection`, `generateMetapeaks` and `assignMetapeaks`
 functions in series.
 
-### 3.1 Peak Detection {#peak-detection}
+### Peak Detection {#peak-detection}
 
 The first step of processing is to identify peaks in the pre-processed
 spectra. This function is essentially a wrapper for
@@ -236,7 +237,7 @@ detection algorithm for robust noise evaluation.
 detected <- peakDetection(pre, snr = 3, cores = 2)
 ```
 
-### 3.2 Metapeak generation {#metapeak-generation}
+### Metapeak generation {#metapeak-generation}
 
 Once `peakDetection` has been performed, the detected peaks per pixel
 can be used to generate metapeaks. Here, metapeaks are defined as single
@@ -262,7 +263,7 @@ from untargeted peaks.
 metapeaks <- generateMetapeaks(detected)
 ```
 
-### 3.3 Assigning metapeaks {##metapeak-assignment}
+### Assigning metapeaks {#metapeak-assignment}
 
 The final step of processing is to assign metapeaks to the reference
 list of masses that was loaded in using the `readPanel` function. This
@@ -284,9 +285,9 @@ parameters can be adjusted to improve results.
 processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
 ```
 
-## 4. Visualisation of processed data {#visualisation}
+## Visualisation of processed data {#visualisation}
 
-### 4.1 Cytomapper
+### Cytomapper
 
 This package supports visualisation of MALDI images through the
 `cytomapper` [@Eling2020] framework developed by Eling et al
@@ -320,7 +321,7 @@ plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
            interpolate = FALSE)
 ```
 
-### 4.2 Cytoviewer
+### Cytoviewer
 
 Additionally, the images can be visualised using the `cytoviewer` R
 Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer`
