@@ -25,7 +25,7 @@ output:
 bibliography: library.bib
 
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package Cardinal, a very useful tool for general process and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` [@spe2022] objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
+    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package `Cardinal`,  a very useful tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` [@spe2022] objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
     %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
@@ -47,20 +47,109 @@ library(gutenTAG)
 
 # Introduction
 
-`r Biocpkg("Cardinal")`
+This vignette introduces the `gutenTAG` package for processing
+highly-multiplexed MALDI-IHC images. `gutenTAG` is built heavily on
+`r Biocpkg("Cardinal")` Bioconductor package [@bemis2023cardinal], a
+go-to resource for processing and analysis of Mass Spectrometry Imaging
+data. `gutenTAG` uses relevant functionality from `Cardinal` as well as
+a novel 'metapeak' generation step to facilitate accurate peak picking
+in the presence of technical mass shift and isotopic peaks. \`gutenTAG\`
+is designed specifically for cases such as MALDI-IHC with photocleavable
+mass tags (PCMTs), where we are searching for known features that are
+spiked into our samples.
 
-Need to write introduction.
+## Highly-multiplexed imaging
 
-## Overview
+The development of highly-multiplexed imaging technologies has enabled
+the exploration and characterisation of tissues on a spatial level
+hitherto unimaginable. Advances in these technologies have enabled
+analysis of the complex systems at play in diseases such as cancer in a
+manner that respects the spatial nature of their progression. Spatial
+transcriptomic methods have dominated the spatial biology landscape in
+recent years. This is in large part due to the massive feature spaces
+that emerge from these technologies, opening the door to the application
+of high-dimensional statistics and machine learning techniques on
+molecular biology datasets. While spatial transcriptomics has captured
+the limelight, there is a large and ever-growing interest in
+highly-multiplexed proteomics imaging due to the foundational role that
+proteins play in cellular processes and in disease [@Moffitt2022]. This
+field has seen a huge amount of innovation in recent years, resulting in
+the emergence of myriad different approaches to achieve
+highly-multiplexed targeted proteomic imaging. These can be broadly
+characterised into cyclic immunofluorescence optical approaches, such as
+CyCIF [@Lin2018], and one-step mass tag methods such as IMC
+[@Giesen2014]. However, the high-plexities achieved by methods in
+spatial transcriptomics has eluded the field of spatial proteomics so
+far.
 
-The `gutenTAG` package exports functions and example data to perform
-the following analyses:
+## Mass Spectrometry Imaging
+
+Mass Spectrometry Imaging (MSI), a powerful imaging technology with many
+applications in metabolomics, lipidomics, glycomics, etc, has largely
+been excluded from the proteomics party. Proteins are typically too
+large for direct analysis by mass spectrometry imaging. MSI methods have
+been developing at a rapid rate in recent years. One such method is the
+introduction of Photocleavable Mass Tags (PCMTs) [@ambergen], which
+enable targeted tagging of proteins of interest via specific antibodies.
+This technique of applying PCMT-tagged antibodies with MALDI-imaging has
+been termed MALDI-IHC. The use of peptide tags as the mass reporter
+system of choice lifts the lid on the existing plexity ceiling in
+current one-shot imaging proteomic technologies, as it is no longer
+capped by the abundance of heavy metals as in IMC.
+
+## Motivation
+
+MALDI-IHC data shows some persistent features which must be taken into
+consideration for analysis. Firstly, it is large. Very large. Depending
+on the size of the tissue in question and the pixel size chosen for
+acquisition, it is not uncommon to see files in excess of 50GB. This
+makes running even computationally efficient tasks quite a burden. On
+the technical side, MALDI-IHC, and indeed MALDI-imaging in general,
+commonly exhibit a significant mass shift. This can hamper our analysis,
+as our peaks are not always in their expected location. This mass shift
+can vary from sample to sample as well as vary within the same sample
+(can be due to height effects in the tissue, laser defocusing, etc.). A
+further feature of MALDI-imaging data is the presence of isotopic peaks,
+which split the signal locally across the spectrum. These are the
+primary features of MALDI-imaging data which can be corrected for
+computationally using `gutenTAG`.
+
+## gutenTAG overview
+
+`gutenTAG` is an R package which forms a pipeline that enables fast,
+robust and accurate processing of targeted MALDI-imaging data. It is
+initiated by [reading](#read-in-data) .imzML data into R using the
+`Cardinal` `readImzML` or `readMSIData` functions. It is then
+recommended to [pre-process](#preprocessing) the data. This is followed
+by [peak picking](#peak-detection) to identify peaks filter out noise in
+our spectra. Following this is the novel
+[metapeak](#metapeak-generation) step, which identifies the *m/z*
+location of our peaks based on watershed-like algorithm performed on the
+counts histogram of peaks. These locations on the *m/z* axis are called
+metapeaks since they reflect the prominent location of our peaks across
+all spectra in our image. Finally, these metapeaks are then mapped onto
+our reference list of expected mass tags (our panel) and our metapeaks
+are [assigned](#metapeak-assignment) a label from our panel, completing
+the pipeline. This data is provided in a simple list format rather than
+the typical object-oriented framework you may be familiar with from many
+packages. Functions for easily generating many of the common object
+classes in the spatial biology field are provided. The object classes
+supported by `gutenTAG` include the `MSImagingExperiment` object from
+`Cardinal`, the `CytoImageList` object for `cytomapper` and `cytoviewer`
+and the popular `SpatialExperiment` and `AnnData` objects. This is a
+design choice, since the MALDI-IHC project bridges people from many
+communities who may be familiar with different frameworks.
+
+# Vignette Overview
+
+The `gutenTAG` package exports functions and example data to perform the
+following analyses:
 
 1.  [Read in raw datadata](#read-in-data)
 2.  [Perform data pre-processing](#preprocessing)
 3.  [Data processing](#processing)
 4.  [Visualisation](#visualisation) of processed targeted images
-
+5.  [Interoperability](#interoperability) with object classes
 
 To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
@@ -68,7 +157,7 @@ also exports a number of [test data files](#test-data).
 # Read in raw data and panel {#read-in-data}
 
 The raw imaging data can be read into R using the `readMSIData` function
-from Cardinal [@bemis2023cardinal].
+from Cardinal.
 
 ```{r read in data}
 imzML_path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
@@ -88,9 +177,9 @@ panel <- readPanel(panel_path)
 
 If you want to see how the package functions on test data, or do not
 have access to the required data yet, a good place to start is by
-loading in the example data from the github repository. The
-`gutenTAG` package contains example data generated by Bruker's RapiFlex
-imaging system. The following section gives an overview of these files.
+loading in the example data from the github repository. The `gutenTAG`
+package contains example data generated by Bruker's RapiFlex imaging
+system. The following section gives an overview of these files.
 
 These files are accessible via:
 
@@ -101,7 +190,7 @@ list.files(path, recursive = TRUE)
 
 By default, the imaging data is read into a
 `r BiocStyle::Biocpkg("MSImagingExperiment")` object. Here, the
-extracted channel-specific intensities are stored in the `???` slot.
+extracted channel-specific intensities are stored in the `imageData` slot, accessible via the `iData` getter function from `Cardinal`.
 
 # Data pre-processing {#preprocessing}
 
@@ -130,13 +219,13 @@ pre <- rawFile %>%
 
 ```
 
-# Data processing {#processing}
+# Processing {#processing}
 
 Full processing of the pre-processed MALDI-imaging data can be performed
 using the `peakDetection`, `generateMetapeaks` and `assignMetapeaks`
 functions in series.
 
-## Peak Detection
+## Peak Detection {#peak-detection}
 
 The first step of processing is to identify peaks in the pre-processed
 spectra. This function is essentially a wrapper for
@@ -147,16 +236,19 @@ detection algorithm for robust noise evaluation.
 detected <- peakDetection(pre, snr = 3, cores = 2)
 ```
 
-## Metapeak generation
+## Metapeak generation {#metapeak-generation}
 
 Once `peakDetection` has been performed, the detected peaks per pixel
 can be used to generate metapeaks. Here, metapeaks are defined as single
 peaks that correspond to clusters of peaks that contain information on
 the same molecular species. The function used to generate these
-metapeaks is `generateMetapeaks`. This step is motivated by the loss of signal through technical mass shifts as well as the presence of isotopic peaks in our spectra. The following steps are required to be construct metapeaks.
+metapeaks is `generateMetapeaks`. This step is motivated by the loss of
+signal through technical mass shifts as well as the presence of isotopic
+peaks in our spectra. The following steps are required to be construct
+metapeaks.
 
-1.  Obtain the number of pixels in which each detected peak is
-    present (counts histogram).
+1.  Obtain the number of pixels in which each detected peak is present
+    (counts histogram).
 2.  Gaussian smoothing over the counts histogram.
 3.  Watershed algorithm to cluster detected peaks
 4.  Filter peaks present in less than a given threshold of pixels, which
@@ -170,7 +262,7 @@ from untargeted peaks.
 metapeaks <- generateMetapeaks(detected)
 ```
 
-## Assigning metapeaks
+## Assigning metapeaks {##metapeak-assignment}
 
 The final step of processing is to assign metapeaks to the reference
 list of masses that was loaded in using the `readPanel` function. This
@@ -179,7 +271,7 @@ function is a list of lists, containing primarily `IntensityDF`, the
 channel-specific intensities, `SpatialCoords`, the spatial coordinates
 and `CorrespondenceMatrix`, a data frame describing the assignment of
 metapeaks to reference peaks. This assignment can be controlled via the
-`mz_threshold` parameter, which has a default of 1m/z.
+`mz_threshold` parameter, which has a default of 1*m/z*.
 
 You may notice that some of the expected peaks in the reference list
 will not appear in the output. This is likely due to either a lack of
@@ -189,20 +281,21 @@ for assignment to a reference peak during `assignMetapeaks`. These
 parameters can be adjusted to improve results.
 
 ```{r Generate final output}
-processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
+processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
 ```
 
-# Visualisation of processed data {#visualisation}
+# 4. Visualisation of processed data {#visualisation}
 
-## Cytomapper
+## 4.1 Cytomapper
 
 This package supports visualisation of MALDI images through the
-`cytomapper` [@Eling2020]  framework developed by Eling et al (reference). In order to
-use the `plotPixels` function, the data must first be coerced to a
-`CytoImageList` object using the `asCytoImageList` function from this
-package.
+`cytomapper` [@Eling2020] framework developed by Eling et al
+(reference). In order to use the `plotPixels` function, the data must
+first be coerced to a `CytoImageList` object using the `asCytoImageList`
+function from this package.
 
 ```{r coerce to CytoImageList object}
+
 library(cytomapper)
 cil <- asCytoImageList(processed)
 
@@ -227,11 +320,11 @@ plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
            interpolate = FALSE)
 ```
 
-## Cytoviewer
+## 4.2 Cytoviewer
 
 Additionally, the images can be visualised using the `cytoviewer` R
-Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer` allows
-interactive visualistion of multi-channel images, supporting
+Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer`
+allows interactive visualistion of multi-channel images, supporting
 visualisation of up to 6 channels. It should be noted that the
 cell-level functionality of `cytomapper` and `cytoviewer` are not
 applicable for our data, since single-cell resolution is not yet
@@ -239,11 +332,13 @@ possible. Interactive visualisation of our images can't be performed
 through a vignette, but the call is very simple: `cytoviewer(cil)`.
 
 
+
 # Contributions
 
 [Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
 generation step for data processing, as well as being instrumental in
-developing the architecture of the pipeline.\ [Nils Eling](https://github.com/nilseling) assisted in designing and
+developing the architecture of the pipeline. [Nils
+Eling](https://github.com/nilseling) assisted in designing and
 developing the structure of the package, as well as assisting in
 integrating the package with `cytomapper`, while [Lasse
 Meyer](https://github.com/lassedochreden) has contributed to integrating
