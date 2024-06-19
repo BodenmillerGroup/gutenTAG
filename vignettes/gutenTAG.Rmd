@@ -140,7 +140,7 @@ and the popular `SpatialExperiment` and `AnnData` objects. This is a
 design choice, since the MALDI-IHC project bridges people from many
 communities who may be familiar with different frameworks.
 
-# Vignette Overview
+# gutenTAG pipeline
 
 The `gutenTAG` package exports functions and example data to perform the
 following analyses:
@@ -154,7 +154,7 @@ following analyses:
 To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
 
-# Read in raw data and panel {#read-in-data}
+## 1. Read in raw data and panel {#read-in-data}
 
 The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
@@ -173,7 +173,7 @@ panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(panel_path)
 ```
 
-# Example data {#test-data}
+### 1.1 Example data {#test-data}
 
 If you want to see how the package functions on test data, or do not
 have access to the required data yet, a good place to start is by
@@ -192,7 +192,7 @@ By default, the imaging data is read into a
 `r BiocStyle::Biocpkg("MSImagingExperiment")` object. Here, the
 extracted channel-specific intensities are stored in the `imageData` slot, accessible via the `iData` getter function from `Cardinal`.
 
-# Data pre-processing {#preprocessing}
+## 2. Pre-processing {#preprocessing}
 
 When acquiring the raw data, the resulting spectra can often be noisy
 and messy. To correct for this, some pre-processing steps are required.
@@ -219,13 +219,13 @@ pre <- rawFile %>%
 
 ```
 
-# Processing {#processing}
+## 3. Processing {#processing}
 
 Full processing of the pre-processed MALDI-imaging data can be performed
 using the `peakDetection`, `generateMetapeaks` and `assignMetapeaks`
 functions in series.
 
-## Peak Detection {#peak-detection}
+### 3.1 Peak Detection {#peak-detection}
 
 The first step of processing is to identify peaks in the pre-processed
 spectra. This function is essentially a wrapper for
@@ -236,7 +236,7 @@ detection algorithm for robust noise evaluation.
 detected <- peakDetection(pre, snr = 3, cores = 2)
 ```
 
-## Metapeak generation {#metapeak-generation}
+### 3.2 Metapeak generation {#metapeak-generation}
 
 Once `peakDetection` has been performed, the detected peaks per pixel
 can be used to generate metapeaks. Here, metapeaks are defined as single
@@ -262,7 +262,7 @@ from untargeted peaks.
 metapeaks <- generateMetapeaks(detected)
 ```
 
-## Assigning metapeaks {##metapeak-assignment}
+### 3.3 Assigning metapeaks {##metapeak-assignment}
 
 The final step of processing is to assign metapeaks to the reference
 list of masses that was loaded in using the `readPanel` function. This
@@ -284,9 +284,9 @@ parameters can be adjusted to improve results.
 processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
 ```
 
-# 4. Visualisation of processed data {#visualisation}
+## 4. Visualisation of processed data {#visualisation}
 
-## 4.1 Cytomapper
+### 4.1 Cytomapper
 
 This package supports visualisation of MALDI images through the
 `cytomapper` [@Eling2020] framework developed by Eling et al
@@ -320,7 +320,7 @@ plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
            interpolate = FALSE)
 ```
 
-## 4.2 Cytoviewer
+### 4.2 Cytoviewer
 
 Additionally, the images can be visualised using the `cytoviewer` R
 Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer`
@@ -330,8 +330,6 @@ cell-level functionality of `cytomapper` and `cytoviewer` are not
 applicable for our data, since single-cell resolution is not yet
 possible. Interactive visualisation of our images can't be performed
 through a vignette, but the call is very simple: `cytoviewer(cil)`.
-
-
 
 # Contributions
 
