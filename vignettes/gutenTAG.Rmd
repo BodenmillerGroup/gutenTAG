@@ -332,6 +332,27 @@ applicable for our data, since single-cell resolution is not yet
 possible. Interactive visualisation of our images can't be performed
 through a vignette, but the call is very simple: `cytoviewer(cil)`.
 
+## Interoperability {#interoperability}
+
+`gutenTAG` provides functions for easy conversion to some of the popular
+frameworks in the spatial omics ecosystem. These functions include:
+
+-   `asMSImagingExperiment()` for `MSImagingExperiment` class from
+    `Cardinal` for those who are familiar with typical MSI analysis and
+    prefer to return to the `Cardinal` framework
+
+-   `asSpatialExperiment()` for `SpatialExperiment` class, a spatial
+    extension of the `SingleCellExperiment` class.
+
+-   `asCytoImageList()` for `CytoImageList` class for image
+    visualisation using the `cytomapper` and `cytoviewer` packages.
+
+-   `asAnnData()` for `AnnData` class for access to the `scverse`
+    ecosystem.
+
+These functions are written to be called on the output of the
+`assignMetapeaks()` function.
+
 # Contributions
 
 [Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
