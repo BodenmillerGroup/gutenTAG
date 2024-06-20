@@ -25,15 +25,13 @@ To install the development version of the package, install via GitHub:
 ``` r
 
 install.packages("devtools")
-devtools::install_github("BodenmillerGroup/maldi-imaging")
+devtools::install_github("BodenmillerGroup/gutenTAG")
 
 ```
 
 ## Functionality
 
-`maldi-processing` provides an end-to-end workflow for analysing targeted MALDI-imaging data. The main workhorse for
-this are the pre-processing and processing steps. Auxilliary functionalities include quality control statistics as well as 
-analysis techniques.
+`gutenTAG` provides an end-to-end workflow for processing targeted MALDI-imaging data. The main workhorse for this are the pre-processing and processing steps.
 
 #### 1. Read in data
 
@@ -47,14 +45,14 @@ Example raw data is stored in the `inst/extdata` directory of this repository. T
 It is recommended to use the Cardinal `readMSIData` function to easily read in the .imzML data. 
 
 ```r
-path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 rawFile <- readMSIData(path)
 ```
 
 The panel can be conveniently loaded into your R session using the `readPanel` function:
 
 ```r
-panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 
 ```
