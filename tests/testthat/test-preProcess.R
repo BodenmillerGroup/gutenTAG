@@ -1,6 +1,6 @@
 test_that("preProcess works",{
 
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
 
   # test that the object loaded in is of the correct class

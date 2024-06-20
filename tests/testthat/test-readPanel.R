@@ -1,8 +1,8 @@
 test_that("readPanel works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
-  panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 
   expect_silent(cur_test <- readPanel(path = panel_path))
 

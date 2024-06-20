@@ -1,7 +1,7 @@
 test_that("generateMetapeaks works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
   peaks <- peakDetection(pre, core = 2)

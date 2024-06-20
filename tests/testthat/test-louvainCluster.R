@@ -1,8 +1,8 @@
 test_that("louvainCluster works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "maldipackage")
-  panel_path <- system.file("extdata/ref_list.csv", package = "maldipackage")
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
