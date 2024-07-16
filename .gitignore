@@ -12,3 +12,4 @@ analysis/site_libs
 inst/doc
 /doc/
 /Meta/
+*.Rproj
