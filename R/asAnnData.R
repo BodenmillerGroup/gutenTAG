@@ -41,5 +41,3 @@ asAnnData <- function(x){
 
 }
 
-#output <- asAnnData(x)
-#write_h5ad(output, "/mnt/central_nas/projects/MALDI_imaging/EC_cohort/adata_objects/test_1.h5ad")
