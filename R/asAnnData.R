@@ -32,7 +32,7 @@ asAnnData <- function(x){
   obs_data <- coords
 
   # create anndata object
-  output <- AnnData(X = exp_data,
+  output <- anndata::AnnData(X = exp_data,
                              obs = data.frame(obs_data),
                              var = data.frame(var_data))
 
