@@ -40,7 +40,8 @@ Imports:
   matter, 
   SpatialExperiment, 
   BiocParallel, 
-  BiocStyle
+  BiocStyle,
+  anndata
 License: MIT License
 Encoding: UTF-8
 LazyData: true
