@@ -32,7 +32,7 @@ asAnnData <- function(x){
   obs_data <- coords
 
   # create anndata object
-  output <- AnnData(X = exp_data,
+  output <- anndata::AnnData(X = exp_data,
                              obs = data.frame(obs_data),
                              var = data.frame(var_data))
 
@@ -41,5 +41,3 @@ asAnnData <- function(x){
 
 }
 
-#output <- asAnnData(x)
-#write_h5ad(output, "/mnt/central_nas/projects/MALDI_imaging/EC_cohort/adata_objects/test_1.h5ad")
