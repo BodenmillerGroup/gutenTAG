@@ -29,4 +29,35 @@ test_that("computeGearysC works",{
   expect_error(computeGearysC(processed, verbose = "FALSE", update_correspondence = FALSE))
 
 
+  # Additional tests for higher coverage
+  # Test with update_correspondence set to TRUE
+  updated_processed <- computeGearysC(processed, verbose = FALSE, update_correspondence = TRUE)
+  expect_true("GearysC" %in% colnames(updated_processed$CorrespondenceMatrix))
+
+  # Test with missing values in the input data
+  processed_with_na <- processed
+  processed_with_na$IntensityDF[1, 1] <- NA
+  expect_silent(cur_test_na <- computeGearysC(processed_with_na, verbose = FALSE))
+
+  # Test with different k values in Knn function (modify the computeGearysC function temporarily for this test)
+  #expect_silent({
+  #  original_knn <- Knn
+  #  assign("Knn", function(coords, k, verbose, indexType) original_knn(coords, k = 2, verbose = verbose, indexType = indexType), envir = .GlobalEnv)
+  #  cur_test_k2 <- computeGearysC(processed, verbose = FALSE)
+  #  assign("Knn", original_knn, envir = .GlobalEnv)
+  #})
+
+  # Test with invalid x structure
+  invalid_x <- list(InvalidDF = processed$IntensityDF, CorrespondenceMatrix = processed$CorrespondenceMatrix, SpatialCoords = processed$SpatialCoords)
+  expect_error(computeGearysC(invalid_x, verbose = FALSE, update_correspondence = FALSE))
+
+  # Test with edge cases for coords
+  processed_same_coords <- processed
+  processed_same_coords$SpatialCoords <- data.frame(x = rep(1, nrow(processed_same_coords$SpatialCoords)), y = rep(1, nrow(processed_same_coords$SpatialCoords)))
+  expect_silent(cur_test_same_coords <- computeGearysC(processed_same_coords, verbose = FALSE))
+
+  processed_clustered_coords <- processed
+  processed_clustered_coords$SpatialCoords <- data.frame(x = c(rep(1, nrow(processed_clustered_coords$SpatialCoords) / 2), rep(2, nrow(processed_clustered_coords$SpatialCoords) / 2)), y = rep(1, nrow(processed_clustered_coords$SpatialCoords)))
+  expect_silent(cur_test_clustered_coords <- computeGearysC(processed_clustered_coords, verbose = FALSE))
 })
+

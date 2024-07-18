@@ -42,4 +42,21 @@ test_that("imageChannel works",{
   expect_error(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, quantile_lim = "0.99", interpolate = FALSE, axes = FALSE, colna = FALSE))
 
 
+  ### New tests: additional tests for higher coverage
+  # Test with different quantile_lim values
+  expect_silent(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, quantile_lim = 0))
+  expect_silent(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, quantile_lim = 1))
+
+  # Test with different channel_number values
+  expect_error(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 0))
+  expect_error(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = ncol(processed$IntensityDF) + 1))
+
+  # Test with different colna values
+  expect_silent(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, colna = "white"))
+  expect_error(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, colna = "invalid"))
+
+  # Test with interpolate and axes options
+  expect_silent(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, interpolate = TRUE))
+  expect_silent(imageChannel(x = processed$IntensityDF, coords = processed$SpatialCoords, channel_number = 1, axes = TRUE))
+
 })
