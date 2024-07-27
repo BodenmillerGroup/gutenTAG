@@ -1,6 +1,7 @@
 #' Make MSImagingExperiment object
 #'
 #' @param x The output from 'assignMetapeaks' function
+#' @param remove.na Removes NA values from the experiment. NA values are generated when a marker in the panel is not assigned a metapeak. The default is FALSE.
 #'
 #' @return An object of the class MSImagingExperiment from Cardinal.
 #'
@@ -19,7 +20,7 @@
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
 
-asMSImagingExperiment <- function(x){
+asMSImagingExperiment <- function(x, remove.na = FALSE){
 
   # validity checks
   .valid.asMSImagingExperiment(x)
@@ -29,13 +30,26 @@ asMSImagingExperiment <- function(x){
   run <- factor(rep("run0", nrow(coord)))
   pdata <- PositionDataFrame(run = run, coord = coord)
 
-  # idata: where intensity df goes
-  idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
-
   # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
   fdata <- MassDataFrame(mz = sort(x$CorrespondenceMatrix$expected_mz_location),
                          observed_mz = x$CorrespondenceMatrix$mz_location,
                          expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location))
+
+
+  # idata: where intensity df goes
+  idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
+  # get m/z order of marker names
+  correct_order <- x$CorrespondenceMatrix$marker
+  # reorder rows (markers) of idata according to m/z order
+  idata <- idata[correct_order, ]
+
+  # remove NA clause
+  if (remove.na == TRUE){
+    # remove from idata
+    idata <- idata[rowSums(idata) != 0, ]
+    # remove from fdata
+    fdata<- fdata[c(!is.na(fdata[, 1])), ]
+  }
 
   # put them all together
   out <- MSImagingExperiment(imageData = idata,

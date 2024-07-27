@@ -25,17 +25,25 @@ test_that("asMSImagingExperiment works",{
                                       1432.77, 1564.76, 1569.8))
 
   # test that values in intensity are correct
-  expect_equal(iData(cur_test)[1:5, 1:5], structure(c(7.82970978419113, 17.7493402240123, 38.21930389974,
-                                                      38.121208173945, 14.2061520368805, 7.46634943048983, 15.5531491674357,
-                                                      41.2465855848849, 31.0258658353397, 10.2214001836892, 7.32187611962462,
-                                                      15.5819123732679, 44.6965441458399, 32.5160404293837, 11.5167339794897,
-                                                      6.54747422274114, 16.5104467390468, 28.7510100965559, 15.9670806372939,
-                                                      4.01539500585915, 7.49722025536448, 18.7082550227178, 25.2541078944199,
-                                                      7.45608285560947, 6.49318138965854), dim = c(5L, 5L), dimnames = list(
-                                                        c("CD98", "NFKB", "beta.actin", "Collagen.1A1", "AASM"),
-                                                        NULL)))
+  expect_equal(iData(cur_test)[1:5, 1:5], structure(c(7.82970978419113, 17.7493402240123, 0, 0, 38.21930389974,
+                                                      7.46634943048983, 15.5531491674357, 0, 0, 41.2465855848849, 7.32187611962462,
+                                                      15.5819123732679, 0, 0, 44.6965441458399, 6.54747422274114, 16.5104467390468,
+                                                      0, 0, 28.7510100965559, 7.49722025536448, 18.7082550227178, 0,
+                                                      0, 25.2541078944199), dim = c(5L, 5L),
+                                                    dimnames = list(c("CD98", "NFKB", "FN1", "CD73", "beta.actin"), NULL)))
 
+  ## test remove NA clause
+  new_test <- asMSImagingExperiment(processed, remove.na = TRUE)
 
+  # check shape is correct
+  expect_equal(as.numeric(dim(new_test)), c(10, 256))
+
+  # check there are no more zero columns
+  expect_true(all(rowSums(iData(new_test)) > 0))
+
+  # check NA values were correctly removed
+  tmp <- fData(cur_test)
+  expect_equal(fData(new_test), fData(cur_test)[!is.na(tmp$observed_mz), ])
 
   # test if character in first argument throws error
   expect_error(asMSImagingExperiment("test"))
