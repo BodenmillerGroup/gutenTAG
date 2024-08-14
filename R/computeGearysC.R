@@ -14,10 +14,13 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   # validity checks
   .valid.computeGearysC(x, verbose, update_correspondence)
 
-  # extract data
+  # extract intensity data.
   df <- x$IntensityDF
   correspondence <- x$CorrespondenceMatrix
   coords <- x$SpatialCoords
+
+  # order columns according to order of markers in correspondence matrix
+  df <- df[, correspondence$marker]
 
   # create spatial weight matrix (adjacency matrix on spatial coordinates for rooks case, k = 4)
   spatial_weight_matrix <- Knn(as.matrix(coords), k = 4, verbose = verbose, indexType = "L2")

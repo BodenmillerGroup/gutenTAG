@@ -59,5 +59,11 @@ test_that("computeGearysC works",{
   processed_clustered_coords <- processed
   processed_clustered_coords$SpatialCoords <- data.frame(x = c(rep(1, nrow(processed_clustered_coords$SpatialCoords) / 2), rep(2, nrow(processed_clustered_coords$SpatialCoords) / 2)), y = rep(1, nrow(processed_clustered_coords$SpatialCoords)))
   expect_silent(cur_test_clustered_coords <- computeGearysC(processed_clustered_coords, verbose = FALSE))
+
+  # test that the Geary's C column of correspondence matrix matches the other columns in terms of NA values
+  correspondence_test <- computeGearysC(processed, verbose = FALSE, update_correspondence = TRUE)
+  expect_equal(which(is.na(correspondence_test$CorrespondenceMatrix$GearysC)), which(is.na(correspondence_test$CorrespondenceMatrix$mz_location)))
+
+
 })
 
