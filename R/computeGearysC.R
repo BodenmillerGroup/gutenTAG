@@ -19,9 +19,6 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   correspondence <- x$CorrespondenceMatrix
   coords <- x$SpatialCoords
 
-  # order columns according to order of markers in correspondence matrix
-  df <- df[, correspondence$marker]
-
   # create spatial weight matrix (adjacency matrix on spatial coordinates for rooks case, k = 4)
   spatial_weight_matrix <- Knn(as.matrix(coords), k = 4, verbose = verbose, indexType = "L2")
   spatial_weight_matrix <- as(spatial_weight_matrix, "dgCMatrix")
