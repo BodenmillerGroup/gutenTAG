@@ -4,10 +4,12 @@
 \alias{asMSImagingExperiment}
 \title{Make MSImagingExperiment object}
 \usage{
-asMSImagingExperiment(x)
+asMSImagingExperiment(x, remove.na = FALSE)
 }
 \arguments{
 \item{x}{The output from 'assignMetapeaks' function}
+
+\item{remove.na}{Removes NA values from the experiment. NA values are generated when a marker in the panel is not assigned a metapeak. The default is FALSE.}
 }
 \value{
 An object of the class MSImagingExperiment from Cardinal.

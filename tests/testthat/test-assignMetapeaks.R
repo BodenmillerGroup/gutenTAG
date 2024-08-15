@@ -51,5 +51,10 @@ test_that("assignMetapeaks works",{
   # test that mz_threshold should be a single numeric
   expect_error(assignMetapeaks(metapeaks, pre = pre, refList = panel, mz_threshold = "test"))
 
+  # test that columns of intensity dataframe are in m/z order
+  expect_equal(colnames(cur_test$IntensityDF), cur_test$CorrespondenceMatrix$marker)
+  expect_equal(colnames(cur_test$FilteredDF), cur_test$CorrespondenceMatrix$marker)
+
+
 
 })

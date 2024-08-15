@@ -14,7 +14,7 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   # validity checks
   .valid.computeGearysC(x, verbose, update_correspondence)
 
-  # extract data
+  # extract intensity data.
   df <- x$IntensityDF
   correspondence <- x$CorrespondenceMatrix
   coords <- x$SpatialCoords
