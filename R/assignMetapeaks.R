@@ -47,6 +47,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   UntargetedDF <- final_intensity_dataframe$final_intensity
   UntargetedCorrespondence <- final_correspondence_matrix$untargeted_correspondence
 
+  # order dataframe columns by mz order
+  Intensity <- Intensity[, Correspondence$marker]
+  final_filtered <- final_filtered[, Correspondence$marker]
+
   # values to return
   return(list(CorrespondenceMatrix = Correspondence,
               IntensityDF = Intensity,
