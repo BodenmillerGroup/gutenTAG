@@ -43,4 +43,13 @@ test_that("generateMetapeaks works",{
   # check that the metapeak limits range is double the user-defined limits
   expect_equal(mean(fixed_lim_test$metapeaks$limits[, 2] - fixed_lim_test$metapeaks$limits[, 1]), limits*2)
 
+  # check that it doesn't work when fixed.limits isn't a number
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = "limits"))
+
+  # setting fixed.limits = TRUE (could be an expected user behaviour) doesn't throw an error, rather seems to set the limit to be equal to 1.
+  huh <- generateMetapeaks(x = peaks, fixed.limits = TRUE)
+  huh$metapeaks$limits[, 2] - huh$metapeaks$limits[, 1]
+
+
+
 })
