@@ -87,14 +87,8 @@
   }
 
   # break if fixed limits are anything other than NULL or a numeric value
-  if (!is.null(fixed.limits) | !is.numeric(fixed.limits)){
-    invisible(NULL)
-  }else{
-    stop("fixed.limits must be a single numeric value")
-  }
-  # separate check for logical values (which R interprets as numeric in this case)
-  if (is.logical(fixed.limits)){
-    stop("fixed.limits should not be logical. It must be a single numeric value")
+  if (!(is.null(fixed.limits) | is.numeric(fixed.limits))){
+    stop("fixed.limits must be a single numeric value or null")
   }
 
 }
