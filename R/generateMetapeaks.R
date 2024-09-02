@@ -16,6 +16,7 @@
 #' @param x A Cardinal MSImagingExperiment object after peak detection is performed.
 #' @param threshold A threshold for peak detection.
 #' @param hist_smooth_factor An optional factor for smoothing the histogram of peak counts differently (default: 1.0).
+#' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
