@@ -31,12 +31,12 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' generateMetapeaks(peaks)
 
-generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0) {
+generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0, fixed.limits = NULL) {
   count_df <- countPeaks(x)
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
   seed_mz <- generateSeedMz(smoothPeakCounts(count_df, hist_smooth_factor), detection_threshold = detection_threshold)
-  metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold = detection_threshold)
+  metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
 
   return(metapeaks)
 }

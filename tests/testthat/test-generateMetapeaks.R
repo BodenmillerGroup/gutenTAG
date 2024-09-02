@@ -34,4 +34,13 @@ test_that("generateMetapeaks works",{
   # test if character in first argument throws error
   expect_error(generateMetapeaks("test"))
 
+  # check if fixed limits works
+  limits <- 0.5
+  fixed_lim_test <- generateMetapeaks(x = peaks, fixed.limits = limits)
+
+  # check the metapeak widths are all the same
+  expect_true(all(fixed_lim_test$metapeaks$width == fixed_lim_test$metapeaks$width[1]))
+  # check that the metapeak limits range is double the user-defined limits
+  expect_equal(mean(fixed_lim_test$metapeaks$limits[, 2] - fixed_lim_test$metapeaks$limits[, 1]), limits*2)
+
 })
