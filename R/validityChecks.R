@@ -64,7 +64,7 @@
 
 
 # metapeakGeneration ####
-.valid.generateMetapeaks <- function(x, threshold){
+.valid.generateMetapeaks <- function(x, threshold, fixed.limits){
 
   # break if input is not a MSProcessedImagingExperiment
   if (!is(x, "MSProcessedImagingExperiment")) {
@@ -84,6 +84,17 @@
   # break if threshold is greater than or equal to 1
   if (threshold >= 1) {
     stop("'threshold' should be a decimal.")
+  }
+
+  # break if fixed limits are anything other than NULL or a numeric value
+  if (!is.null(fixed.limits) | !is.numeric(fixed.limits)){
+    invisible(NULL)
+  }else{
+    stop("fixed.limits must be a single numeric value")
+  }
+  # separate check for logical values (which R interprets as numeric in this case)
+  if (is.logical(fixed.limits)){
+    stop("fixed.limits should not be logical. It must be a single numeric value")
   }
 
 }

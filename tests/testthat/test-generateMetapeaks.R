@@ -46,10 +46,8 @@ test_that("generateMetapeaks works",{
   # check that it doesn't work when fixed.limits isn't a number
   expect_error(generateMetapeaks(x = peaks, fixed.limits = "limits"))
 
-  # setting fixed.limits = TRUE (could be an expected user behaviour) doesn't throw an error, rather seems to set the limit to be equal to 1.
-  huh <- generateMetapeaks(x = peaks, fixed.limits = TRUE)
-  huh$metapeaks$limits[, 2] - huh$metapeaks$limits[, 1]
-
+  # check that logical input produces error
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE))
 
 
 })

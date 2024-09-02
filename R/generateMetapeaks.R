@@ -32,6 +32,9 @@
 #' generateMetapeaks(peaks)
 
 generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0, fixed.limits = NULL) {
+
+  .valid.generateMetapeaks(x, threshold, fixed.limits)
+
   count_df <- countPeaks(x)
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
