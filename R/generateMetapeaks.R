@@ -16,6 +16,7 @@
 #' @param x A Cardinal MSImagingExperiment object after peak detection is performed.
 #' @param threshold A threshold for peak detection.
 #' @param hist_smooth_factor An optional factor for smoothing the histogram of peak counts differently (default: 1.0).
+#' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
 #'
 #' @return A list containing information on the location, delimitations and width of metapeaks
 #'
@@ -31,12 +32,15 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' generateMetapeaks(peaks)
 
-generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0) {
+generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0, fixed.limits = NULL) {
+
+  .valid.generateMetapeaks(x, threshold, fixed.limits)
+
   count_df <- countPeaks(x)
   detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
   seed_mz <- generateSeedMz(smoothPeakCounts(count_df, hist_smooth_factor), detection_threshold = detection_threshold)
-  metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold = detection_threshold)
+  metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
 
   return(metapeaks)
 }

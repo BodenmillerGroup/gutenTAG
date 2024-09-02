@@ -8,12 +8,13 @@
 #' @param count_df A data frame containing count data.
 #' @param seed_mz A numeric vector specifying the seed m/z values for segmentation.
 #' @param detection_threshold A numeric value specifying the threshold for counts, as an integer number of counts.
+#' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
 #'
 #' @return A list containing the center, maximum, delimitation, and width of each metapeak.
 #'
 #' @export
 
-estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0) {
+estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
   ## validity checks
   .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
@@ -44,26 +45,35 @@ estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0) {
     # Compute maximum peak location.
     metapeak_max[k] <- peak_mzs[which.max(peak_counts)]
 
-    # Define peak limits as being inside the 1% and 99% of the metapeak.
-    cumsum_freq <- cumsum(peak_counts) / sum(peak_counts)
+    if (is.null(fixed.limits)){
 
-    # TODO more stable implementation, that does not require NA handling afterwards.
-    #cumsum_rev <- rev(cumsum(rev(peak_counts)) / sum(peak_counts))
-    #begin_mz <- peak_mzs[tail(which(cumsum_rev > 0.99), n = 1)[1]]
-    begin_mz <- peak_mzs[tail(which(cumsum_freq < 0.01), n = 1)[1]]
-    end_mz <- peak_mzs[head(which(cumsum_freq > 0.99), n = 1)[1]]
+      # Define peak limits as being inside the 1% and 99% of the metapeak.
+      cumsum_freq <- cumsum(peak_counts) / sum(peak_counts)
 
-    # TODO might be worth revisiting, in principle at least the end should always be found already.
-    if (!is.finite(begin_mz)) {
-      begin_mz <- end_mz - 1
+      # TODO more stable implementation, that does not require NA handling afterwards.
+      #cumsum_rev <- rev(cumsum(rev(peak_counts)) / sum(peak_counts))
+      #begin_mz <- peak_mzs[tail(which(cumsum_rev > 0.99), n = 1)[1]]
+      begin_mz <- peak_mzs[tail(which(cumsum_freq < 0.01), n = 1)[1]]
+      end_mz <- peak_mzs[head(which(cumsum_freq > 0.99), n = 1)[1]]
+
+      # TODO might be worth revisiting, in principle at least the end should always be found already.
+      if (!is.finite(begin_mz)) {
+        begin_mz <- end_mz - 1
+      }
+      if (!is.finite(end_mz)) {
+        end_mz <- begin_mz + 1
+      }
+
+      # Store beginning and end of peak location.
+      metapeak_limits[k, ] <- c(begin_mz, end_mz)
+    }else{
+      # set binning limits to be within specified fixed limit around metapeak max
+      metapeak_limits[k, 1] <- metapeak_max[k] - fixed.limits
+      metapeak_limits[k, 2] <- metapeak_max[k] + fixed.limits
     }
-    if (!is.finite(end_mz)) {
-      end_mz <- begin_mz + 1
-    }
 
-    # Store beginning and end of peak location.
-    metapeak_limits[k, ] <- c(begin_mz, end_mz)
   }
+
 
   # width of each peak
   # TODO is this still needed: (rescale peak width so it is on the m/z scale)
