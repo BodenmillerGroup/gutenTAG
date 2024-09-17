@@ -23,10 +23,10 @@ preProcess <- function(x, cores){
   # validity checks for preProcess
   .valid.preProcess(x, cores)
 
-  x %>%
-    Cardinal::normalize(method = "tic") %>%
-    smoothSignal(method = "gaussian", plot=FALSE) %>%
-    reduceBaseline(method="locmin") %>%
+  x |>
+    Cardinal::normalize(method = "tic") |>
+    smoothSignal(method = "gaussian", plot=FALSE) |>
+    reduceBaseline(method="locmin") |>
     process(BPPARAM = MulticoreParam(workers = cores))
 
 }

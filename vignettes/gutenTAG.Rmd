@@ -212,10 +212,10 @@ ion current (TIC) as the normalisation method of choice, Gaussian
 smoothing for spectral smoothing and local minimum baseline reduction.
 
 ```{r Cardinal pre-processing}
-pre <- rawFile %>%
-    Cardinal::normalize(method = "tic") %>%
-    smoothSignal(method = "gaussian", plot = FALSE) %>%
-    reduceBaseline(method = "locmin") %>%
+pre <- rawFile |>
+    Cardinal::normalize(method = "tic") |>
+    smoothSignal(method = "gaussian", plot = FALSE) |>
+    reduceBaseline(method = "locmin") |>
     process(BPPARAM = MulticoreParam(workers = 2))
 
 ```
