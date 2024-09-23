@@ -36,10 +36,10 @@ peakDetection <- function(x, snr = 3, win = 50, cores = 1){
 
   # peak detection
   if(cores > 1){
-    list_peaks <- peakPick(x, method = "mad", SNR = snr) |>
+    list_peaks <- peakPick(x, method = "mad", SNR = snr, width = win) |>
       process(BPPARAM = MulticoreParam(workers = cores))
   }else{
-    list_peaks <- peakPick(x, method = "mad", SNR = snr) |>
+    list_peaks <- peakPick(x, method = "mad", SNR = snr, width = win) |>
       process()
   }
 
