@@ -51,10 +51,14 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   Intensity <- Intensity[, Correspondence$marker]
   final_filtered <- final_filtered[, Correspondence$marker]
 
+  # summary spectra
+  summarised_spectra <- .summariseSpectra(pre)
+
   # values to return
   return(list(CorrespondenceMatrix = Correspondence,
               IntensityDF = Intensity,
               SpatialCoords = coords,
+              SummarySpectra = summarised_spectra,
               Untargeted = list(UntargetedIntensity = UntargetedDF,
                                 UntargetedCorrespondence = UntargetedCorrespondence),
               FilteredDF = final_filtered))
@@ -250,4 +254,21 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   return(final_filtered = final_filtered)
 
 }
+
+
+# calculate summary spectra
+.summariseSpectra <- function(pre){
+
+  # compute summary spectra
+  meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
+  skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
+  mz <- fData(pre)
+  # create dataframe
+  summarised_spec <- data.frame("skyline" = skyline,
+                        "mean" = meanSpec,
+                        "mz" = test_mz@mz)
+
+  return(summarised_spec)
+}
+
 
