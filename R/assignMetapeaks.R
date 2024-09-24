@@ -102,7 +102,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   rownames(refList) <- refList$Name
   # extract raw intensity dataframe from pre-processed data
-  raw_intensity <- iData(pre)
+  raw_intensity <- ProtGenerics::spectra(pre)
 
   # extract from prev_output
   correspondence <- prev_output$correspondence_matrix
@@ -147,7 +147,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 .finaliseCorrespondence <- function(x, pre, refList, prev_output){
 
   # extract raw intensity dataframe from pre-processed data
-  raw_intensity <- iData(pre)
+  raw_intensity <- ProtGenerics::spectra(pre)
 
   # extract from previous output
   final_intensity_targeted <- prev_output$final_intensity_targeted
