@@ -25,9 +25,9 @@ preProcess <- function(x, cores){
 
   x |>
     Cardinal::normalize(method = "tic") |>
-    smoothSignal(method = "gaussian", plot=FALSE) |>
-    reduceBaseline(method="locmin") |>
-    process(BPPARAM = MulticoreParam(workers = cores))
+    Cardinal::smooth(method = "gaussian") |>
+    Cardinal::reduceBaseline(method = "locmin") |>
+    Cardinal::process(BPPARAM = BiocParallel::MulticoreParam(workers = cores))
 
 }
 
