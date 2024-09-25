@@ -45,14 +45,16 @@ asMSImagingExperiment <- function(x, remove.na = FALSE){
 
   # remove NA clause
   if (remove.na == TRUE){
+    keep <- !is.na(x$CorrespondenceMatrix$mz_location)
+
     # remove from idata
-    idata <- idata[rowSums(idata) != 0, ]
+    idata <- idata[keep, ]
     # remove from fdata
-    fdata<- fdata[c(!is.na(fdata[, 1])), ]
+    fdata<- fdata[keep, ]
   }
 
   # put them all together
-  out <- MSImagingExperiment(imageData = idata,
+  out <- MSImagingExperiment(spectraData = idata,
                              featureData = fdata,
                              pixelData = pdata)
 

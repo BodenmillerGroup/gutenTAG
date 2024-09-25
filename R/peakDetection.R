@@ -35,12 +35,11 @@ peakDetection <- function(x, snr = 3, win = 50, cores = 1){
   #location_pixels <- as.data.frame(pData(x))[, c("x","y")]
 
   # peak detection
-  if(cores > 1){
-    list_peaks <- peakPick(x, method = "mad", SNR = snr, width = win) |>
-      process(BPPARAM = MulticoreParam(workers = cores))
-  }else{
-    list_peaks <- peakPick(x, method = "mad", SNR = snr, width = win) |>
-      process()
+  picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
+  if (cores > 1){
+    list_peaks <- Cardinal::process(picker, BPPARAM = BiocParallel::MulticoreParam(workers = cores))
+  } else {
+    list_peaks <- Cardinal::process(picker)
   }
 
   return(list_peaks)
