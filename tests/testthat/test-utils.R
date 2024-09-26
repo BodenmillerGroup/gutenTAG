@@ -37,7 +37,7 @@ test_that(".correctCoordinates works",{
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
 
-  coords <- as.data.frame(pData(pre))[, c("x","y")]
+  coords <- as.data.frame(Cardinal::coord(pre))
 
   cur_test <- .correctCoordinates(coords)
 

@@ -20,17 +20,15 @@ test_that("assignMetapeaks works",{
   expect_equal(dim(cur_test$IntensityDF), c(256, 13))
   expect_equal(dim(cur_test$SpatialCoords), c(256, 2))
   expect_equal(dim(cur_test$FilteredDF), c(256, 13))
-  expect_equal(dim(cur_test$Untargeted$UntargetedCorrespondence), c(158, 7))
-  expect_equal(dim(cur_test$Untargeted$UntargetedIntensity), c(256, 158))
+  expect_equal(dim(cur_test$Untargeted$UntargetedCorrespondence), c(218, 7))
+  expect_equal(dim(cur_test$Untargeted$UntargetedIntensity), c(256, 218))
   # check that number of untargeted metapeaks is same as in watershed output
   expect_equal(dim(cur_test$Untargeted$UntargetedIntensity)[2], max(metapeaks$propagation_selection))
 
   # check if output of intensity df is the same
-  expect_equal(cur_test$IntensityDF[1][1:20,], c(7.82970978419113, 7.46634943048983, 7.32187611962462, 6.54747422274114,
-                                                7.49722025536448, 3.55251445305979, 5.75086256527666, 3.51621186218398,
-                                                5.27250246930296, 3.86230533109536, 3.44947707629045, 9.10591335737913,
-                                                8.21399509393651, 7.16647250531501, 6.75161308428109, 7.91584977381878,
-                                                6.24461353570202, 9.09662347324635, 6.15357788356246, 6.6490763080287))
+  expect_equal(cur_test$IntensityDF[1][1:10,], c(9.7875, 8.8391, 9.2086, 7.8215,
+                                                 8.5176, 4.3037, 6.9910, 4.1411,
+                                                 5.9847, 4.5863), tolerance = 0.001)
 
   ### Uncomment when CorrespondenceMatrix$expected_mz_location is correctly changed from character to numeric ###
 

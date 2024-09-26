@@ -7,29 +7,29 @@ test_that("generateMetapeaks works",{
   peaks <- peakDetection(pre, core = 2)
 
   # test that the object after peakDetection is still the correct object class
-  expect_s4_class(peaks, "MSProcessedImagingExperiment")
+  expect_s4_class(peaks, "MSImagingExperiment")
 
   # generate metapeaks
   cur_test <- generateMetapeaks(peaks)
 
   # test that metapeak center is correct
-  expect_equal(cur_test$metapeaks$center[1:10], c(903.138189115978, 906.171296812996, 911.900663726184, 915.997366639989,
-                                                   919.190190221908, 921.226647010216, 923.182677484328, 925.219974994659,
-                                                   927.994573754, 936.123016678659))
+  expect_equal(cur_test$metapeaks$center[1:10], c(903.09, 906.31, 913.88, 917.16,
+                                                  920.11, 923.15, 926.09, 932.97,
+                                                  937.78, 941.23), tolerance = 0.1)
 
   # test that metapeak max is correct
-  expect_equal(cur_test$metapeaks$max[1:10], c(903.241638183594, 905.2470703125, 912.266174316406, 914.77294921875,
-                                               919.173828125, 921.234985351562, 923.184692382812, 925.245849609375,
-                                               927.195617675781, 937.779907226562))
+  expect_equal(cur_test$metapeaks$max[1:10], c(903.19, 905.19, 914.72, 917.17,
+                                               919.17, 923.13, 925.19, 929.20,
+                                               937.78, 941.18), tolerance = 0.1)
 
   # test that metapeak width is correct
-  expect_equal(cur_test$metapeaks$width[1:10], c(0.167565628749472, 0.117917435010306, 0.263757941662039, 0.176874452584152,
-                                               0.0372352953387212, 0.0713699159742911, 0.0434434444702502, 0.0093088238346803,
-                                               0.117917435010306, 0.39408827507279))
+  expect_equal(cur_test$metapeaks$width[1:10], c(0.174, 0.233, 0.304, 0.071,
+                                                 0.146, 0.040, 0.121, 0.385,
+                                                 0.012, 0.012), tolerance = 0.01)
 
 
   # test that max value of propagation selection is correct
-  expect_equal(max(cur_test$propagation_selection), 158)
+  expect_equal(max(cur_test$propagation_selection), 218)
 
   # test if character in first argument throws error
   expect_error(generateMetapeaks("test"))

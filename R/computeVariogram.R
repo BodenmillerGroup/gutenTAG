@@ -27,7 +27,7 @@ computeVariogram <- function(df, coords){
     # Assign coordinates
     marker$x <- coords$x
     marker$y <- coords$y
-    coordinates(marker) <- ~x+y
+    sp::coordinates(marker) <- ~x+y
 
     # Construct a formula from the current column name
     formula_string <- paste0(names[i], "~1")
