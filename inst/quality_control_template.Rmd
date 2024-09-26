@@ -82,7 +82,6 @@ base_plot <- ggplot() +
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
   geom_rect(data = targeted_metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Targeted Metapeak Range"), alpha = 0.2) +
 
-  
   # Labels and legends
   ylab('Peak Counts') +
   scale_color_manual(name = "Line", values = c("Count" = "black")) +
@@ -94,7 +93,7 @@ base_plot <- ggplot() +
 ggplotly_plot <- ggplotly(base_plot, dynamicTicks = TRUE)
 
 # Add the spectra intensity as a separate trace (for right y-axis)
-ggplotly_plot <- ggplotly_plot %>%
+ggplotly_plot <- ggplotly_plot |>
   add_trace(
     data = processed$SummarySpectra,
     x = ~mz,
@@ -104,7 +103,7 @@ ggplotly_plot <- ggplotly_plot %>%
     name = 'MeanSpectrum',
     yaxis = 'y2',          # Tie this trace to the second y-axis
     line = list(color = '#cd0000', width = 1.5)
-  ) %>%
+  ) |>
   add_trace(
     data = processed$SummarySpectra,
     x = ~mz,
@@ -114,7 +113,7 @@ ggplotly_plot <- ggplotly_plot %>%
     name = 'SkylineSpectrum',
     yaxis = 'y2',          # Tie this trace to the second y-axis
     line = list(color = "blue", width = 1.5)
-  ) %>%
+  ) |>
   
    #Customize layout for dual y-axes
   layout(

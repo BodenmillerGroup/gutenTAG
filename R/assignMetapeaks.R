@@ -260,13 +260,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 .summariseSpectra <- function(pre){
 
   # compute summary spectra
-  meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
-  skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
-  mz <- fData(pre)
-  # create dataframe
-  summarised_spec <- data.frame("skyline" = skyline,
-                        "mean" = meanSpec,
-                        "mz" = test_mz@mz)
+  #meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
+  #skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
+
+  summarised_spectra <- Cardinal::summarizeFeatures(pre, stat=c(skyline = "max", mean = "mean"))
+  summarised_spec <- data.frame(featureData(summarised_spectra))
 
   return(summarised_spec)
 }
