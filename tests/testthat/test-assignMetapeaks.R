@@ -54,5 +54,22 @@ test_that("assignMetapeaks works",{
   expect_equal(colnames(cur_test$FilteredDF), cur_test$CorrespondenceMatrix$marker)
 
 
+  # test summarised spectra
+  expect_equal(head(cur_test$SummarySpectra$mz),
+               c(899.954956054688, 900.010681152344, 900.066345214844, 900.1220703125,
+                 900.177795410156, 900.233459472656))
+  # skyline spectrum
+  expect_equal(head(cur_test$SummarySpectra$skyline),
+               c(0, 0.0944778578430998, 0.189315670352099, 0.43788513619033,
+                 0.742802278955215, 0.832960263949027))
+  # mean spectrum
+  expect_equal(head(cur_test$SummarySpectra$mean),
+               c(0, 0.0104144228680699, 0.0239233157355273, 0.0803053741897167,
+                 0.155767504458426, 0.203761595637217))
+
+
+
+
+
 
 })
