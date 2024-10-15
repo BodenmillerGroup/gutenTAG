@@ -11,9 +11,9 @@ This is a quality control report for the processing of MALDI-IHC-imaging dataset
 
 The following are reported on:
 
-- Mean-variance plots
-- Signal-noise analysis
-- Spatial QC
+-   Mean-variance plots
+-   Signal-noise analysis
+-   Spatial QC
 
 ### Load inputs
 
@@ -43,9 +43,11 @@ processed <- results$processed
 panel <- results$panel
 ```
 
-## Metapeak Segmentation
+## Metapeak-level QC
 
-An additional thing that is very important to check is the metapeak segmentation itself. We can visualise this by plotting out the counts histogram with the smooth counts and the metapeak limits overlaid on top.
+### Metapeak Segmentation
+
+It is very important to check is the metapeak segmentation itself. We can visualise this by plotting out the counts histogram with the smooth counts and the metapeak limits overlaid on top.
 
 ```{r Dataframe for metapeak plotting}
 # make dataframe for plotting test metapeaks
@@ -132,14 +134,22 @@ ggplotly_plot <- ggplotly_plot |>
 ggplotly_plot
 ```
 
+## Feature-level QC
 
-## Mean-Variance Plot
+Current feature-level quality control metrics include:
+ - Mean-variance relationship
+ - Signal-to-Noise ratio (SNR)
+ - Geary's C autocorrelation measure
+ 
+These measures can be helpful in determining which features should be kept or removed during feature selection.
+
+### Mean-Variance
 
 The relationship between the mean and variance is of high importance when dealing with count data. Count data can be modeled simply using the Poisson distribution, which clearly states that the mean and variance are equal. Real world count data is often over- or under-dispersed. This means that variance is greater or less than the mean, respectively. This can be easily visualised using a mean-variance plot. Here we show the relationship between the mean and variance of each metapeak. In red are annotated metapeaks (assigned to a target mass in the panel), while in grey are unassigned metapeaks.
 
 Why is this important? In analysis of high dimensional biological datasets, it is common to take the highest variance genes or proteins and call these "interesting", because they are highly variable. However, since the mean and variance generally track together in count data, the highest intensity proteins will also be the highest variance ones. This is the confounding effect of the mean. This can be corrected for by regressing the mean against the variance and extracting the residuals from this regression. These residuals tell us how the each marker deviates from the expected variance under poisson assumptions. Here, the x and y axes are on log scale.
 
-### Extract relevant data
+#### Extract relevant data
 
 ```{r Mean-var plot data loading}
 
@@ -155,9 +165,9 @@ targeted_sd = apply(processed$IntensityDF, MARGIN = 2, FUN = sd)
 
 ```
 
-### Mean-variance plot for annotated and unannotated metapeaks
+#### Mean-variance plot for annotated and unannotated metapeaks
 
-#### Annotated and unannotated metapeaks
+##### Annotated and unannotated metapeaks
 
 ```{r ggplot mean var plot}
 
@@ -173,7 +183,6 @@ coefs <- data.frame(t(coefs))
 colnames(coefs)[1] <- "Intercept"
 colnames(coefs)[2] <- "Slope"
 ```
-
 
 ```{r plot, warning = FALSE}
 scatter <- ggplot() +
@@ -197,10 +206,141 @@ ggplotly(scatter, dynamicTicks = TRUE)
 ggplotly(annotated, dynamicTicks = TRUE)
 ```
 
+### Geary's C: Spatial QC
 
-## Image signal-noise
+Geary's C score is a spatial autocorrelation score borrowed from Geostatistics. It is a metric to show on average how correlated spatially neighbouring pixels are to one another. A score of 0 can be interpreted as total spatial correlation, i.e. neighbouring pixels are similar to each other and are far away from dissimilar pixels. Scores close to 0 imply a high degree of structure in the single channel ion image. A score of 1 can be interpreted as spatial randomness, i.e there is no correlation between neighbouring pixels. Often markers with Geary's C scores close to one are unstructured, which can be as a result of poor staining, or some other underlying technical error. It can also be that unannotated metapeaks have a higher Geary's C score. The score can also extend above 1, implying negative spatial autocorrelation i.e. avoidance, where neighbouring pixels are dissimilar to each other.
+
+In all Geary's C score is a handy statistic to show how spatially structured the ion images for each marker are. Spatially structured images are usually indicative of high quality staining.
+
+```{r Gearys C barchart}
+
+processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
+
+geary_sorted_df <- processed_geary$CorrespondenceMatrix[order(processed_geary$CorrespondenceMatrix$GearysC, decreasing = FALSE),]
+marker_vector <- geary_sorted_df$marker[!is.na(geary_sorted_df$GearysC)]
+geary_vector <- geary_sorted_df$GearysC[!is.na(geary_sorted_df$GearysC)]
+geary_mean <- mean(geary_vector)
+
+barplot(geary_vector,
+        names.arg = marker_vector, cex.names = 0.6, las = 2,
+        ylim = c(0,1),
+        main = "Geary's C score", ylab = " Geary's C",
+        col = "#b51837")
+abline(h = geary_mean, col = "grey", lty = 2)
+
+```
+
+### SNR
+
+Signal-to-noise ratio can be a good indicator of how strong the observed signal is for a given channel. This can be function of antibody staining and marker abundance, among other factors.
+
+It may be worth considering removing features that perform poorly in SNR.
+
+```{r SNR barchart}
+
+processed_snr <- computeSNR(processed_geary, method = "gaussian", update_correspondence = TRUE)
+filtered_processed_snr <- processed_snr$CorrespondenceMatrix[!is.na(processed_snr$CorrespondenceMatrix$mz_location), ]
+
+# arrange by snr
+snr_barplot_df <- dplyr::arrange(filtered_processed_snr, snr)
+
+# set value for recommended snr cutoff threshold, currently 10th percentile
+threshold <- quantile(snr_barplot_df$snr, 0.1)
+
+# plot
+snr_plot <- ggplot(snr_barplot_df, aes(x = reorder(marker, snr), y = snr, fill = snr <= threshold)) +
+  geom_bar(stat = "identity") +
+  
+  # Custom fill colors based on the SNR values
+  scale_fill_manual(values = c("#18B596", "#b51837")) +
+  
+  # Add horizontal lines
+  geom_hline(yintercept = threshold, linetype = "dashed", color = "black") +
+  
+  # Add text labels near the horizontal lines
+  annotate("text", x = 1, y = threshold + 0.03, label = "Filter: 10th percentile", color = "black", hjust = 0, vjust = -0.5, size = 3) +
+
+  
+  # Customizations
+  labs(title = "SNR-based Filtering", x = NULL, y = "SNR") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 5))
+
+# Display the plot
+print(snr_plot)
+
+```
+### Geary-SNR plot
+
+Channels with a high Geary's C score and low SNR score can be confidently determined to be weak channels. It can be important to look at both of these metrics to avoid abberant removal of markers. Consider the case of a marker with a strong SNR, but with very uniform staining due to the ubiquity of the marker in the sample. Using only Geary's C for feature selection may result in identifying this marker as performing poorly.
+
+```{r trashcan plot}
+
+# fixed thresholds
+geary_threshold <- 0.8
+snr_threshold <- 2
+
+# conditions for fill
+geary_condition <- filtered_processed_snr$GearysC > geary_threshold
+snr_condition <- filtered_processed_snr$snr < snr_threshold
+filter <- geary_condition & snr_condition
+filtered_processed_snr$fill_color <- ifelse(filter, "#b51837", "#18B596")
+
+# Define the trashcan condition: SNR ≤ 2 and Geary's C ≥ 0.8
+trashcan_zone <- filtered_processed_snr %>%
+  dplyr::filter(snr <= snr_threshold & GearysC >= geary_threshold)
+
+# Create the trashcan plot with labels for markers in the trashcan zone
+trashcan_plot <- ggplot() +
+  theme_minimal() +
+  ggtitle("Mean-SNR Plot: Trashcan plot") +
+  # Shaded red rectangle (alpha = 0.2) above the vertical line and below the horizontal line
+  geom_rect(aes(xmin = geary_threshold, xmax = 1, ymin = 0, ymax = snr_threshold), 
+            fill = "red3", alpha = 0.5) +
+  # Scatter plot for all markers
+  geom_point(data = filtered_processed_snr, aes(x = GearysC, y = snr, fill = fill_color), 
+             color = 'black', shape = 21, size = 4) +
+  # Horizontal and vertical lines
+  geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
+  geom_vline(xintercept = geary_threshold, linetype = "solid", color = "black") +
+  # Labels for points in the trashcan zone (markers with SNR ≤ 2 and Geary's C ≥ 0.8)
+  geom_label_repel(data = trashcan_zone, aes(x = GearysC, y = snr, label = marker),
+                   color = 'black',   # Border color
+                   fill = 'white',    # Background color (inside the label)
+                   box.padding = 0.2, 
+                   point.padding = 0.2, 
+                   max.overlaps = Inf, 
+                   segment.color = 'black', # Line connecting the label to the point
+                   size = 2, fontface = 'bold', label.size = 0.2) +  # label.size controls the border thickness
+  # Use the fill color as defined in the data without further scaling
+    #scale_x_log10() +
+  scale_y_log10() +
+  scale_fill_identity()
+
+# Print the plot
+print(trashcan_plot)
+
+#ggplotly(trashcan_plot)
+
+dput(sort(trashcan_zone$marker))
+
+
+```
+
+Here is the list of markers that perform poorly according to this plot, and are worth considering to remove from the feature list.
+
+```{r print trashcan markers}
+
+dput(sort(trashcan_zone$marker))
+
+```
+
+
+## Pixel-level QC
 
 ### TIC histogram thresholding
+
+Thresholding on the total ion current of the sample can be potentially useful in terms of determining which pixels are off-tissue regions. Off-tissue pixels often have a lower TIC than tissue pixels.
 
 ```{r TIC histogram thresholding}
 
@@ -218,30 +358,4 @@ normalised_histogram <- hist(log10(1 + tic_targeted), 100, col = "#3B9AB5", bord
                              cex.lab = 1.3)
 abline(v = threshold, lwd = 2, col = "#EBCC1A", lty = 2)
 
-```
-
-
-
-## Spatial QC
-
-Geary's C score is a spatial autocorrelation score borrowed from Geostatistics. It is a metric to show on average how correlated spatially neighbouring pixels are to one another. A score of 0 can be interpreted as total spatial correlation, i.e. neighbouring pixels are similar to each other and are far away from dissimilar pixels. Scores close to 0 imply a high degree of structure in the single channel ion image. A score of 1 can be interpreted as spatial randomness, i.e there is no correlation between neighbouring pixels. Often markers with Geary's C scores close to one are unstructured, which can be as a result of poor staining, or some other underlying technical error. It can also be that unannotated metapeaks have a higher Geary's C score. The score can also extend above 1, implying negative spatial autocorrelation i.e. avoidance, where neighbouring pixels are dissimilar to each other.
-
-In all Geary's C score is a handy statistic to show how spatially structured the ion images for each marker are. Spatially structured images are usually indicative of high quality staining.
-
-### Geary's C Barchart score for annotated metpeaks
-```{r Gearys C barchart}
-
-processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
-
-geary_sorted_df <- processed_geary$CorrespondenceMatrix[order(processed_geary$CorrespondenceMatrix$GearysC, decreasing = FALSE),]
-marker_vector <- geary_sorted_df$marker[!is.na(geary_sorted_df$GearysC)]
-geary_vector <- geary_sorted_df$GearysC[!is.na(geary_sorted_df$GearysC)]
-geary_mean <- mean(geary_vector)
-
-barplot(geary_vector,
-        names.arg = marker_vector, cex.names = 0.6, las = 2,
-        ylim = c(0,1),
-        main = "Geary's C score", ylab = " Geary's C",
-        col = "#b51837")
-abline(h = geary_mean, col = "grey", lty = 2)
 ```
