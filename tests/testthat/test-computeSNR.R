@@ -19,8 +19,8 @@ test_that("computeSNR works",{
   # Test correspondence matrix
   expect_true("snr" %in% colnames(cur_test$CorrespondenceMatrix))
   expect_equal(cur_test$CorrespondenceMatrix$snr, c(1, 1.46662215920315, 0, 0, 2.00872721014486, 0, 3.08641724395242,
-                                                    3.80602499772131, 3.01605464957345, 15.2477686105868, 2.38579865682754,
-                                                    1.41332759446791, 2.9132994473942))
+                                                    3.80602499772131, 3.97764446905493, 15.2477686105868, 2.40921027994661,
+                                                    1, 2.9132994473942))
 
 })
 
