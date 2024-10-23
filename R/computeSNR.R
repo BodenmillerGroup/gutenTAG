@@ -27,21 +27,24 @@ computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
   # apply SNR to dataframe
   sample_snrs <- apply(df, MARGIN = 2, FUN = .snr_calc)
 
-  # return / update correspondence matrix
-  if(update_correspondence == TRUE){
-
-    snrs <- sapply(sample_snrs, function(x) x$SNR)
-
-    # update output
+  .updateCorrespondence <- function(x, sample_snrs){
+    # extract snr values only
+    snrs <- sapply(sample_snrs, function(y) y$SNR)
+    # add snrs to correspondence matrix snr column
     x$CorrespondenceMatrix$snr <- snrs
+    # add all snr data to processed object
     x$SNR <- sample_snrs
+
     return(x)
-
-  }else{
-
-    return(sample_snrs)
-
   }
+
+  # update correspondence or not
+  if(update_correspondence == TRUE){
+    updated <- .updateCorrespondence(x, sample_snrs)
+  }else{
+    return(sample_snrs)
+  }
+
 }
 
 # hidden functions
