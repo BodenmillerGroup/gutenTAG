@@ -5,8 +5,6 @@
 #' @param update_correspondence Should the SNR score be added to the Correspondence Matrix (bool)
 #'
 #' @return
-#' @importFrom flexmix flexmix
-#' @importFrom flexmix FLXMRglm
 #' @export computeSNR
 #'
 #' @examples
