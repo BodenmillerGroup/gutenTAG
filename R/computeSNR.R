@@ -9,7 +9,7 @@
 #' @importFrom flexmix FLXMRglm
 #' @export computeSNR
 #'
-#'#' @examples
+#' @examples
 #' path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
