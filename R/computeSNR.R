@@ -21,8 +21,8 @@
 
 computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
 
-  # extract  data.
-  df <- x$IntensityDF
+  # extract data & reorder dataframe by mz order to match correspondence
+  df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
   # apply SNR to dataframe
   sample_snrs <- apply(df, MARGIN = 2, FUN = .snr_calc)
@@ -41,6 +41,7 @@ computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
   # update correspondence or not
   if(update_correspondence == TRUE){
     updated <- .updateCorrespondence(x, sample_snrs)
+    return(updated)
   }else{
     return(sample_snrs)
   }
