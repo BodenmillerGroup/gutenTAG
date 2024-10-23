@@ -47,7 +47,7 @@ panel <- results$panel
 
 ### Metapeak Segmentation
 
-It is very important to check is the metapeak segmentation itself. We can visualise this by plotting out the counts histogram with the smooth counts and the metapeak limits overlaid on top.
+It is very important to check the metapeak segmentation itself. We can visualise this by plotting out the counts histogram with the smooth counts and the metapeak limits overlaid on top.
 
 ```{r Dataframe for metapeak plotting}
 # make dataframe for plotting test metapeaks
