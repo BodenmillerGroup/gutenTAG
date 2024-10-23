@@ -73,8 +73,8 @@ computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
 
   } else if (method == "poisson") {
     fit <- tryCatch({
-      flexmix(nonzero_channel ~ 1, data = data, k = 2,
-              model = FLXMRglm(family = "poisson"),
+      flexmix::flexmix(nonzero_channel ~ 1, data = data, k = 2,
+              model = flexmix::FLXMRglm(family = "poisson"),
               control = list(iter.max = 500, tol = 1e-6))
     }, error = function(e) {
       message("Error in Poisson fitting: ", e)
