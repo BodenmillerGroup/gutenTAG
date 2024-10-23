@@ -61,8 +61,8 @@ computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
   # Try Gaussian or Poisson mixture
   if (method == "gaussian") {
     fit <- tryCatch({
-      flexmix(log2(nonzero_channel + 1) ~ 1, data = data, k = 2,
-              model = FLXMRglm(family = "gaussian"),
+      flexmix::flexmix(log2(nonzero_channel + 1) ~ 1, data = data, k = 2,
+              model = flexmix::FLXMRglm(family = "gaussian"),
               control = list(iter.max = 500, tol = 1e-6))
     }, error = function(e) {
       message("Error in Gaussian fitting: ", e)
