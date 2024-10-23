@@ -22,8 +22,6 @@
 computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
 
   # extract  data.
-  coords <- x$SpatialCoords
-  correspondence <- x$CorrespondenceMatrix
   df <- x$IntensityDF
 
   # apply SNR to dataframe
