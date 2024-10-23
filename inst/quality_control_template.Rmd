@@ -232,7 +232,7 @@ abline(h = geary_mean, col = "grey", lty = 2)
 
 ### SNR
 
-Signal-to-noise ratio can be a good indicator of how strong the observed signal is for a given channel. This can be function of antibody staining and marker abundance, among other factors.
+Signal-to-noise ratio can be a good indicator of how strong the observed signal is for a given channel. This can be a function of antibody staining and marker abundance, among other factors.
 
 It may be worth considering removing features that perform poorly in SNR.
 
