@@ -91,7 +91,7 @@ computeSNR <- function(x, method = "gaussian", update_correspondence = FALSE){
   }
 
   # Get signal and noise clusters
-  clusters <- clusters(fit)
+  clusters <- flexmix::clusters(fit)
 
   # Calculate the mean for each signal and noise clusters
   cluster_means <- tapply(nonzero_channel, clusters, mean)
