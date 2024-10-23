@@ -287,7 +287,7 @@ filter <- geary_condition & snr_condition
 filtered_processed_snr$fill_color <- ifelse(filter, "#b51837", "#18B596")
 
 # Define the trashcan condition: SNR ≤ 2 and Geary's C ≥ 0.8
-trashcan_zone <- filtered_processed_snr %>%
+trashcan_zone <- filtered_processed_snr |>
   dplyr::filter(snr <= snr_threshold & GearysC >= geary_threshold)
 
 # Create the trashcan plot with labels for markers in the trashcan zone
