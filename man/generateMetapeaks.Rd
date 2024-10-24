@@ -4,7 +4,12 @@
 \alias{generateMetapeaks}
 \title{Metapeak Generation}
 \usage{
-generateMetapeaks(x, threshold = 0.01, hist_smooth_factor = 1)
+generateMetapeaks(
+  x,
+  threshold = 0.01,
+  hist_smooth_factor = 1,
+  fixed.limits = NULL
+)
 }
 \arguments{
 \item{x}{A Cardinal MSImagingExperiment object after peak detection is performed.}
@@ -12,6 +17,8 @@ generateMetapeaks(x, threshold = 0.01, hist_smooth_factor = 1)
 \item{threshold}{A threshold for peak detection.}
 
 \item{hist_smooth_factor}{An optional factor for smoothing the histogram of peak counts differently (default: 1.0).}
+
+\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
 }
 \value{
 A list containing information on the location, delimitations and width of metapeaks
