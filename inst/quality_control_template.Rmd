@@ -304,7 +304,7 @@ trashcan_plot <- ggplot() +
   geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
   geom_vline(xintercept = geary_threshold, linetype = "solid", color = "black") +
   # Labels for points in the trashcan zone (markers with SNR ≤ 2 and Geary's C ≥ 0.8)
-  geom_label_repel(data = trashcan_zone, aes(x = GearysC, y = snr, label = marker),
+  ggrepel::geom_label_repel(data = trashcan_zone, aes(x = GearysC, y = snr, label = marker),
                    color = 'black',   # Border color
                    fill = 'white',    # Background color (inside the label)
                    box.padding = 0.2, 
