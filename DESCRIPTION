@@ -53,5 +53,6 @@ Suggests:
     markdown,
     testthat (>= 3.0.0),
     plotly,
+    ggrepel,
 VignetteBuilder: knitr
 Config/testthat/edition: 3

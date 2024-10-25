@@ -4,7 +4,12 @@
 \alias{estimateMetapeaks}
 \title{Metapeak Estimation}
 \usage{
-estimateMetapeaks(count_df, seed_mz, detection_threshold = 0)
+estimateMetapeaks(
+  count_df,
+  seed_mz,
+  detection_threshold = 0,
+  fixed.limits = NULL
+)
 }
 \arguments{
 \item{count_df}{A data frame containing count data.}
@@ -12,6 +17,8 @@ estimateMetapeaks(count_df, seed_mz, detection_threshold = 0)
 \item{seed_mz}{A numeric vector specifying the seed m/z values for segmentation.}
 
 \item{detection_threshold}{A numeric value specifying the threshold for counts, as an integer number of counts.}
+
+\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
 }
 \value{
 A list containing the center, maximum, delimitation, and width of each metapeak.

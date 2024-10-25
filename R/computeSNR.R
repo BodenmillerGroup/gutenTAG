@@ -4,7 +4,7 @@
 #' @param method Indicate whether to use Gaussian mixture model or Poisson mixture model
 #' @param update_correspondence Should the SNR score be added to the Correspondence Matrix (bool)
 #'
-#' @return
+#' @return a list containing lists with SNR and clustering information for each channel
 #' @export computeSNR
 #'
 #' @examples
