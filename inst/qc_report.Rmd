@@ -93,8 +93,8 @@ base_plot <- ggplot() +
   geom_line(data = metapeaks$count_df, aes(x = mz, y = count, color = "Count"), alpha = 1, linewidth = 0.5) +
   
   # Add vertical lines and ranges
-  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 0.7) +
-  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 0.5) +
+  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
+  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
   
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
   geom_rect(data = targeted_metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Targeted Metapeak Range"), alpha = 0.2) +
@@ -468,7 +468,7 @@ for (i in 1:length(processed_snr$SNR)) {
       subtitle = paste("Signal-to-Noise Ratio (SNR): ", round(cur_snr, 2)),
       x = "Intensity", y = "Count", fill = "Cluster"
     ) +
-    scale_x_log10()
+    #scale_x_log10()
   
   # Dynamically create the tab headers and content
   cat("##", cur_name, "\n\n")
@@ -530,7 +530,7 @@ for (i in 1:length(processed_snr$SNR)) {
 
 ```
 
-
+:::
 
 ### Geary-SNR plot: Feature Selection
 
@@ -552,6 +552,8 @@ filtered_processed_snr$fill_color <- ifelse(filter, "#b51837", "#18B596")
 trashcan_zone <- filtered_processed_snr |>
   dplyr::filter(snr <= snr_threshold & GearysC >= geary_threshold)
 
+all_markers <- filtered_processed_snr
+
 # Create the trashcan plot with labels for markers in the trashcan zone
 trashcan_plot <- ggplot() +
   theme_minimal() +
@@ -566,7 +568,7 @@ trashcan_plot <- ggplot() +
   geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
   geom_vline(xintercept = geary_threshold, linetype = "solid", color = "black") +
   # Labels for points in the trashcan zone (markers with SNR ≤ 2 and Geary's C ≥ 0.8)
-  geom_label_repel(data = trashcan_zone, aes(x = GearysC, y = snr, label = marker),
+  geom_label_repel(data = all_markers, aes(x = GearysC, y = snr, label = marker),
                    color = 'black',   # Border color
                    fill = 'white',    # Background color (inside the label)
                    box.padding = 0.2, 
@@ -581,8 +583,6 @@ trashcan_plot <- ggplot() +
 
 
 ```
-
-:::
 
 ::: {.panel-tabset group="plottype"}
 ## Simple
@@ -683,7 +683,7 @@ plot(normalised_histogram, col = bar_colors, border = "black",
      cex.lab = 1.3)
 
 # Add the threshold line
-abline(v = threshold, lwd = 2, col = "grey", lty = 2)
+abline(v = threshold, lwd = 4, col = "grey", lty = 2)
 
 ```
 
