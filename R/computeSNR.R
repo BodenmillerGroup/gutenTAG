@@ -3,6 +3,7 @@
 #' @param x Output from assignMetapeaks
 #' @param update_correspondence Should the SNR score be added to the Correspondence Matrix (bool)
 #' @param package Indicate whether GMM modelling should be performed using mclust or flexmix package
+#' @param q Quantile value for clipping extreme outliers (default is 1)
 #'
 #' @return a list containing lists with SNR and clustering information for each channel
 #' @importFrom mclust Mclust
