@@ -3,6 +3,7 @@
 #' @param x Output from assignMetapeaks
 #' @param update_correspondence Should the SNR score be added to the Correspondence Matrix (bool)
 #' @param package Indicate whether GMM modelling should be performed using mclust or flexmix package
+#' @param q Quantile value for clipping extreme outliers (default is 1)
 #'
 #' @return a list containing lists with SNR and clustering information for each channel
 #' @importFrom mclust Mclust
@@ -24,7 +25,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   # Extract data & reorder dataframe by mz order to match correspondence
   df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
-  # quantile clipping incase GMM stumbles on extreme outlier pixel values
+  # quantile clipping in case GMM stumbles on extreme outlier pixel values
   df <- apply(df, MARGIN = 2, FUN = .quantileClipping, q = q)
 
   # Apply SNR calculation based on the chosen method
@@ -117,7 +118,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
     stop("The model failed to converge.")
   }
 
-  clusters <- clusters(fit)
+  clusters <- flexmix::clusters(fit)
   cluster_means <- tapply(nonzero_channel, clusters, mean)
 
   # Identify noise and signal clusters based on the means
