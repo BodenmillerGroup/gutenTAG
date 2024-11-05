@@ -118,7 +118,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
     stop("The model failed to converge.")
   }
 
-  clusters <- clusters(fit)
+  clusters <- flexmix::clusters(fit)
   cluster_means <- tapply(nonzero_channel, clusters, mean)
 
   # Identify noise and signal clusters based on the means
