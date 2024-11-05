@@ -1,8 +1,20 @@
 ---
-title: "Quality Control"
-page-layout: full
+title: "Quality Control Report"
 params:
     param_load_dev_path: NA
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-expand: 1
+    toc-title: Contents
+    toc-location: right
+    code-fold: true
+    code-tools: true
+    code-summary: "Show the code"
+    css: styles.css
+    smooth-scroll: true
 ---
 
 ## Overview
@@ -15,7 +27,7 @@ The following are reported on:
 -   Signal-noise analysis
 -   Spatial QC
 
-### Load inputs
+Load inputs
 
 ```{r Load params, echo=FALSE}
 param_load_dev_path <- params$param_load_dev_path
@@ -31,6 +43,9 @@ if (!is.na(param_load_dev_path) && param_load_dev_path != "NA") {
 
 library(ggplot2)
 library(plotly)
+library(ggrepel)
+library(sessioninfo)
+library(mclust)
 
 loadRData <- function(fileName){
   load(fileName, temp_env <- new.env())
@@ -78,8 +93,8 @@ base_plot <- ggplot() +
   geom_line(data = metapeaks$count_df, aes(x = mz, y = count, color = "Count"), alpha = 1, linewidth = 0.5) +
   
   # Add vertical lines and ranges
-  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 0.7) +
-  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 0.5) +
+  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
+  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
   
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
   geom_rect(data = targeted_metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Targeted Metapeak Range"), alpha = 0.2) +
@@ -134,24 +149,24 @@ ggplotly_plot <- ggplotly_plot |>
 ggplotly_plot
 ```
 
+
 ## Feature-level QC
 
 Current feature-level quality control metrics include:
+
  - Mean-variance relationship
  - Signal-to-Noise ratio (SNR)
  - Geary's C autocorrelation measure
  
 These measures can be helpful in determining which features should be kept or removed during feature selection.
 
-### Mean-Variance
+### Mean-Variance relationship
 
 The relationship between the mean and variance is of high importance when dealing with count data. Count data can be modeled simply using the Poisson distribution, which clearly states that the mean and variance are equal. Real world count data is often over- or under-dispersed. This means that variance is greater or less than the mean, respectively. This can be easily visualised using a mean-variance plot. Here we show the relationship between the mean and variance of each metapeak. In red are annotated metapeaks (assigned to a target mass in the panel), while in grey are unassigned metapeaks.
 
 Why is this important? In analysis of high dimensional biological datasets, it is common to take the highest variance genes or proteins and call these "interesting", because they are highly variable. However, since the mean and variance generally track together in count data, the highest intensity proteins will also be the highest variance ones. This is the confounding effect of the mean. This can be corrected for by regressing the mean against the variance and extracting the residuals from this regression. These residuals tell us how the each marker deviates from the expected variance under poisson assumptions. Here, the x and y axes are on log scale.
 
-#### Extract relevant data
-
-```{r Mean-var plot data loading}
+```{r Mean-var plot data loading, message=FALSE, warning=FALSE}
 
 # mean and sd of untarted metapeaks
 untargeted_df <- data.frame(processed$Untargeted$UntargetedIntensity)
@@ -162,14 +177,6 @@ untargeted_sd = apply(untargeted_df, MARGIN = 2, FUN = sd)
 # mean and sd of targeted dataframe
 targeted_mean <- colMeans(processed$IntensityDF)
 targeted_sd = apply(processed$IntensityDF, MARGIN = 2, FUN = sd)
-
-```
-
-#### Mean-variance plot for annotated and unannotated metapeaks
-
-##### Annotated and unannotated metapeaks
-
-```{r ggplot mean var plot}
 
 targeted_stats <- data.frame(cbind(targeted_mean, targeted_sd))
 targeted_stats <- cbind(targeted_stats, rownames(targeted_stats))
@@ -182,9 +189,8 @@ coefs <- regression$coefficients
 coefs <- data.frame(t(coefs))
 colnames(coefs)[1] <- "Intercept"
 colnames(coefs)[2] <- "Slope"
-```
 
-```{r plot, warning = FALSE}
+# plots
 scatter <- ggplot() +
     theme_minimal() +
     ggtitle("Mean-Variance Plot") +
@@ -199,12 +205,23 @@ annotated <- ggplot() +
     geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_sd, text = Name), color = 'black', fill = '#3B9AB5', shape = 21, size = 4) +
     scale_x_log10() +
     scale_y_log10()
+
 ```
 
-```{r , warning = FALSE, out.width="100%", echo = FALSE}
+::: {.panel-tabset group="language"}
+## All Metapeaks
+
+```{r , warning = FALSE, out.width="100%", echo = FALSE, message=FALSE}
 ggplotly(scatter, dynamicTicks = TRUE)
+```
+
+## Annotated metapeaks
+
+```{r , warning = FALSE, out.width="100%", echo = FALSE, message=FALSE}
 ggplotly(annotated, dynamicTicks = TRUE)
 ```
+
+:::
 
 ### Geary's C: Spatial QC
 
@@ -217,26 +234,17 @@ In all Geary's C score is a handy statistic to show how spatially structured the
 processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
 
 geary_sorted_df <- processed_geary$CorrespondenceMatrix[order(processed_geary$CorrespondenceMatrix$GearysC, decreasing = FALSE),]
+
 marker_vector <- geary_sorted_df$marker[!is.na(geary_sorted_df$GearysC)]
 geary_vector <- geary_sorted_df$GearysC[!is.na(geary_sorted_df$GearysC)]
 geary_mean <- mean(geary_vector)
 
-#barplot(geary_vector,
-#        names.arg = marker_vector, cex.names = 0.4, las = 2,
-#        ylim = c(0,1),
-#        main = "Geary's C score", ylab = " Geary's C",
-#        col = "#b51837")
-#abline(h = geary_mean, col = "grey", lty = 2)
-
-# Set the default color for all bars as grey
-bar_colors <- ifelse(marker_vector %in% c("ATP5a", "S100A4"), "#b51837", "grey")
-
-# Create the barplot with custom colors
 barplot(geary_vector,
         names.arg = marker_vector, cex.names = 0.4, las = 2,
         ylim = c(0,1),
         main = "Geary's C score", ylab = " Geary's C",
-        col = bar_colors)  # Apply the custom color vector
+        col = "#b51837")
+abline(h = geary_mean, col = "grey", lty = 2)
 
 # Add a horizontal line for the mean Geary's C
 abline(h = geary_mean, col = "grey", lty = 2)
@@ -244,15 +252,139 @@ abline(h = geary_mean, col = "grey", lty = 2)
 
 ```
 
+
 ### SNR
 
 Signal-to-noise ratio can be a good indicator of how strong the observed signal is for a given channel. This can be a function of antibody staining and marker abundance, among other factors.
 
 It may be worth considering removing features that perform poorly in SNR.
 
-```{r SNR barchart}
+Function for computing SNR
 
-processed_snr <- computeSNR(processed_geary, method = "gaussian", update_correspondence = TRUE)
+```{r}
+computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q = 1) {
+
+  # Extract data & reorder dataframe by mz order to match correspondence
+  df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
+
+  # quantile clipping
+  df <- apply(df, MARGIN = 2, FUN = .quantileClipping, q = q)
+
+  # Apply SNR calculation based on the chosen method
+  if (package == "mclust") {
+    sample_snrs <- apply(df, MARGIN = 2, FUN = .snr_calc_mclust)
+  } else if (package == "flexmix") {
+    sample_snrs <- apply(df, MARGIN = 2, FUN = .snr_calc_flexmix)
+  } else {
+    stop("Package must be either 'mclust' or 'flexmix'")
+  }
+
+  # Update correspondence matrix if requested
+  if (update_correspondence) {
+    updated <- .updateCorrespondence(x, sample_snrs)
+    return(updated)
+  } else {
+    return(sample_snrs)
+  }
+}
+
+# Helper function for updating correspondence matrix
+.updateCorrespondence <- function(x, sample_snrs) {
+  snrs <- sapply(sample_snrs, function(y) y$SNR)
+  x$CorrespondenceMatrix$snr <- snrs
+  x$SNR <- sample_snrs
+  return(x)
+}
+
+.quantileClipping <- function(x, q){
+  quant <- quantile(x, q)
+  x[x > quant] <- quant
+  return(x)
+}
+
+# SNR calculation with mclust
+.snr_calc_mclust <- function(channel) {
+  # Remove zero values; if channel is all zeros, return an SNR of 0
+  nonzero_channel <- channel[channel != 0]
+  if (length(nonzero_channel) == 0) {
+    message("The channel contains only zeros. SNR set to 0.")
+    return(list("SNR" = 0, "clustering" = NULL, "fit" = NULL))
+  }
+
+  # Fit a GMM with mclust's Mclust() using two components
+  fit <- Mclust(log2(nonzero_channel + 1), G = 2, modelNames = "E", verbose = FALSE)  # "E" for equal variance
+
+  if (is.null(fit)) {
+    stop("The model failed to converge. Try different data or check your input.")
+  }
+
+  clusters <- fit$classification
+  cluster_means <- tapply(nonzero_channel, clusters, mean)
+
+  # Identify noise and signal clusters based on the means
+  noise_cluster <- which.min(cluster_means)
+  signal_cluster <- which.max(cluster_means)
+
+  # Reassign points in signal cluster below noise mean
+  threshold <- min(nonzero_channel[clusters == signal_cluster])
+  clusters <- ifelse(nonzero_channel < threshold, noise_cluster, clusters)
+
+  # Recalculate means after reassignment
+  noise_mean <- mean(nonzero_channel[clusters == noise_cluster])
+  signal_mean <- mean(nonzero_channel[clusters == signal_cluster])
+  snr <- signal_mean / noise_mean
+
+  return(list("SNR" = snr, "clustering" = clusters, "fit" = fit))
+}
+
+# SNR calculation with flexmix
+.snr_calc_flexmix <- function(channel) {
+  nonzero_channel <- channel[channel != 0]
+  if (length(nonzero_channel) == 0) {
+    message("The channel contains only zeros. SNR set to 0.")
+    return(list("SNR" = 0, "clustering" = NULL, "fit" = NULL))
+  }
+
+  data <- data.frame(nonzero_channel)
+  fit <- tryCatch({
+    flexmix(log2(nonzero_channel + 1) ~ 1, data = data, k = 2,
+            model = FLXMRglm(family = "gaussian"),
+            control = list(iter.max = 500, tol = 1e-6))
+  }, error = function(e) {
+    message("Error in flexmix fitting: ", e)
+    return(NULL)
+  })
+
+  if (is.null(fit)) {
+    stop("The model failed to converge.")
+  }
+
+  clusters <- clusters(fit)
+  cluster_means <- tapply(nonzero_channel, clusters, mean)
+
+  # Identify noise and signal clusters based on the means
+  noise_cluster <- which.min(cluster_means)
+  signal_cluster <- which.max(cluster_means)
+
+  # Reassign points in signal cluster below noise mean
+  threshold <- min(nonzero_channel[clusters == signal_cluster])
+  clusters <- ifelse(nonzero_channel < threshold, noise_cluster, clusters)
+
+  # Recalculate means after reassignment
+  noise_mean <- mean(nonzero_channel[clusters == noise_cluster])
+  signal_mean <- mean(nonzero_channel[clusters == signal_cluster])
+  snr <- signal_mean / noise_mean
+
+  return(list("SNR" = snr, "clustering" = clusters, "fit" = fit))
+}
+
+
+```
+
+
+```{r SNR barchart, eval=TRUE, warning=FALSE, message=FALSE}
+
+processed_snr <- computeSNR(processed_geary, package = "mclust", update_correspondence = TRUE, q = 0.995)
 filtered_processed_snr <- processed_snr$CorrespondenceMatrix[!is.na(processed_snr$CorrespondenceMatrix$mz_location), ]
 
 # arrange by snr
@@ -284,15 +416,131 @@ snr_plot <- ggplot(snr_barplot_df, aes(x = reorder(marker, snr), y = snr, fill =
 print(snr_plot)
 
 ```
-### Geary-SNR plot
+
+### SNR Distribution
+
+It is important to see the distribution of the signal and noise clusters on the intensity histogram for each channel to fully trust the SNR calculation. 
+
+::: {.panel-tabset group="snr"}
+
+```{r snr plotting, out.width="100%", results='asis'}
+
+for (i in 1:length(processed_snr$SNR)) {
+  
+  # Skip channels with a mean of zero
+  if (mean(processed_snr$IntensityDF[, i]) == 0) {
+    next
+  }
+
+  # Extract necessary data for the current channel
+  coords <- processed$SpatialCoords[processed$IntensityDF[, i] != 0, ]
+  cur_name <- colnames(processed_snr$IntensityDF)[i]
+  channel <- processed_snr$IntensityDF[, i]
+  nonzero_channel <- channel[channel != 0]
+  
+  # Cap the intensities at a certain quantile (if needed)
+  quant <- quantile(nonzero_channel, 0.999) # Adjust quantile as needed
+  nonzero_channel[nonzero_channel > quant] <- quant
+
+  # Retrieve current clustering information
+  cur_cluster <- processed_snr$SNR[[i]]$clustering
+  cur_snr <- processed_snr$SNR[[i]]$SNR
+
+  # Identify noise and signal based on cluster means
+  cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
+  noise_mean <- min(cluster_means)
+  signal_mean <- max(cluster_means)
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
+
+  # Data for histogram
+  hist_df <- data.frame(
+    count = nonzero_channel,
+    cluster_color = cluster_color
+  )
+
+  # Generate histogram plot for the current channel
+  histogram_plot <- ggplot(hist_df, aes(x = count, fill = cluster_color)) +
+    geom_histogram(bins = 100, color = "black", alpha = 0.5, position = "identity") +
+    scale_fill_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
+    theme_minimal() +
+    labs(
+      title = paste("Histogram of Signal and Noise: ", cur_name),
+      subtitle = paste("Signal-to-Noise Ratio (SNR): ", round(cur_snr, 2)),
+      x = "Intensity", y = "Count", fill = "Cluster"
+    ) +
+    #scale_x_log10()
+  
+  # Dynamically create the tab headers and content
+  cat("##", cur_name, "\n\n")
+  print(histogram_plot)
+  cat("\n\n")
+}
+
+
+```
+
+:::
+
+It can also be important to see the spatial distribution of the signal and noise clusters to validate that this corresponds to the ion image for the given channel.
+
+::: {.panel-tabset}
+
+```{r spatial snr, out.width = "100%", results='asis'}
+for (i in 1:length(processed_snr$SNR)) {
+  
+  # Skip channels with a mean of zero
+  if (mean(processed_snr$IntensityDF[, i]) == 0) {
+    next
+  }
+
+  # Extract necessary data for the current channel
+  coords <- processed$SpatialCoords[processed$IntensityDF[, i] != 0, ]
+  cur_name <- colnames(processed_snr$IntensityDF)[i]
+  channel <- processed_snr$IntensityDF[, i]
+  nonzero_channel <- channel[channel != 0]
+  
+  # Retrieve current clustering information
+  cur_cluster <- processed_snr$SNR[[i]]$clustering
+  cur_snr <- processed_snr$SNR[[i]]$SNR
+
+  # Identify noise and signal based on cluster means
+  cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
+  noise_mean <- min(cluster_means)
+  signal_mean <- max(cluster_means)
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
+
+  # Prepare the dataframe for spatial plotting
+  plot_df <- cbind(coords, cluster_color)
+  
+  # Generate spatial plot for the current channel
+  spatial_plot <- ggplot(plot_df, aes(x = x, y = -y, color = factor(cluster_color))) +
+    geom_point(size = 1) +
+    scale_color_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
+    theme_void() +
+    labs(
+      title = paste("Spatial Distribution: ", cur_name),
+      x = "X", y = "Y", color = "Cluster"
+    )
+  
+  # Dynamically create the tab headers and content
+  cat("##", cur_name, "\n\n")
+  print(spatial_plot)
+  cat("\n\n")
+}
+
+```
+
+:::
+
+### Geary-SNR plot: Feature Selection
 
 Channels with a high Geary's C score and low SNR score can be confidently determined to be weak channels. It can be important to look at both of these metrics to avoid abberant removal of markers. Consider the case of a marker with a strong SNR, but with very uniform staining due to the ubiquity of the marker in the sample. Using only Geary's C for feature selection may result in identifying this marker as performing poorly.
 
-```{r trashcan plot}
+```{r trashcan plot, eval=TRUE, message=FALSE, warning=FALSE}
 
 # fixed thresholds
-geary_threshold <- 0.8
-snr_threshold <- 2
+geary_threshold <- 0.7
+snr_threshold <- 3
 
 # conditions for fill
 geary_condition <- filtered_processed_snr$GearysC > geary_threshold
@@ -304,6 +552,8 @@ filtered_processed_snr$fill_color <- ifelse(filter, "#b51837", "#18B596")
 trashcan_zone <- filtered_processed_snr |>
   dplyr::filter(snr <= snr_threshold & GearysC >= geary_threshold)
 
+all_markers <- filtered_processed_snr
+
 # Create the trashcan plot with labels for markers in the trashcan zone
 trashcan_plot <- ggplot() +
   theme_minimal() +
@@ -312,13 +562,13 @@ trashcan_plot <- ggplot() +
   geom_rect(aes(xmin = geary_threshold, xmax = 1, ymin = 0, ymax = snr_threshold), 
             fill = "red3", alpha = 0.5) +
   # Scatter plot for all markers
-  geom_point(data = filtered_processed_snr, aes(x = GearysC, y = snr, fill = fill_color), 
+  geom_point(data = filtered_processed_snr, aes(x = GearysC, y = snr, fill = fill_color, text = marker), 
              color = 'black', shape = 21, size = 4) +
   # Horizontal and vertical lines
   geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
   geom_vline(xintercept = geary_threshold, linetype = "solid", color = "black") +
   # Labels for points in the trashcan zone (markers with SNR ≤ 2 and Geary's C ≥ 0.8)
-  ggrepel::geom_label_repel(data = trashcan_zone, aes(x = GearysC, y = snr, label = marker),
+  geom_label_repel(data = all_markers, aes(x = GearysC, y = snr, label = marker),
                    color = 'black',   # Border color
                    fill = 'white',    # Background color (inside the label)
                    box.padding = 0.2, 
@@ -327,28 +577,82 @@ trashcan_plot <- ggplot() +
                    segment.color = 'black', # Line connecting the label to the point
                    size = 2, fontface = 'bold', label.size = 0.2) +  # label.size controls the border thickness
   # Use the fill color as defined in the data without further scaling
-    #scale_x_log10() +
+  #scale_x_log10() +
   scale_y_log10() +
   scale_fill_identity()
 
-# Print the plot
-print(trashcan_plot)
-
-#ggplotly(trashcan_plot)
-
-dput(sort(trashcan_zone$marker))
-
 
 ```
+
+::: {.panel-tabset group="plottype"}
+## Simple
+
+```{r , warning = FALSE, out.width="100%", echo = FALSE, message=FALSE}
+print(trashcan_plot)
+```
+
+## Interactive
+
+```{r , warning = FALSE, out.width="100%", echo = FALSE, message=FALSE}
+ggplotly(trashcan_plot, dynamicTicks = FALSE)
+```
+
+:::
+
+
+```{r, eval = FALSE, echo=FALSE}
+
+for (i in 1:length(processed_snr$SNR)){
+  
+  if (mean(processed_snr$IntensityDF[, i]) == 0){
+    next
+  }
+  
+  coords <- processed$SpatialCoords[nonzero_channel != 0, ]
+  
+  cur_name <- colnames(processed_snr$IntensityDF)[i]
+  channel <- processed_snr$IntensityDF[, i]
+  nonzero_channel <- channel[channel != 0]  # Only non-zero values for clustering
+  
+  #quant <- quantile(nonzero_channel, q)
+  #nonzero_channel[nonzero_channel > quant] <- quant
+  
+  cur_cluster <- processed_snr$SNR[[i]]$clustering
+  cur_snr <- processed_snr$SNR[[i]]$SNR
+  
+  # Calculate the mean for each cluster to identify noise and signal
+  cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
+  noise_mean <- min(cluster_means)  # The cluster with the lower mean is noise
+  signal_mean <- max(cluster_means)  # The cluster with the higher mean is signal
+  
+  # Create a new variable 'cluster_color' assigning grey to noise and red to signal
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
+  
+  # Prepare the dataframe for spatial plotting
+  plot_df <- cbind(coords, cluster_color)
+  
+  # Plot the spatial distribution with consistent colors for noise (grey) and signal (red)
+  spatial_plot <- ggplot(plot_df, aes(x = x, y = -y, color = factor(cluster_color))) +
+    geom_point(size = 1) +
+    scale_color_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
+    theme_void() +  # Start with theme_void
+    labs(title = paste("Spatial Distribution: ", cur_name),
+         x = "X", y = "Y", color = "Cluster")
+    
+  print(spatial_plot)
+  
+}
+
+```
+
 
 Here is the list of markers that perform poorly according to this plot, and are worth considering to remove from the feature list.
 
-```{r print trashcan markers}
+```{r print trashcan markers, eval=TRUE}
 
 dput(sort(trashcan_zone$marker))
 
 ```
-
 
 ## Pixel-level QC
 
@@ -379,7 +683,30 @@ plot(normalised_histogram, col = bar_colors, border = "black",
      cex.lab = 1.3)
 
 # Add the threshold line
-abline(v = threshold, lwd = 2, col = "grey", lty = 2)
+abline(v = threshold, lwd = 4, col = "grey", lty = 2)
 
 ```
 
+
+:::{.callout-tip collapse="true"}
+## Expand for Session Info
+```{r, echo = FALSE}
+library(sessioninfo)
+# save the session info as an object
+pkg_sesh <- session_info(pkgs = "attached")
+
+# get the quarto version
+quarto_version <- system("quarto --version", intern = TRUE)
+
+# inject the quarto info
+pkg_sesh$platform$quarto <- paste(
+  system("quarto --version", intern = TRUE), 
+  "@", 
+  quarto::quarto_path()
+  )
+
+# print it out
+pkg_sesh
+```
+
+:::
