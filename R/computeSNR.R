@@ -24,7 +24,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   # Extract data & reorder dataframe by mz order to match correspondence
   df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
-  # quantile clipping incase GMM stumbles on extreme outlier pixel values
+  # quantile clipping in case GMM stumbles on extreme outlier pixel values
   df <- apply(df, MARGIN = 2, FUN = .quantileClipping, q = q)
 
   # Apply SNR calculation based on the chosen method
