@@ -52,7 +52,7 @@ loadRData <- function(fileName){
   return(as.list(temp_env))
 }
 
-results <- loadRData("/mnt/central_nas/projects/MALDI_imaging/EC_cohort/gutenTAG_data/tonsil/WU316545_result_menzha_20240212_tonsil_07-50/output/metapeak_result.RData")
+results <- loadRData("metapeak_result.RData")
 metapeaks <- results$metapeaks
 processed <- results$processed
 panel <- results$panel
