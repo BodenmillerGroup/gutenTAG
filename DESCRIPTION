@@ -55,5 +55,6 @@ Suggests:
     plotly,
     ggrepel,
     sessioninfo,
+    quarto,
 VignetteBuilder: knitr
 Config/testthat/edition: 3
