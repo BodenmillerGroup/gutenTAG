@@ -17,9 +17,7 @@
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
 #' preProcess(raw, 2)
-
-preProcess <- function(x, cores){
-
+preProcess <- function(x, cores) {
   # validity checks for preProcess
   .valid.preProcess(x, cores)
 
@@ -28,6 +26,4 @@ preProcess <- function(x, cores){
     Cardinal::smooth(method = "gaussian") |>
     Cardinal::reduceBaseline(method = "locmin") |>
     Cardinal::process(BPPARAM = BiocParallel::MulticoreParam(workers = cores))
-
 }
-

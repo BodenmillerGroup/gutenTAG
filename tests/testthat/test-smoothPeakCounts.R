@@ -20,5 +20,5 @@ test_that("smoothPeakCounts works when even", {
     count = c(10, 10, 10, 0, 0, 0, 10, 10)
   )
   smooth_count_df <- smoothPeakCounts(count_df)
-  expect_equal(smooth_count_df$count, c(16.6, 17.7, 17.7, 16.6, 8.9, 1.1, 1.1, 8.9), tolerance=0.1)
+  expect_equal(smooth_count_df$count, c(16.6, 17.7, 17.7, 16.6, 8.9, 1.1, 1.1, 8.9), tolerance = 0.1)
 })

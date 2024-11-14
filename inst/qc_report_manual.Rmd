@@ -47,7 +47,7 @@ library(ggrepel)
 library(sessioninfo)
 library(mclust)
 
-loadRData <- function(fileName){
+loadRData <- function(fileName) {
   load(fileName, temp_env <- new.env())
   return(as.list(temp_env))
 }
@@ -79,7 +79,6 @@ max_y <- max(metapeaks$count_df$count, na.rm = TRUE)
 # which metapeaks are in the targeted list
 targeted_metapeaks <- processed$CorrespondenceMatrix$mz_location
 targeted_metapeak_df <- metapeak_df[metapeak_df$max %in% targeted_metapeaks, ]
-
 ```
 
 ```{r Plot current metapeaks, out.width="100%", warning = FALSE}
@@ -88,22 +87,21 @@ targeted_metapeak_df <- metapeak_df[metapeak_df$max %in% targeted_metapeaks, ]
 base_plot <- ggplot() +
   theme_minimal() +
   ggtitle("Metapeaks") +
-  
+
   # Plot counts (left y-axis)
   geom_line(data = metapeaks$count_df, aes(x = mz, y = count, color = "Count"), alpha = 1, linewidth = 0.5) +
-  
+
   # Add vertical lines and ranges
-  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
-  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
-  
+  geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = "purple", linewidth = 1) +
+  geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = "springgreen3", linewidth = 1) +
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
   geom_rect(data = targeted_metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Targeted Metapeak Range"), alpha = 0.2) +
 
   # Labels and legends
-  ylab('Peak Counts') +
+  ylab("Peak Counts") +
   scale_color_manual(name = "Line", values = c("Count" = "black")) +
   scale_linetype_manual(name = "Vertical Lines", values = c("Feature Mass" = "", "Max Counts" = "dashed")) +
-  scale_fill_manual(name = "Range Areas", values = c("Metapeak Range" = 'grey', "Targeted Metapeak Range" = "red3"))
+  scale_fill_manual(name = "Range Areas", values = c("Metapeak Range" = "grey", "Targeted Metapeak Range" = "red3"))
 
 
 # Convert ggplot to plotly (without the spectra)
@@ -115,31 +113,30 @@ ggplotly_plot <- ggplotly_plot |>
     data = processed$SummarySpectra,
     x = ~mz,
     y = ~mean,
-    type = 'scatter',
-    mode = 'lines',
-    name = 'MeanSpectrum',
-    yaxis = 'y2',          # Tie this trace to the second y-axis
-    line = list(color = '#cd0000', width = 1.5)
+    type = "scatter",
+    mode = "lines",
+    name = "MeanSpectrum",
+    yaxis = "y2", # Tie this trace to the second y-axis
+    line = list(color = "#cd0000", width = 1.5)
   ) |>
   add_trace(
     data = processed$SummarySpectra,
     x = ~mz,
     y = ~skyline,
-    type = 'scatter',
-    mode = 'lines',
-    name = 'SkylineSpectrum',
-    yaxis = 'y2',          # Tie this trace to the second y-axis
+    type = "scatter",
+    mode = "lines",
+    name = "SkylineSpectrum",
+    yaxis = "y2", # Tie this trace to the second y-axis
     line = list(color = "blue", width = 1.5)
   ) |>
-  
-   #Customize layout for dual y-axes
+  # Customize layout for dual y-axes
   layout(
-    yaxis = list(title = 'Peak Counts'),          # Left y-axis (counts)
+    yaxis = list(title = "Peak Counts"), # Left y-axis (counts)
     yaxis2 = list(
-      title = 'Spectrum Intensity',               # Right y-axis (intensity)
-      overlaying = 'y',                           # Overlay on left y-axis
-      side = 'right',                             # Position on right side
-      showgrid = FALSE                            # No grid for right y-axis
+      title = "Spectrum Intensity", # Right y-axis (intensity)
+      overlaying = "y", # Overlay on left y-axis
+      side = "right", # Position on right side
+      showgrid = FALSE # No grid for right y-axis
     ),
     legend = list(title = list(text = "Legend")),
     showlegend = TRUE
@@ -167,16 +164,15 @@ The relationship between the mean and variance is of high importance when dealin
 Why is this important? In analysis of high dimensional biological datasets, it is common to take the highest variance genes or proteins and call these "interesting", because they are highly variable. However, since the mean and variance generally track together in count data, the highest intensity proteins will also be the highest variance ones. This is the confounding effect of the mean. This can be corrected for by regressing the mean against the variance and extracting the residuals from this regression. These residuals tell us how the each marker deviates from the expected variance under poisson assumptions. Here, the x and y axes are on log scale.
 
 ```{r Mean-var plot data loading, message=FALSE, warning=FALSE}
-
 # mean and sd of untarted metapeaks
 untargeted_df <- data.frame(processed$Untargeted$UntargetedIntensity)
 
 untargeted_mean <- colMeans(untargeted_df)
-untargeted_sd = apply(untargeted_df, MARGIN = 2, FUN = sd)
+untargeted_sd <- apply(untargeted_df, MARGIN = 2, FUN = sd)
 
 # mean and sd of targeted dataframe
 targeted_mean <- colMeans(processed$IntensityDF)
-targeted_sd = apply(processed$IntensityDF, MARGIN = 2, FUN = sd)
+targeted_sd <- apply(processed$IntensityDF, MARGIN = 2, FUN = sd)
 
 targeted_stats <- data.frame(cbind(targeted_mean, targeted_sd))
 targeted_stats <- cbind(targeted_stats, rownames(targeted_stats))
@@ -192,20 +188,19 @@ colnames(coefs)[2] <- "Slope"
 
 # plots
 scatter <- ggplot() +
-    theme_minimal() +
-    ggtitle("Mean-Variance Plot") +
-    geom_point(data = untargeted_stats, aes(x = untargeted_mean, y = untargeted_sd), color = 'black', fill = 'grey', shape = 21, size = 2) +
-    geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_sd, text = paste0("Marker: ", Name)), color = 'black', fill = 'red3', shape = 21, size = 3) +
-    scale_x_log10() +
-    scale_y_log10()
+  theme_minimal() +
+  ggtitle("Mean-Variance Plot") +
+  geom_point(data = untargeted_stats, aes(x = untargeted_mean, y = untargeted_sd), color = "black", fill = "grey", shape = 21, size = 2) +
+  geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_sd, text = paste0("Marker: ", Name)), color = "black", fill = "red3", shape = 21, size = 3) +
+  scale_x_log10() +
+  scale_y_log10()
 
 annotated <- ggplot() +
-    theme_minimal() +
-    ggtitle("Mean-Variance Plot: Annotated Peaks only") +
-    geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_sd, text = Name), color = 'black', fill = '#3B9AB5', shape = 21, size = 4) +
-    scale_x_log10() +
-    scale_y_log10()
-
+  theme_minimal() +
+  ggtitle("Mean-Variance Plot: Annotated Peaks only") +
+  geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_sd, text = Name), color = "black", fill = "#3B9AB5", shape = 21, size = 4) +
+  scale_x_log10() +
+  scale_y_log10()
 ```
 
 ::: {.panel-tabset group="language"}
@@ -230,26 +225,24 @@ Geary's C score is a spatial autocorrelation score borrowed from Geostatistics. 
 In all Geary's C score is a handy statistic to show how spatially structured the ion images for each marker are. Spatially structured images are usually indicative of high quality staining.
 
 ```{r Gearys C barchart}
-
 processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
 
-geary_sorted_df <- processed_geary$CorrespondenceMatrix[order(processed_geary$CorrespondenceMatrix$GearysC, decreasing = FALSE),]
+geary_sorted_df <- processed_geary$CorrespondenceMatrix[order(processed_geary$CorrespondenceMatrix$GearysC, decreasing = FALSE), ]
 
 marker_vector <- geary_sorted_df$marker[!is.na(geary_sorted_df$GearysC)]
 geary_vector <- geary_sorted_df$GearysC[!is.na(geary_sorted_df$GearysC)]
 geary_mean <- mean(geary_vector)
 
 barplot(geary_vector,
-        names.arg = marker_vector, cex.names = 0.4, las = 2,
-        ylim = c(0,1),
-        main = "Geary's C score", ylab = " Geary's C",
-        col = "#b51837")
+  names.arg = marker_vector, cex.names = 0.4, las = 2,
+  ylim = c(0, 1),
+  main = "Geary's C score", ylab = " Geary's C",
+  col = "#b51837"
+)
 abline(h = geary_mean, col = "grey", lty = 2)
 
 # Add a horizontal line for the mean Geary's C
 abline(h = geary_mean, col = "grey", lty = 2)
-
-
 ```
 
 
@@ -263,7 +256,6 @@ Function for computing SNR
 
 ```{r}
 computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q = 1) {
-
   # Extract data & reorder dataframe by mz order to match correspondence
   df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
@@ -296,7 +288,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   return(x)
 }
 
-.quantileClipping <- function(x, q){
+.quantileClipping <- function(x, q) {
   quant <- quantile(x, q)
   x[x > quant] <- quant
   return(x)
@@ -312,7 +304,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   }
 
   # Fit a GMM with mclust's Mclust() using two components
-  fit <- Mclust(log2(nonzero_channel + 1), G = 2, modelNames = "E", verbose = FALSE)  # "E" for equal variance
+  fit <- Mclust(log2(nonzero_channel + 1), G = 2, modelNames = "E", verbose = FALSE) # "E" for equal variance
 
   if (is.null(fit)) {
     stop("The model failed to converge. Try different data or check your input.")
@@ -346,14 +338,19 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   }
 
   data <- data.frame(nonzero_channel)
-  fit <- tryCatch({
-    flexmix(log2(nonzero_channel + 1) ~ 1, data = data, k = 2,
-            model = FLXMRglm(family = "gaussian"),
-            control = list(iter.max = 500, tol = 1e-6))
-  }, error = function(e) {
-    message("Error in flexmix fitting: ", e)
-    return(NULL)
-  })
+  fit <- tryCatch(
+    {
+      flexmix(log2(nonzero_channel + 1) ~ 1,
+        data = data, k = 2,
+        model = FLXMRglm(family = "gaussian"),
+        control = list(iter.max = 500, tol = 1e-6)
+      )
+    },
+    error = function(e) {
+      message("Error in flexmix fitting: ", e)
+      return(NULL)
+    }
+  )
 
   if (is.null(fit)) {
     stop("The model failed to converge.")
@@ -377,13 +374,10 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
 
   return(list("SNR" = snr, "clustering" = clusters, "fit" = fit))
 }
-
-
 ```
 
 
 ```{r SNR barchart, eval=TRUE, warning=FALSE, message=FALSE}
-
 processed_snr <- computeSNR(processed_geary, package = "mclust", update_correspondence = TRUE, q = 0.995)
 filtered_processed_snr <- processed_snr$CorrespondenceMatrix[!is.na(processed_snr$CorrespondenceMatrix$mz_location), ]
 
@@ -396,17 +390,17 @@ threshold <- quantile(snr_barplot_df$snr, 0.1)
 # plot
 snr_plot <- ggplot(snr_barplot_df, aes(x = reorder(marker, snr), y = snr, fill = snr <= threshold)) +
   geom_bar(stat = "identity") +
-  
+
   # Custom fill colors based on the SNR values
   scale_fill_manual(values = c("#18B596", "#b51837")) +
-  
+
   # Add horizontal lines
   geom_hline(yintercept = threshold, linetype = "dashed", color = "black") +
-  
+
   # Add text labels near the horizontal lines
   annotate("text", x = 1, y = threshold + 0.03, label = "Filter: 10th percentile", color = "black", hjust = 0, vjust = -0.5, size = 3) +
 
-  
+
   # Customizations
   labs(title = "SNR-based Filtering", x = NULL, y = "SNR") +
   theme_minimal() +
@@ -414,7 +408,6 @@ snr_plot <- ggplot(snr_barplot_df, aes(x = reorder(marker, snr), y = snr, fill =
 
 # Display the plot
 print(snr_plot)
-
 ```
 
 ### SNR Distribution
@@ -424,9 +417,7 @@ It is important to see the distribution of the signal and noise clusters on the 
 ::: {.panel-tabset group="snr"}
 
 ```{r snr plotting, out.width="100%", results='asis'}
-
 for (i in 1:length(processed_snr$SNR)) {
-  
   # Skip channels with a mean of zero
   if (mean(processed_snr$IntensityDF[, i]) == 0) {
     next
@@ -437,7 +428,7 @@ for (i in 1:length(processed_snr$SNR)) {
   cur_name <- colnames(processed_snr$IntensityDF)[i]
   channel <- processed_snr$IntensityDF[, i]
   nonzero_channel <- channel[channel != 0]
-  
+
   # Cap the intensities at a certain quantile (if needed)
   quant <- quantile(nonzero_channel, 0.999) # Adjust quantile as needed
   nonzero_channel[nonzero_channel > quant] <- quant
@@ -450,7 +441,7 @@ for (i in 1:length(processed_snr$SNR)) {
   cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
   noise_mean <- min(cluster_means)
   signal_mean <- max(cluster_means)
-  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), "Noise", "Signal")
 
   # Data for histogram
   hist_df <- data.frame(
@@ -461,22 +452,20 @@ for (i in 1:length(processed_snr$SNR)) {
   # Generate histogram plot for the current channel
   histogram_plot <- ggplot(hist_df, aes(x = count, fill = cluster_color)) +
     geom_histogram(bins = 100, color = "black", alpha = 0.5, position = "identity") +
-    scale_fill_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
+    scale_fill_manual(values = c("Noise" = "grey", "Signal" = "red")) +
     theme_minimal() +
     labs(
       title = paste("Histogram of Signal and Noise: ", cur_name),
       subtitle = paste("Signal-to-Noise Ratio (SNR): ", round(cur_snr, 2)),
       x = "Intensity", y = "Count", fill = "Cluster"
     ) +
-    #scale_x_log10()
-  
-  # Dynamically create the tab headers and content
-  cat("##", cur_name, "\n\n")
+    # scale_x_log10()
+
+    # Dynamically create the tab headers and content
+    cat("##", cur_name, "\n\n")
   print(histogram_plot)
   cat("\n\n")
 }
-
-
 ```
 
 :::
@@ -487,7 +476,6 @@ It can also be important to see the spatial distribution of the signal and noise
 
 ```{r spatial snr, out.width = "100%", results='asis'}
 for (i in 1:length(processed_snr$SNR)) {
-  
   # Skip channels with a mean of zero
   if (mean(processed_snr$IntensityDF[, i]) == 0) {
     next
@@ -498,7 +486,7 @@ for (i in 1:length(processed_snr$SNR)) {
   cur_name <- colnames(processed_snr$IntensityDF)[i]
   channel <- processed_snr$IntensityDF[, i]
   nonzero_channel <- channel[channel != 0]
-  
+
   # Retrieve current clustering information
   cur_cluster <- processed_snr$SNR[[i]]$clustering
   cur_snr <- processed_snr$SNR[[i]]$SNR
@@ -507,27 +495,26 @@ for (i in 1:length(processed_snr$SNR)) {
   cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
   noise_mean <- min(cluster_means)
   signal_mean <- max(cluster_means)
-  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), "Noise", "Signal")
 
   # Prepare the dataframe for spatial plotting
   plot_df <- cbind(coords, cluster_color)
-  
+
   # Generate spatial plot for the current channel
   spatial_plot <- ggplot(plot_df, aes(x = x, y = -y, color = factor(cluster_color))) +
     geom_point(size = 1) +
-    scale_color_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
+    scale_color_manual(values = c("Noise" = "grey", "Signal" = "red")) +
     theme_void() +
     labs(
       title = paste("Spatial Distribution: ", cur_name),
       x = "X", y = "Y", color = "Cluster"
     )
-  
+
   # Dynamically create the tab headers and content
   cat("##", cur_name, "\n\n")
   print(spatial_plot)
   cat("\n\n")
 }
-
 ```
 
 :::
@@ -537,7 +524,6 @@ for (i in 1:length(processed_snr$SNR)) {
 Channels with a high Geary's C score and low SNR score can be confidently determined to be weak channels. It can be important to look at both of these metrics to avoid abberant removal of markers. Consider the case of a marker with a strong SNR, but with very uniform staining due to the ubiquity of the marker in the sample. Using only Geary's C for feature selection may result in identifying this marker as performing poorly.
 
 ```{r trashcan plot, eval=TRUE, message=FALSE, warning=FALSE}
-
 # fixed thresholds
 geary_threshold <- 0.7
 snr_threshold <- 3
@@ -559,29 +545,32 @@ trashcan_plot <- ggplot() +
   theme_minimal() +
   ggtitle("Mean-SNR Plot: Trashcan plot") +
   # Shaded red rectangle (alpha = 0.2) above the vertical line and below the horizontal line
-  geom_rect(aes(xmin = geary_threshold, xmax = 1, ymin = 0, ymax = snr_threshold), 
-            fill = "red3", alpha = 0.5) +
+  geom_rect(aes(xmin = geary_threshold, xmax = 1, ymin = 0, ymax = snr_threshold),
+    fill = "red3", alpha = 0.5
+  ) +
   # Scatter plot for all markers
-  geom_point(data = filtered_processed_snr, aes(x = GearysC, y = snr, fill = fill_color, text = marker), 
-             color = 'black', shape = 21, size = 4) +
+  geom_point(
+    data = filtered_processed_snr, aes(x = GearysC, y = snr, fill = fill_color, text = marker),
+    color = "black", shape = 21, size = 4
+  ) +
   # Horizontal and vertical lines
   geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
   geom_vline(xintercept = geary_threshold, linetype = "solid", color = "black") +
   # Labels for points in the trashcan zone (markers with SNR ≤ 2 and Geary's C ≥ 0.8)
-  geom_label_repel(data = all_markers, aes(x = GearysC, y = snr, label = marker),
-                   color = 'black',   # Border color
-                   fill = 'white',    # Background color (inside the label)
-                   box.padding = 0.2, 
-                   point.padding = 0.2, 
-                   max.overlaps = Inf, 
-                   segment.color = 'black', # Line connecting the label to the point
-                   size = 2, fontface = 'bold', label.size = 0.2) +  # label.size controls the border thickness
+  geom_label_repel(
+    data = all_markers, aes(x = GearysC, y = snr, label = marker),
+    color = "black", # Border color
+    fill = "white", # Background color (inside the label)
+    box.padding = 0.2,
+    point.padding = 0.2,
+    max.overlaps = Inf,
+    segment.color = "black", # Line connecting the label to the point
+    size = 2, fontface = "bold", label.size = 0.2
+  ) + # label.size controls the border thickness
   # Use the fill color as defined in the data without further scaling
-  #scale_x_log10() +
+  # scale_x_log10() +
   scale_y_log10() +
   scale_fill_identity()
-
-
 ```
 
 ::: {.panel-tabset group="plottype"}
@@ -601,57 +590,53 @@ ggplotly(trashcan_plot, dynamicTicks = FALSE)
 
 
 ```{r, eval = FALSE, echo=FALSE}
-
-for (i in 1:length(processed_snr$SNR)){
-  
-  if (mean(processed_snr$IntensityDF[, i]) == 0){
+for (i in 1:length(processed_snr$SNR)) {
+  if (mean(processed_snr$IntensityDF[, i]) == 0) {
     next
   }
-  
+
   coords <- processed$SpatialCoords[nonzero_channel != 0, ]
-  
+
   cur_name <- colnames(processed_snr$IntensityDF)[i]
   channel <- processed_snr$IntensityDF[, i]
-  nonzero_channel <- channel[channel != 0]  # Only non-zero values for clustering
-  
-  #quant <- quantile(nonzero_channel, q)
-  #nonzero_channel[nonzero_channel > quant] <- quant
-  
+  nonzero_channel <- channel[channel != 0] # Only non-zero values for clustering
+
+  # quant <- quantile(nonzero_channel, q)
+  # nonzero_channel[nonzero_channel > quant] <- quant
+
   cur_cluster <- processed_snr$SNR[[i]]$clustering
   cur_snr <- processed_snr$SNR[[i]]$SNR
-  
+
   # Calculate the mean for each cluster to identify noise and signal
   cluster_means <- tapply(nonzero_channel, cur_cluster, mean)
-  noise_mean <- min(cluster_means)  # The cluster with the lower mean is noise
-  signal_mean <- max(cluster_means)  # The cluster with the higher mean is signal
-  
+  noise_mean <- min(cluster_means) # The cluster with the lower mean is noise
+  signal_mean <- max(cluster_means) # The cluster with the higher mean is signal
+
   # Create a new variable 'cluster_color' assigning grey to noise and red to signal
-  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), 'Noise', 'Signal')
-  
+  cluster_color <- ifelse(cur_cluster == which.min(cluster_means), "Noise", "Signal")
+
   # Prepare the dataframe for spatial plotting
   plot_df <- cbind(coords, cluster_color)
-  
+
   # Plot the spatial distribution with consistent colors for noise (grey) and signal (red)
   spatial_plot <- ggplot(plot_df, aes(x = x, y = -y, color = factor(cluster_color))) +
     geom_point(size = 1) +
-    scale_color_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
-    theme_void() +  # Start with theme_void
-    labs(title = paste("Spatial Distribution: ", cur_name),
-         x = "X", y = "Y", color = "Cluster")
-    
-  print(spatial_plot)
-  
-}
+    scale_color_manual(values = c("Noise" = "grey", "Signal" = "red")) +
+    theme_void() + # Start with theme_void
+    labs(
+      title = paste("Spatial Distribution: ", cur_name),
+      x = "X", y = "Y", color = "Cluster"
+    )
 
+  print(spatial_plot)
+}
 ```
 
 
 Here is the list of markers that perform poorly according to this plot, and are worth considering to remove from the feature list.
 
 ```{r print trashcan markers, eval=TRUE}
-
 dput(sort(trashcan_zone$marker))
-
 ```
 
 ## Pixel-level QC
@@ -661,7 +646,6 @@ dput(sort(trashcan_zone$marker))
 Thresholding on the total ion current of the sample can be potentially useful in terms of determining which pixels are off-tissue regions. Off-tissue pixels often have a lower TIC than tissue pixels.
 
 ```{r TIC histogram thresholding}
-
 # Compute histogram
 tic_targeted <- rowSums(processed$IntensityDF)
 tic_targeted[tic_targeted == 0] <- NA
@@ -676,15 +660,16 @@ normalised_histogram <- hist(log10(1 + tic_targeted), 100, plot = FALSE)
 bar_colors <- ifelse(normalised_histogram$mids <= threshold, "grey", "red3")
 
 # Plot the histogram
-plot(normalised_histogram, col = bar_colors, border = "black",
-     main = "Normalised TIC histogram", cex.main = 2,
-     xlab = "Total Ion Count (TIC)",
-     xaxs = 'i', yaxs = 'i',
-     cex.lab = 1.3)
+plot(normalised_histogram,
+  col = bar_colors, border = "black",
+  main = "Normalised TIC histogram", cex.main = 2,
+  xlab = "Total Ion Count (TIC)",
+  xaxs = "i", yaxs = "i",
+  cex.lab = 1.3
+)
 
 # Add the threshold line
 abline(v = threshold, lwd = 4, col = "grey", lty = 2)
-
 ```
 
 
@@ -700,10 +685,10 @@ quarto_version <- system("quarto --version", intern = TRUE)
 
 # inject the quarto info
 pkg_sesh$platform$quarto <- paste(
-  system("quarto --version", intern = TRUE), 
-  "@", 
+  system("quarto --version", intern = TRUE),
+  "@",
   quarto::quarto_path()
-  )
+)
 
 # print it out
 pkg_sesh

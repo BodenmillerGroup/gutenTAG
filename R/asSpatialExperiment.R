@@ -21,8 +21,7 @@
 #'
 #' spe <- asSpatialExperiment(processed)
 #'
-asSpatialExperiment <- function(x){
-
+asSpatialExperiment <- function(x) {
   # validity checks
   .valid.asSpatialExperiment(x)
 
@@ -34,9 +33,8 @@ asSpatialExperiment <- function(x){
   spe <- SpatialExperiment(
     assay = list(intensity = mat),
     colData = crds,
-    spatialCoordsNames = c("x", "y"))
+    spatialCoordsNames = c("x", "y")
+  )
 
   return(spe)
-
 }
-

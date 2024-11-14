@@ -22,14 +22,12 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' metapeaks <- generateMetapeaks(peaks)
 #' assignMetapeaks(x = metapeaks, pre, panel)
-
 assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
-
   # validity checks
   .valid.assignMetapeaks(x, pre, refList, mz_threshold)
 
   # get spatial coordinates and correct if needed
-  coords <- as.data.frame(pData(pre))[, c("x","y")]
+  coords <- as.data.frame(pData(pre))[, c("x", "y")]
   coords <- .correctCoordinates(coords)
 
   # 1. generate the initial correspondence matrix
@@ -55,21 +53,23 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   summarised_spectra <- .summariseSpectra(pre)
 
   # values to return
-  return(list(CorrespondenceMatrix = Correspondence,
-              IntensityDF = Intensity,
-              SpatialCoords = coords,
-              SummarySpectra = summarised_spectra,
-              Untargeted = list(UntargetedIntensity = UntargetedDF,
-                                UntargetedCorrespondence = UntargetedCorrespondence),
-              FilteredDF = final_filtered))
-
+  return(list(
+    CorrespondenceMatrix = Correspondence,
+    IntensityDF = Intensity,
+    SpatialCoords = coords,
+    SummarySpectra = summarised_spectra,
+    Untargeted = list(
+      UntargetedIntensity = UntargetedDF,
+      UntargetedCorrespondence = UntargetedCorrespondence
+    ),
+    FilteredDF = final_filtered
+  ))
 }
 
 ### Hidden functions ###
 
 # function for generating the correspondence matrix
-.generateCorrespondence <- function(x, pre, refList, mz_threshold = mz_threshold){
-
+.generateCorrespondence <- function(x, pre, refList, mz_threshold = mz_threshold) {
   # extract metepeaks and propagation_selection from x
   metapeaks <- x$metapeaks
 
@@ -77,16 +77,20 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   mz_vector <- as.data.frame(mz(pre))
 
   # Map metapeaks to panel
-  mapping_meta <- N2R::crossKnn(mA = matrix(metapeaks$max),
-                                mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
+  mapping_meta <- N2R::crossKnn(
+    mA = matrix(metapeaks$max),
+    mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE
+  )
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
   mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_max_modified)
-  #construct correspondence matrix
-  correspondence_matrix <- data.frame(mz_location = metapeaks$max,
-                                      expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
-                                      marker = refList$Name[mapping_meta_cleaned])
+  # construct correspondence matrix
+  correspondence_matrix <- data.frame(
+    mz_location = metapeaks$max,
+    expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
+    marker = refList$Name[mapping_meta_cleaned]
+  )
   # get NA cols
   was_na <- is.na(correspondence_matrix$marker)
   # rename duplicates
@@ -96,14 +100,12 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   return(list(
     correspondence_matrix = correspondence_matrix,
     metapeaks = metapeaks,
-    mz_vector = mz_vector)
-  )
-
+    mz_vector = mz_vector
+  ))
 }
 
 # function for generating final intensity dataframe
-.generateFinalIntensityDF <- function(x, pre, prev_output, refList){
-
+.generateFinalIntensityDF <- function(x, pre, prev_output, refList) {
   rownames(refList) <- refList$Name
   # extract raw intensity dataframe from pre-processed data
   raw_intensity <- ProtGenerics::spectra(pre)
@@ -144,12 +146,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     metapeaks = metapeaks,
     correspondence = correspondence
   ))
-
 }
 
 # finalise the correspondence matrix
-.finaliseCorrespondence <- function(x, pre, refList, prev_output){
-
+.finaliseCorrespondence <- function(x, pre, refList, prev_output) {
   # extract raw intensity dataframe from pre-processed data
   raw_intensity <- ProtGenerics::spectra(pre)
 
@@ -180,7 +180,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   total_signal <- colSums(raw_intensity)
 
   # correlation between the marker intensity and total raw signal intensity
-  total_signal_correlation <- apply(final_intensity, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
+  total_signal_correlation <- apply(final_intensity, MARGIN = 2, FUN = function(x) {
+    cor(log(x + 1), log(1 + total_signal))
+  })
   correspondence$total_signal_correlation <- total_signal_correlation^2
 
   # Remove all un-annotated peaks from correspondence matrix
@@ -206,13 +208,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     final_intensity_targeted = final_intensity_targeted,
     untargeted_correspondence = correspondence
   ))
-
 }
 
 
 # function for generating filtered intensity dataframe
-.filterTIC <- function(x, prev_output){
-
+.filterTIC <- function(x, prev_output) {
   final_intensity_targeted <- prev_output$final_intensity_targeted
 
   # filter on TIC
@@ -236,15 +236,13 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # create zero matrix with correct dims
   final_filtered <- matrix(NA, nrow = nrow(final_intensity_targeted), ncol = ncol(final_intensity_targeted))
-  for (j in 1:ncol(final_intensity_targeted)){
-
-    channel <- final_intensity_targeted[,j]
+  for (j in 1:ncol(final_intensity_targeted)) {
+    channel <- final_intensity_targeted[, j]
 
     # pixel values pass filter
     filtered_vals <- channel[indices]
     channel[!channel %in% filtered_vals] <- NA
-    final_filtered[,j] <- channel
-
+    final_filtered[, j] <- channel
   }
 
   # add column names to filtered dataframe
@@ -252,21 +250,17 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   colnames(final_filtered) <- colnames(final_intensity_targeted)
 
   return(final_filtered = final_filtered)
-
 }
 
 
 # calculate summary spectra
-.summariseSpectra <- function(pre){
-
+.summariseSpectra <- function(pre) {
   # compute summary spectra
-  #meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
-  #skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
+  # meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
+  # skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
 
-  summarised_spectra <- Cardinal::summarizeFeatures(pre, stat=c(skyline = "max", mean = "mean"))
+  summarised_spectra <- Cardinal::summarizeFeatures(pre, stat = c(skyline = "max", mean = "mean"))
   summarised_spec <- data.frame(featureData(summarised_spectra))
 
   return(summarised_spec)
 }
-
-

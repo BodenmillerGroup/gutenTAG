@@ -37,8 +37,8 @@ editor_options:
 ---
 
 ```{r, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
-#library(BiocStyle)
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = FALSE, crop = NULL)
+# library(BiocStyle)
 ```
 
 ```{r library, echo=FALSE}
@@ -213,11 +213,10 @@ smoothing for spectral smoothing and local minimum baseline reduction.
 
 ```{r Cardinal pre-processing}
 pre <- rawFile |>
-    Cardinal::normalize(method = "tic") |>
-    smoothSignal(method = "gaussian", plot = FALSE) |>
-    reduceBaseline(method = "locmin") |>
-    process(BPPARAM = MulticoreParam(workers = 2))
-
+  Cardinal::normalize(method = "tic") |>
+  smoothSignal(method = "gaussian", plot = FALSE) |>
+  reduceBaseline(method = "locmin") |>
+  process(BPPARAM = MulticoreParam(workers = 2))
 ```
 
 ## Processing {#processing}
@@ -296,29 +295,31 @@ first be coerced to a `CytoImageList` object using the `asCytoImageList`
 function from this package.
 
 ```{r coerce to CytoImageList object}
-
 library(cytomapper)
 cil <- asCytoImageList(processed)
-
 ```
 
 Now the channels can be visualised using the `plotPixels` function.
 Single channel and multichannel imaging is supported using this format.
 
 ```{r single channel imaging}
-cytomapper::plotPixels(image = cil, 
-                       colour_by = "HLA.ABC", 
-                       scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-                       interpolate = FALSE, 
-                       image_title = list(margin = c(1, 1)))
+cytomapper::plotPixels(
+  image = cil,
+  colour_by = "HLA.ABC",
+  scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+  interpolate = FALSE,
+  image_title = list(margin = c(1, 1))
+)
 ```
 
 ```{r multi-channel imaging}
-plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
-           legend = list(colour_by.title.cex = 0.7), 
-           scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-           image_title = list(margin = c(1, 1)),
-           interpolate = FALSE)
+plotPixels(cil,
+  colour_by = c("HLA.ABC", "CD98", "beta.actin"),
+  legend = list(colour_by.title.cex = 0.7),
+  scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+  image_title = list(margin = c(1, 1)),
+  interpolate = FALSE
+)
 ```
 
 ### Cytoviewer

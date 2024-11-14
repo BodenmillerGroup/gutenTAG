@@ -10,16 +10,13 @@
 #' @export
 
 
-readPanel <- function(path){
-
+readPanel <- function(path) {
   # read in .csv
   panel <- read.delim(path, sep = ",", header = TRUE, col.names = c("Name", "FeatureMass"))
 
   # sanity check: columns are correctly named
-  if (is.numeric(panel$Name) == TRUE){
-
-    colnames(panel) = c("FeatureMass","Name")
-
+  if (is.numeric(panel$Name) == TRUE) {
+    colnames(panel) <- c("FeatureMass", "Name")
   }
 
   # arrange feature mass in increasing order

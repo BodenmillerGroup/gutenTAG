@@ -18,30 +18,27 @@
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw, cores = 2)
 #' peakDetection(pre)
-
-peakDetection <- function(x, snr = 3, win = 50, cores = 1){
-
+peakDetection <- function(x, snr = 3, win = 50, cores = 1) {
   # validity checks for peakDetection
   .valid.peakDetection(x, snr, win, cores)
 
   # is any of this necessary?
-  #raw_intensity <- iData(x)
+  # raw_intensity <- iData(x)
 
-  #range_peaks <- range(mz(x))
-  #n_features <- length(mz(x))
-  #n_pixels <- dim(x)["Pixels"]
-  #threshold_detection <- n_pixels*0.01
-  #mz_vector <- as.data.frame(mz(x))
-  #location_pixels <- as.data.frame(pData(x))[, c("x","y")]
+  # range_peaks <- range(mz(x))
+  # n_features <- length(mz(x))
+  # n_pixels <- dim(x)["Pixels"]
+  # threshold_detection <- n_pixels*0.01
+  # mz_vector <- as.data.frame(mz(x))
+  # location_pixels <- as.data.frame(pData(x))[, c("x","y")]
 
   # peak detection
   picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
-  if (cores > 1){
+  if (cores > 1) {
     list_peaks <- Cardinal::process(picker, BPPARAM = BiocParallel::MulticoreParam(workers = cores))
   } else {
     list_peaks <- Cardinal::process(picker)
   }
 
   return(list_peaks)
-
 }

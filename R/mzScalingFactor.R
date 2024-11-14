@@ -1,5 +1,5 @@
 #' Returns the scaling factor for the mz axis.
-#' 
+#'
 #' @param count_df A data frame with columns mz and count.
 #' @return The scaling factor for the mz axis.
 .mzScalingFactor <- function(count_df) {

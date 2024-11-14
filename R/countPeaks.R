@@ -11,7 +11,7 @@
 #' @importFrom matter as.list
 #' @export countPeaks
 countPeaks <- function(mse_detected) {
-  result <- Cardinal::summarizeFeatures(mse_detected, stat=c(count = "nnzero"))
+  result <- Cardinal::summarizeFeatures(mse_detected, stat = c(count = "nnzero"))
   result_df <- matter::as.data.frame(Cardinal::featureData(result))
   return(result_df)
 }

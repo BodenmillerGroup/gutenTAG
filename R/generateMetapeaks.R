@@ -31,9 +31,7 @@
 #' pre <- preProcess(raw, cores = 2)
 #' peaks <- peakDetection(pre, core = 2)
 #' generateMetapeaks(peaks)
-
 generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0, fixed.limits = NULL) {
-
   .valid.generateMetapeaks(x, threshold, fixed.limits)
 
   count_df <- countPeaks(x)

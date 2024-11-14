@@ -45,14 +45,13 @@ estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0, fixed.
     # Compute maximum peak location.
     metapeak_max[k] <- peak_mzs[which.max(peak_counts)]
 
-    if (is.null(fixed.limits)){
-
+    if (is.null(fixed.limits)) {
       # Define peak limits as being inside the 1% and 99% of the metapeak.
       cumsum_freq <- cumsum(peak_counts) / sum(peak_counts)
 
       # TODO more stable implementation, that does not require NA handling afterwards.
-      #cumsum_rev <- rev(cumsum(rev(peak_counts)) / sum(peak_counts))
-      #begin_mz <- peak_mzs[tail(which(cumsum_rev > 0.99), n = 1)[1]]
+      # cumsum_rev <- rev(cumsum(rev(peak_counts)) / sum(peak_counts))
+      # begin_mz <- peak_mzs[tail(which(cumsum_rev > 0.99), n = 1)[1]]
       begin_mz <- peak_mzs[tail(which(cumsum_freq < 0.01), n = 1)[1]]
       end_mz <- peak_mzs[head(which(cumsum_freq > 0.99), n = 1)[1]]
 
@@ -66,29 +65,31 @@ estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0, fixed.
 
       # Store beginning and end of peak location.
       metapeak_limits[k, ] <- c(begin_mz, end_mz)
-    }else{
+    } else {
       # set binning limits to be within specified fixed limit around metapeak max
       metapeak_limits[k, 1] <- metapeak_max[k] - fixed.limits
       metapeak_limits[k, 2] <- metapeak_max[k] + fixed.limits
     }
-
   }
 
 
   # width of each peak
   # TODO is this still needed: (rescale peak width so it is on the m/z scale)
   metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) * .mzScalingFactor(count_df)
-  #metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1])
+  # metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1])
 
-  metapeaks <- list(center = metapeak_center,
-                    max = metapeak_max,
-                    width = metapeak_width,
-                    limits = metapeak_limits)
+  metapeaks <- list(
+    center = metapeak_center,
+    max = metapeak_max,
+    width = metapeak_width,
+    limits = metapeak_limits
+  )
 
-  return(list(metapeaks = metapeaks,
-              count_df = count_df,
-              count_smooth_df = count_smooth_df,
-              seed_mz = seed_mz,
-              propagation_selection = propagation_selection))
-
+  return(list(
+    metapeaks = metapeaks,
+    count_df = count_df,
+    count_smooth_df = count_smooth_df,
+    seed_mz = seed_mz,
+    propagation_selection = propagation_selection
+  ))
 }

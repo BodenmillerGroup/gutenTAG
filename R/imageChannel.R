@@ -18,16 +18,15 @@
 #'
 
 imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99, interpolate = FALSE, axes = FALSE, colna = "black") {
-
   # validity checks
   .valid.imageChannel(x, coords, channel_number, quantile_lim, interpolate, axes, colna)
 
   # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing
-  if(is.data.frame(x) | is.matrix(x)){
+  if (is.data.frame(x) | is.matrix(x)) {
     df <- x
     coords <- coords
-  # otherwise treat as list
-  }else{
+    # otherwise treat as list
+  } else {
     df <- x$IntensityDF
     coords <- x$SpatialCoords
   }
@@ -38,7 +37,7 @@ imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99
   # intensity vector
   x <- df[, channel_number]
   # get intensity value for 99th percentile most intense pixels
-  #x_max <- quantile(x, probs = quantile_lim)
+  # x_max <- quantile(x, probs = quantile_lim)
   x_max <- quantile(x, probs = quantile_lim, na.rm = TRUE)
 
   # set all pixel values greater than x_max to that of x_max
@@ -54,19 +53,19 @@ imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99
   R(matrix_image) <- 0
   B(matrix_image) <- 0
 
-  if(colna == "black"){
+  if (colna == "black") {
     bg <- 1
   }
 
-  if(colna == "white"){
+  if (colna == "white") {
     bg <- 0
   }
 
-  plot(matrix_image, main = colnames(df)[channel_number],
-       interpolate = interpolate,
-       xlim = c(1, max(coords$x)), ylim = c(max(coords$y), 1),
-       axes = axes,
-       col.na = rgb(0, 0, 0, bg)) # black background for NA
-
-
+  plot(matrix_image,
+    main = colnames(df)[channel_number],
+    interpolate = interpolate,
+    xlim = c(1, max(coords$x)), ylim = c(max(coords$y), 1),
+    axes = axes,
+    col.na = rgb(0, 0, 0, bg)
+  ) # black background for NA
 }

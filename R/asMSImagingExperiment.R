@@ -19,9 +19,7 @@
 #' metapeaks <- generateMetapeaks(peaks)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
-
-asMSImagingExperiment <- function(x, remove.na = FALSE){
-
+asMSImagingExperiment <- function(x, remove.na = FALSE) {
   # validity checks
   .valid.asMSImagingExperiment(x)
 
@@ -31,9 +29,11 @@ asMSImagingExperiment <- function(x, remove.na = FALSE){
   pdata <- PositionDataFrame(run = run, coord = coord)
 
   # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
-  fdata <- MassDataFrame(mz = sort(x$CorrespondenceMatrix$expected_mz_location),
-                         observed_mz = x$CorrespondenceMatrix$mz_location,
-                         expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location))
+  fdata <- MassDataFrame(
+    mz = sort(x$CorrespondenceMatrix$expected_mz_location),
+    observed_mz = x$CorrespondenceMatrix$mz_location,
+    expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location)
+  )
 
 
   # idata: where intensity df goes
@@ -44,21 +44,21 @@ asMSImagingExperiment <- function(x, remove.na = FALSE){
   idata <- idata[correct_order, ]
 
   # remove NA clause
-  if (remove.na == TRUE){
+  if (remove.na == TRUE) {
     keep <- !is.na(x$CorrespondenceMatrix$mz_location)
 
     # remove from idata
     idata <- idata[keep, ]
     # remove from fdata
-    fdata<- fdata[keep, ]
+    fdata <- fdata[keep, ]
   }
 
   # put them all together
-  out <- MSImagingExperiment(spectraData = idata,
-                             featureData = fdata,
-                             pixelData = pdata)
+  out <- MSImagingExperiment(
+    spectraData = idata,
+    featureData = fdata,
+    pixelData = pdata
+  )
 
   return(out)
-
-
 }

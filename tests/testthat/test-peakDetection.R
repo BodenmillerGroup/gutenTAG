@@ -1,5 +1,4 @@
-test_that("peakDetection works",{
-
+test_that("peakDetection works", {
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- Cardinal::readMSIData(path)
@@ -21,9 +20,11 @@ test_that("peakDetection works",{
 
   expect_equal(
     ProtGenerics::spectra(cur_test)[5510, 1:10],
-    c(9.19874954223633, 9.0649995803833, 0, 0, 5.33249998092651,
+    c(
+      9.19874954223633, 9.0649995803833, 0, 0, 5.33249998092651,
       2.2574999332428, 2.23874998092651, 3.65000009536743, 3.4137499332428,
-      3.91624999046326),
+      3.91624999046326
+    ),
     tolerance = 0.001
   )
 
@@ -34,6 +35,4 @@ test_that("peakDetection works",{
   expect_error(peakDetection(x = "test", snr = 3, win = 50, cores = 2))
   expect_error(peakDetection(x = test, snr = -1, win = 50, cores = 2))
   expect_error(peakDetection(x = cur_test, snr = 3, win = 50, cores = "2"))
-
-
 })

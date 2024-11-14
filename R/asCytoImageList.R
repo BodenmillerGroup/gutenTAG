@@ -20,9 +20,7 @@
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
 #' cil <- asCytoImageList(processed, name = "test")
-
-asCytoImageList <- function(x, name = "test"){
-
+asCytoImageList <- function(x, name = "test") {
   # run validity checks
   .valid.asCytoImageList(x, name)
 
@@ -41,5 +39,4 @@ asCytoImageList <- function(x, name = "test"){
   cytomapper::channelNames(my_image) <- colnames(dataframe)
 
   return(my_image)
-
 }

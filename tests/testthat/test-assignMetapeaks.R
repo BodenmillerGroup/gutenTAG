@@ -1,5 +1,4 @@
-test_that("assignMetapeaks works",{
-
+test_that("assignMetapeaks works", {
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
@@ -26,14 +25,16 @@ test_that("assignMetapeaks works",{
   expect_equal(dim(cur_test$Untargeted$UntargetedIntensity)[2], max(metapeaks$propagation_selection))
 
   # check if output of intensity df is the same
-  expect_equal(cur_test$IntensityDF[1][1:10,], c(9.7875, 8.8391, 9.2086, 7.8215,
-                                                 8.5176, 4.3037, 6.9910, 4.1411,
-                                                 5.9847, 4.5863), tolerance = 0.001)
+  expect_equal(cur_test$IntensityDF[1][1:10, ], c(
+    9.7875, 8.8391, 9.2086, 7.8215,
+    8.5176, 4.3037, 6.9910, 4.1411,
+    5.9847, 4.5863
+  ), tolerance = 0.001)
 
   ### Uncomment when CorrespondenceMatrix$expected_mz_location is correctly changed from character to numeric ###
 
   # check if output of correspondence matrix is the same
-  #expect_equal(cur_test$CorrespondenceMatrix$mean, c(7.84679001732988, 16.1002595411377, NA, NA, 26.0409182022813,
+  # expect_equal(cur_test$CorrespondenceMatrix$mean, c(7.84679001732988, 16.1002595411377, NA, NA, 26.0409182022813,
   #                                                   NA, 14.4482423456346, 9.41933313316087, 4.88193039649564, 14.7482120965546,
   #                                                   1.71918838044124, 6.78957980506437, 8.7250571739829))
 
@@ -55,21 +56,27 @@ test_that("assignMetapeaks works",{
 
 
   # test summarised spectra
-  expect_equal(head(cur_test$SummarySpectra$mz),
-               c(899.954956054688, 900.010681152344, 900.066345214844, 900.1220703125,
-                 900.177795410156, 900.233459472656))
+  expect_equal(
+    head(cur_test$SummarySpectra$mz),
+    c(
+      899.954956054688, 900.010681152344, 900.066345214844, 900.1220703125,
+      900.177795410156, 900.233459472656
+    )
+  )
   # skyline spectrum
-  expect_equal(head(cur_test$SummarySpectra$skyline),
-               c(0, 0.0944778578430998, 0.189315670352099, 0.43788513619033,
-                 0.742802278955215, 0.832960263949027))
+  expect_equal(
+    head(cur_test$SummarySpectra$skyline),
+    c(
+      0, 0.0944778578430998, 0.189315670352099, 0.43788513619033,
+      0.742802278955215, 0.832960263949027
+    )
+  )
   # mean spectrum
-  expect_equal(head(cur_test$SummarySpectra$mean),
-               c(0, 0.0104144228680699, 0.0239233157355273, 0.0803053741897167,
-                 0.155767504458426, 0.203761595637217))
-
-
-
-
-
-
+  expect_equal(
+    head(cur_test$SummarySpectra$mean),
+    c(
+      0, 0.0104144228680699, 0.0239233157355273, 0.0803053741897167,
+      0.155767504458426, 0.203761595637217
+    )
+  )
 })

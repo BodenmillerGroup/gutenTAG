@@ -9,8 +9,7 @@
 #' @export computeGearysC
 #'
 
-computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
-
+computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE) {
   # validity checks
   .valid.computeGearysC(x, verbose, update_correspondence)
 
@@ -24,8 +23,7 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   spatial_weight_matrix <- as(spatial_weight_matrix, "dgCMatrix")
 
   geary_vector <- c()
-  for (i in 1:ncol(df)){
-
+  for (i in 1:ncol(df)) {
     X <- matrix(df[, i], ncol = 1)
     X_squared <- X^2
 
@@ -42,21 +40,15 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
 
     # append each Geary C score to vector
     geary_vector <- c(geary_vector, gearys_C)
-
   }
 
   # optional argument to control if Geary's C column is added to Correspondence matrix
-  if(update_correspondence == TRUE){
-
+  if (update_correspondence == TRUE) {
     correspondence$GearysC <- geary_vector
     x$CorrespondenceMatrix <- correspondence
 
     return(x)
-
-  }else{
+  } else {
     return(geary_vector)
   }
-
-
-
 }

@@ -1,5 +1,4 @@
-test_that("asAnnData works",{
-
+test_that("asAnnData works", {
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
@@ -19,6 +18,4 @@ test_that("asAnnData works",{
 
   # test that dimensions of expression matrix in anndata object are the same as the input
   expect_equal(dim(cur_test$X), dim(processed$IntensityDF))
-
-
 })

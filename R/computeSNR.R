@@ -19,9 +19,7 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' metapeaks <- generateMetapeaks(peaks)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
-
 computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q = 1) {
-
   # Extract data & reorder dataframe by mz order to match correspondence
   df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
@@ -55,7 +53,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
 }
 
 # Helper function: quantile clipping
-.quantileClipping <- function(x, q){
+.quantileClipping <- function(x, q) {
   quant <- quantile(x, q)
   x[x > quant] <- quant
   return(x)
@@ -71,7 +69,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   }
 
   # Fit a GMM with mclust's Mclust() using two components
-  fit <- mclust::Mclust(log2(nonzero_channel + 1), G = 2, modelNames = "E", verbose = FALSE)  # "E" for equal variance
+  fit <- mclust::Mclust(log2(nonzero_channel + 1), G = 2, modelNames = "E", verbose = FALSE) # "E" for equal variance
 
   if (is.null(fit)) {
     stop("The model failed to converge. Try different data or check your input.")
@@ -105,14 +103,19 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
   }
 
   data <- data.frame(nonzero_channel)
-  fit <- tryCatch({
-    flexmix(log2(nonzero_channel + 1) ~ 1, data = data, k = 2,
-            model = FLXMRglm(family = "gaussian"),
-            control = list(iter.max = 500, tol = 1e-6))
-  }, error = function(e) {
-    message("Error in flexmix fitting: ", e)
-    return(NULL)
-  })
+  fit <- tryCatch(
+    {
+      flexmix(log2(nonzero_channel + 1) ~ 1,
+        data = data, k = 2,
+        model = FLXMRglm(family = "gaussian"),
+        control = list(iter.max = 500, tol = 1e-6)
+      )
+    },
+    error = function(e) {
+      message("Error in flexmix fitting: ", e)
+      return(NULL)
+    }
+  )
 
   if (is.null(fit)) {
     stop("The model failed to converge.")
@@ -136,4 +139,3 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
 
   return(list("SNR" = snr, "clustering" = clusters, "fit" = fit))
 }
-

@@ -4,7 +4,7 @@
 
 # experimental function, could be nice but doesn't currently support getting experiement name
 
-#.sampleNameFinder <- function(path = Path_to_imzml_file){
+# .sampleNameFinder <- function(path = Path_to_imzml_file){
 #
 #  Sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
 #
@@ -19,11 +19,11 @@
 #  }
 #
 #  return(Sample_name)
-#}
+# }
 
 
 # Get the name of the experiment and the sample (applicable only for JA's directory structure)
-#.sampleNameFinder <- function(path){
+# .sampleNameFinder <- function(path){
 #
 #  sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
 #  h <- 1
@@ -48,18 +48,17 @@
 #  sample_name <- sample_name[1]
 #  print(paste("The sample is ", sample_name, ".", sep = ""))
 #
-#}
+# }
 
 
 
 # Marker panel cleaning function ####
 
-.cleanPanel <- function(panel){
-
+.cleanPanel <- function(panel) {
   # 1. ensure column names are correct
 
-  if (is.numeric(panel$Name) == T){
-    colnames(panel) <- c("FeatureMass","Name")
+  if (is.numeric(panel$Name) == T) {
+    colnames(panel) <- c("FeatureMass", "Name")
   }
 
   # rearrange column order so Name is first column
@@ -71,56 +70,42 @@
 
   # 3. clean marker names
 
-  for(a in seq_along(panel$Name)){
-
-    if (grepl("+", panel$Name[a], fixed=TRUE)){
+  for (a in seq_along(panel$Name)) {
+    if (grepl("+", panel$Name[a], fixed = TRUE)) {
       new_string <- gsub(" ", "", panel$Name[a])
       panel$Name[a] <- new_string
-
-    }
-    else{
-
+    } else {
       # split strings with spaces into list with individual strings as elements
       new_string <- gsub(" ", "", panel$Name[a])
       # replace fullstops with underscores
       new_string <- gsub("-", ".", new_string, fixed = TRUE)
       # if there is a dash at the end of the name, remove it
-      if(endsWith(new_string, "-")){
-
-        new_string <- substr(new_string,1, nchar(new_string)-1)
-
+      if (endsWith(new_string, "-")) {
+        new_string <- substr(new_string, 1, nchar(new_string) - 1)
       }
       # replace names in peakAnnotation
       panel$Name[a] <- new_string
-
     }
 
     # remove slashes
-    if (grepl("/", panel$Name[a], fixed=TRUE)){
-
+    if (grepl("/", panel$Name[a], fixed = TRUE)) {
       new_string <- gsub("/", "", panel$Name[a])
       panel$Name[a] <- new_string
-
     }
-
   }
 
   # 4. rearrange column order so Name is first column
   panel <- relocate(panel, "Name", .before = "FeatureMass")
 
   return(panel)
-
 }
 
 # If the x coordinates don't begin at 1, adjust the coordinates
 # TODO rename to .translate_coordinates
-.correctCoordinates <- function(coords){
-
-  if(!min(coords$x) == 1){
-
+.correctCoordinates <- function(coords) {
+  if (!min(coords$x) == 1) {
     coords$x <- coords$x - (min(coords$x) - 1)
     coords$y <- coords$y - (min(coords$y) - 1)
-
   }
 
   return(coords)
@@ -131,34 +116,26 @@
 # TODO rename this function
 # returns which.min ignoring 0 values
 .which_max_modified <- function(x) {
-
   if (sum(x) == 0) {
     y <- NA
-  }
-  else {
-
+  } else {
     x[x == 0] <- NA
     y <- which.min(x)
-
   }
 
   return(y)
-
 }
 
 
 # One dimensional otsu thresholding  ####
-.otsu_thresholding = function(x, number_bins = 100) {
-
-  list_bin = quantile(x,base::seq(from = 0, to = 1, length.out = number_bins))
-  intravariance_vector = c()
+.otsu_thresholding <- function(x, number_bins = 100) {
+  list_bin <- quantile(x, base::seq(from = 0, to = 1, length.out = number_bins))
+  intravariance_vector <- c()
 
   for (k in 1:number_bins) {
-
     threshold_temp <- list_bin[k]
     s <- length(x[x < threshold_temp]) * var(x[x < threshold_temp]) + length(x[x > threshold_temp]) * var(x[x > threshold_temp])
     intravariance_vector <- c(intravariance_vector, s)
-
   }
 
   selected_values <- list_bin[which.min(intravariance_vector)]
@@ -168,13 +145,11 @@
 
 
 # utility function for making matrix from flattened dataframe
-.curateMatrix <- function(dataframe, channel, coords){
-
-  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x)) # initialise matrix of correct shape
-  x = dataframe[,channel] # isolate single channel
-  Matrix_image[as.matrix(coords)] = x # input channel values into matrix
+.curateMatrix <- function(dataframe, channel, coords) {
+  Matrix_image <- matrix(0, ncol = max(coords$y), nrow = max(coords$x)) # initialise matrix of correct shape
+  x <- dataframe[, channel] # isolate single channel
+  Matrix_image[as.matrix(coords)] <- x # input channel values into matrix
   return(Matrix_image)
-
 }
 
 
@@ -182,16 +157,16 @@
 
 # Convert_to_mz_scale function
 
-#.convert_to_mz_scale <- function(x, range_peaks, N_features) {
+# .convert_to_mz_scale <- function(x, range_peaks, N_features) {
 #
 #  scale_vector <- base::seq(range_peaks[1], range_peaks[2], length.out = N_features )
 #  return(scale_vector[x])
 #
-#}
+# }
 
 # define function for hierarchical clustering with complete linkage ####
 
-#.hc_single_linkage_function <- function(x, threshold_height = 2) {
+# .hc_single_linkage_function <- function(x, threshold_height = 2) {
 #
 #  sub_clustering <- 1
 #
@@ -204,11 +179,11 @@
 #
 #  return(sub_clustering)
 #
-#}
+# }
 
 ## Strings to colours ####
-#.string.to.colors = function(string, colors = NULL)
-#{
+# .string.to.colors = function(string, colors = NULL)
+# {
 #  if (is.factor(string)) {
 #
 #    string <- as.character(string)
@@ -232,8 +207,4 @@
 #  unlist(lapply(string, FUN = function(x) {
 #    conv[which(conv[, 1] == x), 2]
 #  }))
-#}
-
-
-
-
+# }

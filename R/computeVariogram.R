@@ -9,8 +9,7 @@
 #' @export computeVariogram
 #'
 
-computeVariogram <- function(df, coords){
-
+computeVariogram <- function(df, coords) {
   # validity checks
   .valid.computeVariogram(df, coords)
 
@@ -20,14 +19,14 @@ computeVariogram <- function(df, coords){
 
   # Create list of variograms for each marker
   variograms <- list()
-  for (i in 1:ncol(df)){
+  for (i in 1:ncol(df)) {
     marker <- data.frame(df[i])
     colnames(marker) <- names[i]
 
     # Assign coordinates
     marker$x <- coords$x
     marker$y <- coords$y
-    sp::coordinates(marker) <- ~x+y
+    sp::coordinates(marker) <- ~ x + y
 
     # Construct a formula from the current column name
     formula_string <- paste0(names[i], "~1")
@@ -38,10 +37,7 @@ computeVariogram <- function(df, coords){
 
     # Store the result in the list
     variograms[[names[i]]] <- marker_variogram
-
   }
 
   return(variograms)
-
 }
-

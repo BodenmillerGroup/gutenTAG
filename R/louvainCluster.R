@@ -15,15 +15,14 @@
 #' @importFrom Matrix t
 #' @export louvainCluster
 
-louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 0.5){
-
+louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 0.5) {
   # validity checks
   .valid.louvainCluster(x, coords, k, metric, resolution)
 
   # if x is a list, take out the intensity df, if it is the intensity df itself, leave it
-  if(is.null(dim(x))){
+  if (is.null(dim(x))) {
     intensity <- x$IntensityDF
-  }else{
+  } else {
     intensity <- x
   }
 
@@ -34,12 +33,12 @@ louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 
 
   # transpose matrix and make sparse
   t_KNN_graph_matrix <- t(KNN_graph_matrix)
-  #t_KNN_graph_matrix <- as(t_KNN_graph_matrix, "dgCMatrix")
+  # t_KNN_graph_matrix <- as(t_KNN_graph_matrix, "dgCMatrix")
 
   KNN_graph_matrix <- KNN_graph_matrix + t_KNN_graph_matrix
 
   # 2. Build graph from adjacency matrix
-  graph <- graph_from_adjacency_matrix(KNN_graph_matrix, mode = 'undirected', weighted = TRUE)
+  graph <- graph_from_adjacency_matrix(KNN_graph_matrix, mode = "undirected", weighted = TRUE)
 
   # 3. Perform louvain clustering)
   clustering <- cluster_louvain(graph, resolution = resolution)
@@ -51,7 +50,7 @@ louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 
   coords <- x$SpatialCoords
   cluster_coords <- cbind(coords, membership)
 
-  #if(plot == TRUE){
+  # if(plot == TRUE){
   #  # ggplot spatial distribution of clusters
   #  ggplot(cluster_coords, aes(x = x, y = y, color = membership)) +
   #    geom_point(size = 1) +
@@ -61,8 +60,7 @@ louvainCluster <- function(x, coords, k = 300, metric = "angular", resolution = 
   #    labs(title = "Cluster Memberships on Spatial Coordinates",
   #         x = "X Coordinate",
   #         y = "Y Coordinate")
-  #}
+  # }
 
   return(membership)
-
 }

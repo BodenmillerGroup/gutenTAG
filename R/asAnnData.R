@@ -1,4 +1,3 @@
-
 #' Title asAnnData
 #'
 #' @param x the output from `gutenTAG` function `assignMetapeaks()`
@@ -18,9 +17,7 @@
 #' metapeaks <- generateMetapeaks(peaks)
 #' final <- assignMetapeaks(x = metapeaks, pre, panel)
 #'
-
-asAnnData <- function(x){
-
+asAnnData <- function(x) {
   # extract data from object
   exp_data <- as.matrix(x$IntensityDF)
   coords <- x$SpatialCoords
@@ -32,12 +29,11 @@ asAnnData <- function(x){
   obs_data <- coords
 
   # create anndata object
-  output <- anndata::AnnData(X = exp_data,
-                             obs = data.frame(obs_data),
-                             var = data.frame(var_data))
+  output <- anndata::AnnData(
+    X = exp_data,
+    obs = data.frame(obs_data),
+    var = data.frame(var_data)
+  )
 
   return(output)
-
-
 }
-
