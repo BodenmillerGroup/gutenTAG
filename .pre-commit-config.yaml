@@ -1,0 +1,13 @@
+repos:
+- repo: https://github.com/lorenzwalthert/precommit
+  rev: v0.4.3
+  hooks:
+  - id: style-files
+  - id: lintr
+    args: [--warn_only]
+  - id: no-browser-statement 
+  - id: no-debug-statement
+  - id: deps-in-desc
+  #- id: roxygenize
+  #  #deps: imager, Cardinal
+  #  args: [--no-roclet]
