@@ -30,17 +30,27 @@
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw, cores = 2)
 #' peaks <- peakDetection(pre, core = 2)
-#' generateMetapeaks(peaks)
+#' generateMetapeaks(peaks, hist_smooth_factor = 1)
 
-generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1.0, fixed.limits = NULL) {
+generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor, fixed.limits = NULL) {
 
   .valid.generateMetapeaks(x, threshold, fixed.limits)
 
+  # get counts of pixels in which peak is detected
   count_df <- countPeaks(x)
-  detection_threshold <- unname(dim(x)["Pixels"]) * threshold
 
-  seed_mz <- generateSeedMz(smoothPeakCounts(count_df, hist_smooth_factor), detection_threshold = detection_threshold)
-  metapeaks <- estimateMetapeaks(count_df, seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
+  # old method: detection_threshold <- unname(dim(x)["Pixels"]) * threshold no longer works because dim(x) is unlabeled
+  detection_threshold <- length(Cardinal::pixels(x)) * threshold
+
+  # smooth counts
+  smooth_counts <- smoothPeakCounts(count_df, hist_smooth_factor)
+
+  # generate seeds for segmentatation.
+  ## used to be smoothed counts. Unsure which performs better, but using smooth counts means the seeds are dependent on the smotohing parameter, while using the counts keeps them the same
+  seed_mz <- generateSeedMz(count_df, detection_threshold = detection_threshold)
+
+  # metapeak segmentation
+  metapeaks <- estimateMetapeaks(count_df, smooth_counts, seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
 
   return(metapeaks)
 }

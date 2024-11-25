@@ -6,7 +6,7 @@
 #' @param smooth_factor The standard deviation of the Gaussian filter is scaled by this factor.
 #' @return A data frame with the same mz values and the smoothed counts.
 #' @export
-smoothPeakCounts <- function(count_df, smooth_factor = 1) {
+smoothPeakCounts <- function(count_df, smooth_factor) {
 
   n_features <- nrow(count_df)
   sigma_smoothing_isotopic <- smooth_factor / .mzScalingFactor(count_df)

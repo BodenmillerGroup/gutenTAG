@@ -6,6 +6,7 @@
 #' The parameters include the center, maximum, delimitation, and width of each metapeak. The width is rescaled to the m/z scale.
 #'
 #' @param count_df A data frame containing count data.
+#' @param smooth_count_df A dataframe containing smooth count data.
 #' @param seed_mz A numeric vector specifying the seed m/z values for segmentation.
 #' @param detection_threshold A numeric value specifying the threshold for counts, as an integer number of counts.
 #' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
@@ -14,17 +15,17 @@
 #'
 #' @export
 
-estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
+estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
   ## validity checks
   .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
   # 1. Gaussian smoothing over counts
-  count_smooth_df <- smoothPeakCounts(count_df)
+  #count_smooth_df <- smoothPeakCounts(count_df)
 
-  # 2. Segment the count_df histogram using the seed_mz values.
-  propagation_selection <- segmentPeakCounts(count_smooth_df, seed_mz, detection_threshold = detection_threshold)
+  # 1. Segment the count_df histogram using the seed_mz values.
+  propagation_selection <- segmentPeakCounts(smooth_count_df, seed_mz, detection_threshold = detection_threshold)
 
-  # 3. Get metapeak parameters
+  # 2. Get metapeak parameters
   num_metapeaks <- max(propagation_selection)
   if (num_metapeaks == 0) {
     stop("No metapeaks were found.")
@@ -87,7 +88,7 @@ estimateMetapeaks <- function(count_df, seed_mz, detection_threshold = 0, fixed.
 
   return(list(metapeaks = metapeaks,
               count_df = count_df,
-              count_smooth_df = count_smooth_df,
+              count_smooth_df = smooth_count_df,
               seed_mz = seed_mz,
               propagation_selection = propagation_selection))
 
