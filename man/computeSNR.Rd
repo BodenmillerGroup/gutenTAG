@@ -4,14 +4,16 @@
 \alias{computeSNR}
 \title{Compute SNR for each channel using Mixture Model (GMM).}
 \usage{
-computeSNR(x, method = "gaussian", update_correspondence = FALSE)
+computeSNR(x, package = "mclust", update_correspondence = FALSE, q = 1)
 }
 \arguments{
 \item{x}{Output from assignMetapeaks}
 
-\item{method}{Indicate whether to use Gaussian mixture model or Poisson mixture model}
+\item{package}{Indicate whether GMM modelling should be performed using mclust or flexmix package}
 
 \item{update_correspondence}{Should the SNR score be added to the Correspondence Matrix (bool)}
+
+\item{q}{Quantile value for clipping extreme outliers (default is 1)}
 }
 \value{
 a list containing lists with SNR and clustering information for each channel

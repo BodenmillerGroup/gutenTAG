@@ -7,6 +7,8 @@
 analysis/figure
 analysis/*png
 analysis/*html
+inst/*html
+inst/*_files/
 analysis/*_cache
 analysis/site_libs
 inst/doc
