@@ -10,7 +10,7 @@ test_that("generateMetapeaks works",{
   expect_s4_class(peaks, "MSImagingExperiment")
 
   # generate metapeaks
-  cur_test <- generateMetapeaks(peaks)
+  cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 
   # test that metapeak center is correct
   expect_equal(cur_test$metapeaks$center[1:10], c(903.09, 906.31, 913.88, 917.16,
@@ -23,20 +23,20 @@ test_that("generateMetapeaks works",{
                                                937.78, 941.18), tolerance = 0.1)
 
   # test that metapeak width is correct
-  expect_equal(cur_test$metapeaks$width[1:10], c(0.174, 0.233, 0.304, 0.071,
-                                                 0.146, 0.040, 0.121, 0.385,
-                                                 0.012, 0.012), tolerance = 0.01)
+  expect_equal(cur_test$metapeaks$width[1:10], c(0.338231932202095, 0.124122184279222, 0.235831470157998, 0.148947981080111,
+                                                 0.117917435010306, 0.449944617943485, 0.232730795454847, 0.0124094985378317,
+                                                 0.40339709890747, 0.505797560951566), tolerance = 0.01)
 
 
   # test that max value of propagation selection is correct
-  expect_equal(max(cur_test$propagation_selection), 218)
+  expect_equal(max(cur_test$propagation_selection), 245)
 
   # test if character in first argument throws error
   expect_error(generateMetapeaks("test"))
 
   # check if fixed limits works
   limits <- 0.5
-  fixed_lim_test <- generateMetapeaks(x = peaks, fixed.limits = limits)
+  fixed_lim_test <- generateMetapeaks(x = peaks, fixed.limits = limits, hist_smooth_factor = 1)
 
   # check the metapeak widths are all the same
   expect_true(all(fixed_lim_test$metapeaks$width == fixed_lim_test$metapeaks$width[1]))
