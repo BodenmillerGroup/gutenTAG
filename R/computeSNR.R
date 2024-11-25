@@ -17,7 +17,7 @@
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw, cores = 2)
 #' peaks <- peakDetection(pre, core = 2)
-#' mmetapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
+#' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 
 computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q = 1) {
