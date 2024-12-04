@@ -4,7 +4,7 @@ test_that("generateMetapeaks works",{
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
   pre <- preProcess(raw, cores = 2)
-  peaks <- peakDetection(pre, core = 2)
+  peaks <- peakDetection(pre, cores = 2)
 
   # test that the object after peakDetection is still the correct object class
   expect_s4_class(peaks, "MSImagingExperiment")
@@ -23,13 +23,13 @@ test_that("generateMetapeaks works",{
                                                937.78, 941.18), tolerance = 0.1)
 
   # test that metapeak width is correct
-  expect_equal(cur_test$metapeaks$width[1:10], c(0.338231932202095, 0.124122184279222, 0.235831470157998, 0.148947981080111,
-                                                 0.117917435010306, 0.449944617943485, 0.232730795454847, 0.0124094985378317,
-                                                 0.40339709890747, 0.505797560951566), tolerance = 0.01)
+  expect_equal(cur_test$metapeaks$width[1:10], c(0.173770378018388, 0.232730795454847, 0.304097311566525, 0.0713699159742911,
+                                                 0.145843906514347, 0.0403393699044857, 0.121018109713457, 0.384779451238109,
+                                                 0.0124128984004448, 0.0124094985378317), tolerance = 0.01)
 
 
   # test that max value of propagation selection is correct
-  expect_equal(max(cur_test$propagation_selection), 245)
+  expect_equal(max(cur_test$propagation_selection), 218)
 
   # test if character in first argument throws error
   expect_error(generateMetapeaks("test"))
