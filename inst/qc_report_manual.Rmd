@@ -91,6 +91,9 @@ base_plot <- ggplot() +
   
   # Plot counts (left y-axis)
   geom_line(data = metapeaks$count_df, aes(x = mz, y = count, color = "Count"), alpha = 1, linewidth = 0.5) +
+  # 8 is a really arbitrary number but it tends to put the counts in a more reasonable range for visualisation
+  geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count / 8, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
+  #geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
   
   # Add vertical lines and ranges
   geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
@@ -101,7 +104,7 @@ base_plot <- ggplot() +
 
   # Labels and legends
   ylab('Peak Counts') +
-  scale_color_manual(name = "Line", values = c("Count" = "black")) +
+  scale_color_manual(name = "Line", values = c("Count" = "black", "SmoothCount" = "sienna")) +
   scale_linetype_manual(name = "Vertical Lines", values = c("Feature Mass" = "", "Max Counts" = "dashed")) +
   scale_fill_manual(name = "Range Areas", values = c("Metapeak Range" = 'grey', "Targeted Metapeak Range" = "red3"))
 
