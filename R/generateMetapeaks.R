@@ -46,11 +46,10 @@ generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor, fixed.lim
   smooth_counts <- smoothPeakCounts(count_df, hist_smooth_factor)
 
   # generate seeds for segmentatation.
-  ## used to be smoothed counts. Unsure which performs better, but using smooth counts means the seeds are dependent on the smotohing parameter, while using the counts keeps them the same
-  seed_mz <- generateSeedMz(count_df, detection_threshold = detection_threshold)
+  seed_mz <- generateSeedMz(count_df = smooth_counts, detection_threshold = detection_threshold)
 
   # metapeak segmentation
-  metapeaks <- estimateMetapeaks(count_df, smooth_counts, seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
+  metapeaks <- estimateMetapeaks(count_df = count_df, smooth_count_df = smooth_counts, seed_mz = seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
 
   return(metapeaks)
 }
