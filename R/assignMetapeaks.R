@@ -125,7 +125,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   }
 
   # get names for metapeak values
-  colnames(final_intensity) <- paste0(as.character(round(metapeaks$center, 2)), " m/z")
+  colnames(final_intensity) <- paste0(as.character(round(metapeaks$max, 2)), " m/z")
 
   # Annotated metapeaks only
   final_intensity_targeted <- final_intensity[, !is.na(correspondence$marker)]
