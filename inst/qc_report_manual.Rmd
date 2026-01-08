@@ -83,6 +83,7 @@ targeted_metapeak_df <- metapeak_df[metapeak_df$max %in% targeted_metapeaks, ]
 ```
 
 ```{r Plot current metapeaks, out.width="100%", warning = FALSE}
+
 # plot current metapeaks
 # Create the ggplot object for counts (left axis) only
 base_plot <- ggplot() +
@@ -95,9 +96,12 @@ base_plot <- ggplot() +
   geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count / 8, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
   #geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
   
+  
   # Add vertical lines and ranges
   geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
   geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
+  #geom_vline(aes(xintercept = metapeaks_011$seed_mz, linetype = "Seeds"), color = 'red', linewidth = 0.5) +
+  geom_vline(data = metapeak_df, aes(xintercept = metapeaks$seed_mz, linetype = "Seeds"), color = 'turquoise', linewidth = 1) +
   
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
   geom_rect(data = targeted_metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Targeted Metapeak Range"), alpha = 0.2) +
@@ -105,15 +109,16 @@ base_plot <- ggplot() +
   # Labels and legends
   ylab('Peak Counts') +
   scale_color_manual(name = "Line", values = c("Count" = "black", "SmoothCount" = "sienna")) +
-  scale_linetype_manual(name = "Vertical Lines", values = c("Feature Mass" = "", "Max Counts" = "dashed")) +
+  scale_linetype_manual(name = "Vertical Lines", values = c("Feature Mass" = "", "Max Counts" = "dashed", "Seeds" = "dashed")) +
   scale_fill_manual(name = "Range Areas", values = c("Metapeak Range" = 'grey', "Targeted Metapeak Range" = "red3"))
+
 
 
 # Convert ggplot to plotly (without the spectra)
 ggplotly_plot <- ggplotly(base_plot, dynamicTicks = TRUE)
 
-# Add the spectra intensity as a separate trace (for right y-axis)
-ggplotly_plot <- ggplotly_plot |>
+# add mean and skyline spectra
+ggplotly_plot_final <- ggplotly_plot |>
   add_trace(
     data = processed$SummarySpectra,
     x = ~mz,
@@ -122,9 +127,9 @@ ggplotly_plot <- ggplotly_plot |>
     mode = 'lines',
     name = 'MeanSpectrum',
     yaxis = 'y2',          # Tie this trace to the second y-axis
-    line = list(color = '#cd0000', width = 1.5)
+    line = list(color = '#cd0000', width = 2)
   ) |>
-  add_trace(
+   add_trace(
     data = processed$SummarySpectra,
     x = ~mz,
     y = ~skyline,
@@ -132,24 +137,34 @@ ggplotly_plot <- ggplotly_plot |>
     mode = 'lines',
     name = 'SkylineSpectrum',
     yaxis = 'y2',          # Tie this trace to the second y-axis
-    line = list(color = "blue", width = 1.5)
+    line = list(color = "blue", width = 2)
   ) |>
-  
-   #Customize layout for dual y-axes
   layout(
-    yaxis = list(title = 'Peak Counts'),          # Left y-axis (counts)
+    yaxis = list(title = 'Peak Counts',
+                 titlefont = list(size = 17, color = 'black'),
+                 tickfont = list(size = 14, color = 'black')),          # Left y-axis (counts)
     yaxis2 = list(
-      title = 'Spectrum Intensity',               # Right y-axis (intensity)
+      title = 'Spectral Intensity',               # Right y-axis (intensity)
       overlaying = 'y',                           # Overlay on left y-axis
       side = 'right',                             # Position on right side
-      showgrid = FALSE                            # No grid for right y-axis
-    ),
-    legend = list(title = list(text = "Legend")),
-    showlegend = TRUE
+      showgrid = FALSE,                           # No grid for right y-axis
+      titlefont = list(size = 17, color = '#cd0000'),
+      tickfont = list(size = 14, color = '#cd0000'),
+      tickpadding = 0),
+    margin = list(r = 1),                        # Increase right margin
+    #legend = list(title = list(text = "Legend")),
+    legend = list(
+      x = 1.15,                # move legend further right if desired
+      y = 1,
+      title = list(text = "Legend"),
+      showlegend = TRUE,
+      font = list(size = 8)
+    )                       
   )
 
 # Render the plot
-ggplotly_plot
+ggplotly_plot_final
+
 ```
 
 
@@ -165,9 +180,10 @@ These measures can be helpful in determining which features should be kept or re
 
 ### Mean-Variance relationship
 
-The relationship between the mean and variance is of high importance when dealing with count data. Count data can be modeled simply using the Poisson distribution, which clearly states that the mean and variance are equal. Real world count data is often over- or under-dispersed. This means that variance is greater or less than the mean, respectively. This can be easily visualised using a mean-variance plot. Here we show the relationship between the mean and variance of each metapeak. In red are annotated metapeaks (assigned to a target mass in the panel), while in grey are unassigned metapeaks.
+The relationship between the mean and variance is of high importance when dealing with count data. Count data is often modelled using the Poisson distribution, which states that the mean and variance are equal. Real world count data is often over- or under-dispersed, meaninf that variance is greater or less than the mean, respectively. This can be easily visualised using a mean-variance plot. Here we show the relationship between the mean and variance of each metapeak. In red are annotated metapeaks (assigned to a target mass in the panel), while in grey are unassigned metapeaks.
 
-Why is this important? In analysis of high dimensional biological datasets, it is common to take the highest variance genes or proteins and call these "interesting", because they are highly variable. However, since the mean and variance generally track together in count data, the highest intensity proteins will also be the highest variance ones. This is the confounding effect of the mean. This can be corrected for by regressing the mean against the variance and extracting the residuals from this regression. These residuals tell us how the each marker deviates from the expected variance under poisson assumptions. Here, the x and y axes are on log scale.
+Why is this important? In analysis of high dimensional biological datasets, it is common to take the highest variance genes or proteins and call these "interesting", because they are highly variable. However, since the mean and variance generally track together in count data, the highest intensity proteins will also be the highest variance ones. This can be corrected for by regressing the mean against the variance and extracting the residuals from this regression. These residuals tell us how the each marker deviates from the expected variance under poisson assumptions. Here, the x and y axes are on log scale.
+
 
 ```{r Mean-var plot data loading, message=FALSE, warning=FALSE}
 
