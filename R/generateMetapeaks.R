@@ -17,7 +17,7 @@
 #' @param threshold A threshold for peak detection.
 #' @param hist_smooth_factor An optional factor for smoothing the histogram of peak counts differently (default: 1.0).
 #' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
-#' @param density A density parameter controlling the permissible distance between metapeaks. Small density values (i.e,. 1) allow closer metapeaks, while higher values enforce greater spacing.
+#' @param density A density parameter controlling the permissible distance between metapeaks. Small density values (i.e. 1) allow closer metapeaks, while higher values enforce greater spacing.
 #'
 #' @return A list containing information on the location, limits and width of metapeaks
 #'
@@ -33,7 +33,7 @@
 #' peaks <- peakDetection(pre, core = 2)
 #' generateMetapeaks(peaks, hist_smooth_factor = 1)
 
-generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor, fixed.limits = NULL, density = 3) {
+generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed.limits = NULL, density = 3) {
 
   .valid.generateMetapeaks(x, threshold, fixed.limits, density)
 
