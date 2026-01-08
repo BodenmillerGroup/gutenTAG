@@ -35,7 +35,7 @@
 
 generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor, fixed.limits = NULL, density = 3) {
 
-  .valid.generateMetapeaks(x, threshold, fixed.limits)
+  .valid.generateMetapeaks(x, threshold, fixed.limits, density)
 
   # get counts of pixels in which peak is detected
   count_df <- countPeaks(x)

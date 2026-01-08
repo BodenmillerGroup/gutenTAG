@@ -64,7 +64,7 @@
 
 
 # metapeakGeneration ####
-.valid.generateMetapeaks <- function(x, threshold, fixed.limits){
+.valid.generateMetapeaks <- function(x, threshold, fixed.limits, density){
 
   # break if threshold is not a single numeric
   if (length(threshold) > 1) {
@@ -94,9 +94,9 @@
     stop("density must be a single numeric value.")
   }
 
-  if (density <= 0){
-    stop("density must be a single numeric value.")
-  }
+  #if (density <= 0){
+  #  stop("density must be a single numeric value.")
+  #}
 
 }
 
