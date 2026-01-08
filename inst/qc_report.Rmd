@@ -185,7 +185,7 @@ These measures can be helpful in determining which features should be kept or re
 
 As a simple first step, let's look at the mean signal strength from different markers.
 
-```{r SNR barchart, eval=TRUE, warning=FALSE, message=FALSE}
+```{r mean_intensity_violin, eval=TRUE, warning=FALSE, message=FALSE}
 
 # arrange by snr
 mean_df <- dplyr::arrange(processed$CorrespondenceMatrix, mean)
@@ -614,29 +614,29 @@ targeted_mean_snr <- cbind(targeted_mean_snr, rownames(targeted_mean_snr))
 colnames(targeted_mean_snr)[3] <- "Name"
 
 # linear model of mean vs variance and get coefficients
-regression <- lm(log10(targeted_snr) ~ log10(targeted_mean))
-coefs <- regression$coefficients
-coefs <- data.frame(t(coefs))
-colnames(coefs)[1] <- "Intercept"
-colnames(coefs)[2] <- "Slope"
+#regression <- lm(log10(targeted_snr) ~ log10(targeted_mean))
+#coefs <- regression$coefficients
+#coefs <- data.frame(t(coefs))
+#colnames(coefs)[1] <- "Intercept"
+#colnames(coefs)[2] <- "Slope"
 
 # plots
-scatter <- ggplot() +
-    theme_minimal() +
-    ggtitle("Mean-Variance Plot") +
-    geom_point(data = targeted_mean_snr, aes(x = targeted_mean, y = targeted_snr), color = 'black', fill = 'grey', shape = 21, size = 2) +
-    geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_snr, text = paste0("Marker: ", Name)), color = 'black', fill = 'red3', shape = 21, size = 3) +
-    scale_x_log10() +
-    scale_y_log10()
+#scatter <- ggplot() +
+#    theme_minimal() +
+#    ggtitle("Mean-Variance Plot") +
+#    geom_point(data = targeted_mean_snr, aes(x = targeted_mean, y = targeted_snr), color = 'black', fill = 'grey', shape = 21, size = 2) +
+#    geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_snr, text = paste0("Marker: ", Name)), color = 'black', fill = 'red3', shape = 21, size = 3) #+
+#    scale_x_log10() +
+#    scale_y_log10()
 
-annotated <- ggplot() +
+mean_snr_plot <- ggplot() +
     theme_minimal() +
-    ggtitle("Mean-Variance Plot: Annotated Peaks only") +
+    ggtitle("Mean-SNR Plot") +
     geom_point(data = targeted_mean_snr, aes(x = targeted_mean, y = targeted_snr, text = Name), color = 'black', fill = '#3B9AB5', shape = 21, size = 4)# +
     #scale_x_log10() +
     #scale_y_log10()
 
-print(annotated)
+print(mean_snr_plot)
 
 ```
 
@@ -753,7 +753,7 @@ abline(v = threshold, lwd = 4, col = "grey", lty = 2)
 ```
 
 
-```{r , eval=FALSE, echo=FALSE}
+```{r tic_spatial, eval=FALSE, echo=FALSE}
 
 # Identify noise and signal based on cluster means
 cluster_color <- ifelse(log10(1 + tic_targeted) <= threshold, "Noise", "Signal")

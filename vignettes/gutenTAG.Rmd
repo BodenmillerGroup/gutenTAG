@@ -260,7 +260,7 @@ peaks. Many of the metapeaks generated will be formed by signal that is
 from untargeted peaks.
 
 ```{r Metapeak generation}
-metapeaks <- generateMetapeaks(detected, hist_smooth_factor = 1, fixed.limits = 0.5, density = 2)
+metapeaks <- generateMetapeaks(detected, hist_smooth_factor = 1, fixed.limits = 0.5, density = 1)
 ```
 
 ### Assigning metapeaks {#metapeak-assignment}
