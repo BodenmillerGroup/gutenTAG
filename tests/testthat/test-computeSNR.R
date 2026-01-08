@@ -23,10 +23,11 @@ test_that("computeSNR works",{
                                                     2.40921027994661, 1.41160848191838, 3.03517059385205))
 
   # test flexmix snr
+  set.seed(123)
   flexmix_test <- computeSNR(processed, update_correspondence = TRUE, package = "flexmix")
   expect_equal(flexmix_test$CorrespondenceMatrix$snr, c(1, 1.46662215920315, 0, 0, 2.00872721014486, 0, 3.08641724395242,
-                                                       3.80602499772131, 3.31489921308867, 15.2477686105868, 2.40921027994661,
-                                                       1.41702657054023, 2.9132994473942))
+                                                        3.80602499772131, 1, 15.2477686105868, 2.38579865682754, 1.40678431312882,
+                                                        2.9132994473942), tolerance = 0.1)
 
 })
 

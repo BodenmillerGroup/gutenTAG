@@ -6,6 +6,7 @@
 \usage{
 estimateMetapeaks(
   count_df,
+  smooth_count_df,
   seed_mz,
   detection_threshold = 0,
   fixed.limits = NULL
@@ -13,6 +14,8 @@ estimateMetapeaks(
 }
 \arguments{
 \item{count_df}{A data frame containing count data.}
+
+\item{smooth_count_df}{A dataframe containing smooth count data.}
 
 \item{seed_mz}{A numeric vector specifying the seed m/z values for segmentation.}
 

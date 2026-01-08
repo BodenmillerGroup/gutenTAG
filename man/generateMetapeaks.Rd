@@ -8,7 +8,8 @@ generateMetapeaks(
   x,
   threshold = 0.01,
   hist_smooth_factor = 1,
-  fixed.limits = NULL
+  fixed.limits = NULL,
+  density = 3
 )
 }
 \arguments{
@@ -19,9 +20,11 @@ generateMetapeaks(
 \item{hist_smooth_factor}{An optional factor for smoothing the histogram of peak counts differently (default: 1.0).}
 
 \item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
+
+\item{density}{A density parameter controlling the permissible distance between metapeaks. Small density values (i.e. 1) allow closer metapeaks, while higher values enforce greater spacing.}
 }
 \value{
-A list containing information on the location, delimitations and width of metapeaks
+A list containing information on the location, limits and width of metapeaks
 }
 \description{
 We define a metapeak as a single peak that represents a cluster of peaks that correspond to the same molecular species.
@@ -34,7 +37,7 @@ Generation of metapeaks can be described in the following manner:
   \item Frequencies of each detected peak are counted for each pixel.
   \item Gaussian smoothing is performed over these frequencies.
   \item Clustering (using Watershed algorithm) is performed to segment peaks.
-  \item Peaks that are present in <1\% of pixels are filtered out as part of watershed segmentation boundary.
+  \item Peaks that are present in <1\% (default value of tunable threshold parameter) of pixels are filtered out as part of watershed segmentation boundary.
 
 }
 }
@@ -45,5 +48,5 @@ panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)
 pre <- preProcess(raw, cores = 2)
 peaks <- peakDetection(pre, core = 2)
-generateMetapeaks(peaks)
+generateMetapeaks(peaks, hist_smooth_factor = 1)
 }

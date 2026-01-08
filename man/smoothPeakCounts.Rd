@@ -6,7 +6,7 @@
 The Gaussian filter is scaled to the average step size of the mz values.
 The function assumes that the mz values are (roughly) evenly spaced.}
 \usage{
-smoothPeakCounts(count_df, smooth_factor = 1)
+smoothPeakCounts(count_df, smooth_factor)
 }
 \arguments{
 \item{count_df}{A data frame with columns: mz, count.}

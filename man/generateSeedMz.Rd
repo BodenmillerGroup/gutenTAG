@@ -4,7 +4,7 @@
 \alias{generateSeedMz}
 \title{generateSeedMz}
 \usage{
-generateSeedMz(count_df, detection_threshold = 0)
+generateSeedMz(count_df, detection_threshold = 0, density = 3)
 }
 \arguments{
 \item{count_df}{A data frame with columns mz and count}

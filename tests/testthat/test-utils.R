@@ -28,8 +28,8 @@ test_that(".cleanPanel works",{
 
 })
 
-# .correctCoordinates. doesn't add coverage
-test_that(".correctCoordinates works",{
+# .translate_coordinates doesn't add coverage
+test_that(".translate_coordinates works",{
 
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
@@ -39,7 +39,7 @@ test_that(".correctCoordinates works",{
 
   coords <- as.data.frame(Cardinal::coord(pre))
 
-  cur_test <- .correctCoordinates(coords)
+  cur_test <- .translate_coordinates(coords)
 
   # test that processed data is a list
   expect_type(cur_test, "list")

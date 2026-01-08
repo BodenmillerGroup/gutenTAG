@@ -7,7 +7,9 @@
 #'
 #' @return a list containing lists with SNR and clustering information for each channel
 #' @importFrom mclust Mclust
+#' @importFrom mclust mclustBIC
 #' @importFrom flexmix flexmix
+#' @importFrom flexmix FLXMRglm
 #' @export computeSNR
 #'
 #' @examples

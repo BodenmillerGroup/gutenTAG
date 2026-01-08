@@ -24,7 +24,7 @@ panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)
 pre <- preProcess(raw, cores = 2)
 peaks <- peakDetection(pre, core = 2)
-metapeaks <- generateMetapeaks(peaks)
+metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 
 cil <- asCytoImageList(processed, name = "test")
