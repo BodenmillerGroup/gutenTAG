@@ -30,7 +30,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # get spatial coordinates and correct if needed
   coords <- as.data.frame(pData(pre))[, c("x","y")]
-  coords <- .correctCoordinates(coords)
+  coords <- .translate_coordinates(coords)
 
   # 1. generate the initial correspondence matrix
   initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
@@ -82,7 +82,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
-  mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_max_modified)
+  mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_min_ignore_zero)
   #construct correspondence matrix
   correspondence_matrix <- data.frame(mz_location = metapeaks$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],

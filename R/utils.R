@@ -1,56 +1,4 @@
-############################# Reader helpers ###################################
-
-# Find sample name function ####
-
-# experimental function, could be nice but doesn't currently support getting experiement name
-
-#.sampleNameFinder <- function(path = Path_to_imzml_file){
-#
-#  Sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
-#
-#  for (i in length(Sample_name)){
-#    if (grepl(".imzML", Sample_name[i], fixed=TRUE)){
-#      temp_name <- (Sample_name[i])
-#      temp_name <- strsplit(temp_name, split = ".", fixed = TRUE)[[1]]
-#      Sample_name <- temp_name[1]
-#    }else{
-#      print("No .imzML detected")
-#    }
-#  }
-#
-#  return(Sample_name)
-#}
-
-
-# Get the name of the experiment and the sample (applicable only for JA's directory structure)
-#.sampleNameFinder <- function(path){
-#
-#  sample_name <- strsplit(path, split = "/", fixed = TRUE)[[1]]
-#  h <- 1
-#  cur_folder <- sample_name[h]
-#  if(cur_folder == "experiments"){
-#    print("Correct on first iteration")
-#    print(paste("Current folder is ", cur_folder, sep = ""))
-#    h = h+1
-#  }else{while(cur_folder != "experiments"){
-#    cur_folder <- sample_name[h]
-#    print(paste("Current folder is ", cur_folder, sep = ""))
-#    h = h+1
-#    if (cur_folder == "experiments"){
-#      print(paste("The current folder is ", cur_folder, ".", sep = ""))
-#    }
-#  }}
-#
-#  experiment_name <- sample_name[h]
-#  print(paste("The experiment is ", experiment_name, ".", sep = ""))
-#  sample_name <- sample_name[length(sample_name)]
-#  sample_name <- strsplit(sample_name ,split = ".", fixed = TRUE)[[1]]
-#  sample_name <- sample_name[1]
-#  print(paste("The sample is ", sample_name, ".", sep = ""))
-#
-#}
-
-
+#############################  Helper functions ###################################
 
 # Marker panel cleaning function ####
 
@@ -113,8 +61,7 @@
 }
 
 # If the x coordinates don't begin at 1, adjust the coordinates
-# TODO rename to .translate_coordinates
-.correctCoordinates <- function(coords){
+.translate_coordinates <- function(coords){
 
   if(!min(coords$x) == 1){
 
@@ -127,10 +74,9 @@
 }
 
 
-# which_max_modified function ####
-# TODO rename this function
+# which_min_ignore_zero function ####
 # returns which.min ignoring 0 values
-.which_max_modified <- function(x) {
+.which_min_ignore_zero <- function(x) {
 
   if (sum(x) == 0) {
     y <- NA
@@ -177,63 +123,90 @@
 
 }
 
+# remove duplicated metapeaks for a targeted MSI experiment.
+## Specify which direction of the expected mass you expect the mass shift to occur in. removeDuplicates will choose the closest metapeak in that direction.
+.removeDuplicates <- function(sample, shift = "right"){
 
-#### double check before removing ####
+  cur_df <- sample$processed$IntensityDF
+  cur_correspondence <- sample$processed$CorrespondenceMatrix
 
-# Convert_to_mz_scale function
+  # get the correspondence matrix of just the duplicated values
+  dup_tags <- unique(cur_correspondence$expected_mz_location)[which(table(cur_correspondence$expected_mz_location) > 1)]
+  dup_correspondence <- cur_correspondence[which(cur_correspondence$expected_mz_location %in% dup_tags), ]
 
-#.convert_to_mz_scale <- function(x, range_peaks, N_features) {
-#
-#  scale_vector <- base::seq(range_peaks[1], range_peaks[2], length.out = N_features )
-#  return(scale_vector[x])
-#
-#}
+  # loop through all duplicates and choose the correct peak for each
+  duplicate_expected_mzs <- unique(dup_correspondence$expected_mz_location)
+  correct_peaks <- c()
 
-# define function for hierarchical clustering with complete linkage ####
+  for(i in duplicate_expected_mzs){
 
-#.hc_single_linkage_function <- function(x, threshold_height = 2) {
-#
-#  sub_clustering <- 1
-#
-#  # if there is more than one element in the region, run the distance function
-#  if (length(x) > 1) {
-#    dist_matrix <- dist(x)
-#    hc_clustering <- hclust(dist_matrix, method = "single")
-#    sub_clustering <- cutree(hc_clustering, h = threshold_height)
-#  }
-#
-#  return(sub_clustering)
-#
-#}
+    idx <- which(duplicate_expected_mzs == i)
 
-## Strings to colours ####
-#.string.to.colors = function(string, colors = NULL)
-#{
-#  if (is.factor(string)) {
-#
-#    string <- as.character(string)
-#
-#  }
-#
-#  if (!is.null(colors)) {
-#
-#    if (length(colors) != length(unique(string))) {
-#      (break)("The number of colors must be equal to the number of unique elements.")
-#    }
-#    else {
-#      conv <- cbind(unique(string), colors)
-#    }
-#  }
-#  else {
-#
-#    conv <- cbind(unique(string), rainbow(length(unique(string))))
-#
-#  }
-#  unlist(lapply(string, FUN = function(x) {
-#    conv[which(conv[, 1] == x), 2]
-#  }))
-#}
+    # extract cur pairing
+    cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
+    # if you expect mass shift to be to the right of the expected mass
+    if(expected_shift == "right"){
+      # first select masses that are greater than the expected value
+      correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location > unique(cur_pairing$expected_mz_location)]
+      # choose the closest one (moot if there is only 1, most common case)
+      correct_peak <- min(correct_shifted_mzs)
+    }
 
+    # if you expect mass shift to be to the right of the expected mass
+    if(expected_shift == "left"){
+      # first select masses that are less than the expected value
+      correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location < unique(cur_pairing$expected_mz_location)]
+      # choose the closest one (moot if there is only 1, most common case)
+      correct_peak <- max(correct_shifted_mzs)
+    }
 
+    correct_peaks[idx] <- correct_peak
+
+  }
+
+  # remove all columns in original df that are NOT in the keep list
+
+  ## get non-duplicated tags
+  non_dup_tags <- cur_correspondence$mz_location[!cur_correspondence$expected_mz_location %in% dup_tags]
+  na_tags_idx <- which(is.na(cur_correspondence$mz_location))
+
+  # these are the mz locations of the tags to keep (non-duplicated peaks plus the correct duplicated ones)
+  keep_peaks <- sort(c(correct_peaks, non_dup_tags))
+  # get the indexes of peaks to keep -- IMPORTANT: we move to index rather than mz_location so that we can include the NA-valued tags, which would be excluded if we worked in mz_location (since these markers didn't get a metapeak)
+  keep_idx <- sort(c(which(cur_correspondence$mz_location %in% keep_peaks), na_tags_idx))
+
+  # correspondence matrix of only the peaks to keep
+  updated_correspondence <- cur_correspondence[keep_idx, ]
+
+  # get the marker names only
+  ## initialse binary vector (TRUE/FALSE if marker name is duplicate)
+  bin_vector <- c()
+  for (i in 1:length(colnames(cur_df))){
+
+    ## identify markers with duplicate in the name
+    needle <- "duplicate"
+    haystack <- colnames(cur_df)[i]
+    ## find needle in haystack
+    cur_val <- grepl(needle, haystack, fixed = TRUE)
+    ## add to binary vector
+    bin_vector <- c(bin_vector, cur_val)
+
+  }
+
+  # update marker names in new correspondence matrix
+  updated_correspondence$marker <- colnames(cur_df)[!bin_vector]
+
+  # update intensity dataframe
+  updated_df <- cur_df[, keep_idx]
+  colnames(updated_df) <- colnames(cur_df)[!bin_vector]
+
+  ## Create new sample list
+  updated_sample <- list("IntensityDF" = updated_df,
+                         "CorrespondenceMatrix" = updated_correspondence,
+                         "SpatialCoords" = sample$processed$SpatialCoords)
+
+  return(updated_sample)
+
+}
 
