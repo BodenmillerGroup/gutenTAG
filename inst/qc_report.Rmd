@@ -103,7 +103,6 @@ base_plot <- ggplot() +
   # Add vertical lines and ranges
   geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
   geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
-  #geom_vline(aes(xintercept = metapeaks_011$seed_mz, linetype = "Seeds"), color = 'red', linewidth = 0.5) +
   geom_vline(data = metapeak_df, aes(xintercept = metapeaks$seed_mz, linetype = "Seeds"), color = 'turquoise', linewidth = 1) +
   
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
