@@ -64,7 +64,7 @@
 
 
 # metapeakGeneration ####
-.valid.generateMetapeaks <- function(x, threshold, fixed.limits){
+.valid.generateMetapeaks <- function(x, threshold, fixed.limits, density){
 
   # break if threshold is not a single numeric
   if (length(threshold) > 1) {
@@ -75,16 +75,28 @@
     stop("'threshold' should be a single numeric.")
   }
 
-
   # break if threshold is greater than or equal to 1
   if (threshold >= 1) {
-    stop("'threshold' should be a decimal.")
+    stop("'threshold' should be a decimal between 0 and 1.")
+  }
+
+  if (threshold < 0) {
+    stop("'threshold' should be a decimal between 0 and 1.")
   }
 
   # break if fixed limits are anything other than NULL or a numeric value
   if (!(is.null(fixed.limits) | is.numeric(fixed.limits))){
     stop("fixed.limits must be a single numeric value or null")
   }
+
+  # break if density parameter anything other than NULL or a positive numeric value
+  if (!(is.null(density) | is.numeric(density))){
+    stop("density must be a single numeric value.")
+  }
+
+  #if (density <= 0){
+  #  stop("density must be a single numeric value.")
+  #}
 
 }
 

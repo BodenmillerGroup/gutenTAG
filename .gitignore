@@ -1,6 +1,5 @@
 .Rproj.user
 .Rhistory
-.RData
 .Ruserdata
 .Rapp.history
 .DS_Store
@@ -15,3 +14,4 @@ inst/doc
 /doc/
 /Meta/
 
+.Rproj.user/
