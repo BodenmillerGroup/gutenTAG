@@ -29,17 +29,7 @@ The following are reported on:
 
 Load inputs
 
-```{r Load params, echo=FALSE}
-#param_load_dev_path <- params$param_load_dev_path
-```
-
 ```{r Load gutenTAG, message=FALSE}
-#if (!is.na(param_load_dev_path) && param_load_dev_path != "NA") {
-#  message("Loading development version of gutenTAG")
-#  devtools::load_all(param_load_dev_path)
-#} else {
-#  library(gutenTAG)
-#}
 
 library(gutenTAG)
 library(ggplot2)
@@ -95,15 +85,12 @@ base_plot <- ggplot() +
   
   # Plot counts (left y-axis)
   geom_line(data = metapeaks$count_df, aes(x = mz, y = count, color = "Count"), alpha = 1, linewidth = 0.5) +
-  # 8 is a really arbitrary number but it tends to put the counts in a more reasonable range for visualisation
+  # 8 is an arbitrary number but it tends to put the counts in a more reasonable range for visualisation
   geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count / 8, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
-  #geom_line(data = metapeaks$count_smooth_df, aes(x = mz, y = count, color = "SmoothCount"), alpha = 1, linewidth = 0.5) +
-  
   
   # Add vertical lines and ranges
   geom_vline(data = panel, aes(xintercept = FeatureMass, linetype = "Feature Mass", text = Name), color = 'purple', linewidth = 1) +
   geom_vline(data = metapeak_df, aes(xintercept = max, linetype = "Max Counts"), color = 'springgreen3', linewidth = 1) +
-  #geom_vline(aes(xintercept = metapeaks_011$seed_mz, linetype = "Seeds"), color = 'red', linewidth = 0.5) +
   geom_vline(data = metapeak_df, aes(xintercept = metapeaks$seed_mz, linetype = "Seeds"), color = 'turquoise', linewidth = 1) +
   
   geom_rect(data = metapeak_df, aes(xmin = lower_limit, xmax = upper_limit, ymin = 0, ymax = max_y, fill = "Metapeak Range"), alpha = 0.2) +
@@ -155,7 +142,6 @@ ggplotly_plot_final <- ggplotly_plot |>
       tickfont = list(size = 14, color = '#cd0000'),
       tickpadding = 0),
     margin = list(r = 1),                        # Increase right margin
-    #legend = list(title = list(text = "Legend")),
     legend = list(
       x = 1.15,                # move legend further right if desired
       y = 1,
@@ -609,25 +595,7 @@ Let's have a look at the relationship between mean signal strength and SNR.
 targeted_mean <- colMeans(processed$IntensityDF)
 targeted_snr <- processed_snr$CorrespondenceMatrix$snr
 
-targeted_mean_snr <- data.frame(cbind(targeted_mean, targeted_snr))
-targeted_mean_snr <- cbind(targeted_mean_snr, rownames(targeted_mean_snr))
-colnames(targeted_mean_snr)[3] <- "Name"
-
-# linear model of mean vs variance and get coefficients
-#regression <- lm(log10(targeted_snr) ~ log10(targeted_mean))
-#coefs <- regression$coefficients
-#coefs <- data.frame(t(coefs))
-#colnames(coefs)[1] <- "Intercept"
-#colnames(coefs)[2] <- "Slope"
-
-# plots
-#scatter <- ggplot() +
-#    theme_minimal() +
-#    ggtitle("Mean-Variance Plot") +
-#    geom_point(data = targeted_mean_snr, aes(x = targeted_mean, y = targeted_snr), color = 'black', fill = 'grey', shape = 21, size = 2) +
-#    geom_point(data = targeted_stats, aes(x = targeted_mean, y = targeted_snr, text = paste0("Marker: ", Name)), color = 'black', fill = 'red3', shape = 21, size = 3) #+
-#    scale_x_log10() +
-#    scale_y_log10()
+targeted_mean_snr <- data.frame(targeted_mean, targeted_snr, Name = colnames(processed$IntensityDF))
 
 mean_snr_plot <- ggplot() +
     theme_minimal() +
@@ -767,7 +735,7 @@ spatial_plot <- ggplot(plot_df, aes(x = x, y = -y, color = factor(cluster_color)
   scale_color_manual(values = c('Noise' = 'grey', 'Signal' = 'red')) + 
   theme_void() +
   labs(
-    title = paste("Spatial Distribution: ", cur_name),
+    title = "TIC Spatial Distribution",
     x = "X", y = "Y", color = "Cluster"
   )
 

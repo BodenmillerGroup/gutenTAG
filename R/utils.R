@@ -125,7 +125,7 @@
 
 # remove duplicated metapeaks for a targeted MSI experiment.
 ## Specify which direction of the expected mass you expect the mass shift to occur in. removeDuplicates will choose the closest metapeak in that direction.
-.removeDuplicates <- function(sample, shift = "right"){
+.removeDuplicates <- function(sample, shift){
 
   cur_df <- sample$processed$IntensityDF
   cur_correspondence <- sample$processed$CorrespondenceMatrix
