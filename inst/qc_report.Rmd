@@ -154,7 +154,6 @@ ggplotly_plot_final <- ggplotly_plot |>
       tickfont = list(size = 14, color = '#cd0000'),
       tickpadding = 0),
     margin = list(r = 1),                        # Increase right margin
-    #legend = list(title = list(text = "Legend")),
     legend = list(
       x = 1.15,                # move legend further right if desired
       y = 1,
