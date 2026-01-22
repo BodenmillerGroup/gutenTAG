@@ -146,7 +146,7 @@
     cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
     # if you expect mass shift to be to the right of the expected mass
-    if(expected_shift == "right"){
+    if(shift == "right"){
       # first select masses that are greater than the expected value
       correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location > unique(cur_pairing$expected_mz_location)]
       # choose the closest one (moot if there is only 1, most common case)
@@ -154,7 +154,7 @@
     }
 
     # if you expect mass shift to be to the right of the expected mass
-    if(expected_shift == "left"){
+    if(shift == "left"){
       # first select masses that are less than the expected value
       correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location < unique(cur_pairing$expected_mz_location)]
       # choose the closest one (moot if there is only 1, most common case)
