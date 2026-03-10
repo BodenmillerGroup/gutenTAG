@@ -21,7 +21,6 @@
 #'
 #' @return A list containing information on the location, limits and width of metapeaks
 #'
-#' @import Cardinal
 #' @export generateMetapeaks
 #'
 #' @examples

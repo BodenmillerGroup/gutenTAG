@@ -5,7 +5,6 @@
 #'
 #' @return An object of the class MSImagingExperiment from Cardinal.
 #'
-#' @import Cardinal
 #' @importFrom matter as.matrix
 #' @export
 #'

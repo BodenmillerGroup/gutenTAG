@@ -5,8 +5,10 @@
 #'
 #' @return A CytoImageList object
 #'
+#' @importFrom abind abind
 #' @importFrom cytomapper CytoImageList
 #' @importFrom cytomapper channelNames
+#' @importFrom EBImage Image
 #'
 #' @export
 #' @examples

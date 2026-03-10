@@ -10,9 +10,6 @@
     colnames(panel) <- c("FeatureMass","Name")
   }
 
-  # rearrange column order so Name is first column
-  dplyr::relocate(panel, "Name", .before = "FeatureMass")
-
   # 2. sort by mass tag size
 
   panel <- dplyr::arrange(panel, panel$FeatureMass)
