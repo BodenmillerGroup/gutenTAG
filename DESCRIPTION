@@ -1,7 +1,7 @@
 Package: gutenTAG
 Type: Package
 Title: MALDI-Imaging Data Processing and Analysis
-Version: 0.1.0
+Version: 0.12.1
 Authors@R: c(
     person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre")),
     person("Pierre", "Bost", role = "aut")
