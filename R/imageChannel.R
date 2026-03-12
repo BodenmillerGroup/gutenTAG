@@ -8,7 +8,7 @@
 #' @param axes Plot axes when imaging.
 #' @param colna If NA values are present, should they be plotted as black background or as transparent?
 #'
-#' @return An image.
+#' @return A \code{cimg} object, returned invisibly. The image is also plotted as a side effect.
 #'
 #' @importFrom imager as.cimg
 #' @importFrom imager add.colour

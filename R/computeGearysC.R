@@ -6,6 +6,7 @@
 #'
 #' @return A vector of Geary's C score for each marker.
 #' @importFrom N2R Knn
+#' @importFrom Matrix t
 #' @export computeGearysC
 #'
 

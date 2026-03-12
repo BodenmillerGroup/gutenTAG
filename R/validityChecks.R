@@ -261,23 +261,6 @@
 
 }
 
-# computeVariogram ####
-.valid.computeVariogram <- function(df, coords){
-
-  # break if intensity dataframe class is not a dataframe
-  if (!is.data.frame(df)) {
-    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
-  }
-
-  # break if spatial coords class is not a dataframe
-  if (!is.data.frame(coords)) {
-    stop("'x' should be a dataframe. It should be the intensity dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$IntensityDF, where x is the output of the 'assignMetapeaks' function")
-  }
-
-
-}
-
-
 # imageChannel ####
 .valid.imageChannel <- function(x, coords, channel_number, quantile_lim, interpolate, axes, colna){
 
@@ -382,33 +365,4 @@
 #}
 
 
-# louvainCluster ####
-.valid.louvainCluster <- function(x, coords, k, metric, resolution){
-
-  # break if coords class is not a dataframe
-  if (!is.data.frame(coords)) {
-    stop("'coords' should be a data.frame. It should be the coordinates dataframe generated from the output of the 'assignMetapeaks' function. Callable via x$SpatialCoords, where x is the output of the 'assignMetapeaks' function")
-  }
-
-  # break if k is not a single numeric
-  if (!is.numeric(k)) {
-    stop("'k' should be a single numeric.")
-  }
-
-  # break if k is not a single numeric
-  if (length(k) > 1) {
-    stop("'k' should be a single numeric.")
-  }
-
-  # break if resolution is not a single numeric
-  if (!is.numeric(resolution)) {
-    stop("'resolution' should be a single numeric.")
-  }
-
-  # break if resolution is not a single numeric
-  if (length(resolution) > 1) {
-    stop("'resolution' should be a single numeric.")
-  }
-
-}
 

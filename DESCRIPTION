@@ -13,23 +13,21 @@ Description: This R package supports the data handing, processing, quality contr
   analysis. First, data is processing using a novel approach involving the construction of metapeaks
   to account for mass shift and the presence of isotopic peaks. Then image-level and spatial quality
   control statistics, such as computing Geary's C scores can be computed for every marker. Furthermore, 
-  spatial analysis can be performed on the high-dimensional images, including constructing variograms 
-  and a variety of clustering algorithms. The package also supports dimensionality reduction methods, 
-  including PCA, NMF and UMAP. Additionally, the package supports image visualisation from cytomapper
+  spatial analysis can be performed on the high-dimensional images. The package also supports
+  dimensionality reduction methods, including PCA, NMF and UMAP. Additionally, the package supports
+  image visualisation from cytomapper
   (and cytoviewer) through the construction of a CytoImageList object. As such, once the data is coerced
   to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
-Depends: 
-  Cardinal,
-  imager
+Depends:
+  Cardinal
 Imports:
+  imager,
   N2R,
   RcppML,
   dplyr,
   ggplot2,
-  gstat,
-  irlba, 
-  igraph, 
-  uwot, 
+  irlba,
+  uwot,
   stats, 
   methods, 
   mclust, 

@@ -8,7 +8,6 @@
 #'
 #' @rawNamespace import(Cardinal, except = peaks)
 #' @import BiocParallel
-#' @import BiocStyle
 #'
 #' @export
 #' @examples

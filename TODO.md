@@ -10,12 +10,6 @@
 
 ### Priority 1 — Bugs that will break on clean install or produce silent wrong results
 
-- [ ] **Fix EBImage missing from DESCRIPTION and NAMESPACE**
-  `EBImage::propagate` (segmentPeakCounts.R) and `EBImage::Image` (asCytoImageList.R) are called but EBImage is not in `DESCRIPTION` Imports or `NAMESPACE`. Add to `Imports` and add `@importFrom EBImage propagate Image` Roxygen tags.
-
-- [ ] **Fix abind missing from DESCRIPTION and NAMESPACE**
-  `abind()` called unqualified in asCytoImageList.R but not declared as a dependency. Add to `Imports` and add `@importFrom abind abind`.
-
 - [ ] **Fix `.removeDuplicates` Inf/-Inf crash on empty shifted mz vector**
   `utils.R` lines 152–162: when `shift == "right"`, `correct_shifted_mzs` can be `numeric(0)`, making `min(numeric(0))` return `Inf` — silently dropping that marker. Add a guard before calling `min()`/`max()` on a possibly empty vector.
 
@@ -39,20 +33,8 @@
 - [ ] **Fix `MulticoreParam` Windows incompatibility in `preProcess.R`**
   `preProcess.R` line 30 unconditionally uses `MulticoreParam` (fork-based, fails on Windows). Apply the same conditional fallback pattern already used in `peakDetection.R`.
 
-- [ ] **Fix DESCRIPTION: Author format, License, LazyData, BiocStyle placement**
-  - `Author` must use `Authors@R:` with `person()` objects
-  - `License: MIT License` → `MIT + file LICENSE` (valid SPDX)
-  - Remove `LazyData: true` (no `data/` directory exists)
-  - Move `BiocStyle` from `Imports` to `Suggests`
-
-- [ ] **Fix duplicate Cardinal import in NAMESPACE**
-  Both `import(Cardinal, except = peaks)` and `import(Cardinal)` appear in NAMESPACE. Remove the unconditional `@import Cardinal` from `generateMetapeaks.R` to avoid R CMD CHECK warnings.
-
 - [ ] **Fix dead code and typo in `.valid.peakDetection`**
   `validityChecks.R` lines 58–62: unreachable `isS4(x)` branch and typo `"MSImagingExperiement"` in the error message.
-
-- [ ] **Fix `louvainCluster` silently overwriting `coords` parameter**
-  `louvainCluster.R` line 51: validated `coords` parameter is unconditionally replaced by `x$SpatialCoords`. When `x` is a bare data frame, this yields `NULL`. Either use the validated parameter or remove it from the signature.
 
 ### Priority 3 — Performance and style issues
 
@@ -60,7 +42,7 @@
   Replace `c()` growing inside loops with `numeric(n)` + index assignment in:
   - `utils.R` lines 100–108 (`intravariance_vector`) and lines 184/193 (`bin_vector`)
   - `computeGearysC.R` lines 26/44 (`geary_vector`)
-  Also replace `1:length(x)` / `1:ncol(df)` with `seq_along()` / `seq_len()` in `utils.R` line 185, `computeVariogram.R` line 23, `computeGearysC.R` line 27.
+  Also replace `1:length(x)` / `1:ncol(df)` with `seq_along()` / `seq_len()` in `utils.R` line 185, `computeGearysC.R` line 27.
 
 - [ ] **Replace `== TRUE` / `== T` comparisons throughout codebase**
   Use logical values directly. `T`/`F` abbreviations are especially dangerous. Affected: `utils.R` line 9, `readPanel.R` line 19, `computeGearysC.R` line 49, `asMSImagingExperiment.R` line 47, `assignMetapeaks.R`.
@@ -70,9 +52,6 @@
 
 - [ ] **Fix `.valid.generateMetapeaks` to validate `x` is `MSImagingExperiment`**
   `validityChecks.R` lines 67–101: `generateMetapeaks("test")` fails with a cryptic downstream error. Add an explicit `is(x, "MSImagingExperiment")` check.
-
-- [ ] **Fix error messages in `.valid.computeVariogram` using wrong variable names**
-  `validityChecks.R` lines 269 and 275: both messages say `"'x' should be a dataframe"` but the arguments are named `df` and `coords`.
 
 ### Priority 4 — Low-priority cleanup
 
@@ -107,7 +86,7 @@
 - [ ] **Add a `## License` section** (MIT, with link to LICENSE file).
 - [ ] **Add Bioconductor installation instructions** (`BiocManager::install()`) as the primary route, with GitHub as the dev-version fallback.
 - [ ] **Add system/dependency note** — Bioconductor dependencies cannot be installed via `install.packages()`; direct users to `BiocManager`.
-- [ ] **Extend the Functionality section** to cover the QC and analysis steps promised in the introduction: `computeGearysC()`, `computeSNR()`, `computeVariogram()`, `louvainCluster()`, and the conversion functions (`asCytoImageList()`, `asSpatialExperiment()`, `asAnnData()`).
+- [ ] **Extend the Functionality section** to cover the QC and analysis steps promised in the introduction: `computeGearysC()`, `computeSNR()`, and the conversion functions (`asCytoImageList()`, `asSpatialExperiment()`, `asAnnData()`).
 - [ ] **Add status badges** (R-CMD-check, Bioconductor build status, license).
 - [ ] **Add `## Contributing` section** or link to `CONTRIBUTING.md` / issue tracker.
 

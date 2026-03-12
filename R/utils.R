@@ -27,14 +27,8 @@
 
       # split strings with spaces into list with individual strings as elements
       new_string <- gsub(" ", "", panel$Name[a])
-      # replace fullstops with underscores
+      # replace dashes with dots
       new_string <- gsub("-", ".", new_string, fixed = TRUE)
-      # if there is a dash at the end of the name, remove it
-      if(endsWith(new_string, "-")){
-
-        new_string <- substr(new_string,1, nchar(new_string)-1)
-
-      }
       # replace names in peakAnnotation
       panel$Name[a] <- new_string
 
