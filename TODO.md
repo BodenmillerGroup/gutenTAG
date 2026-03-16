@@ -1,7 +1,5 @@
 - **make sure that untargeted metapeaks that are weirdly actually assigned to markers are removed**
 
-- estimation criterion for what watershed threshold to use
-
 
 
 ---
@@ -50,9 +48,6 @@
 - [ ] **Add input validation to `generateSeedMz` for `density` parameter**
   Zero or negative `density` causes a cryptic error from `splus2R::peaks`. Add explicit validation and a `@param density` Roxygen entry.
 
-- [ ] **Fix `.valid.generateMetapeaks` to validate `x` is `MSImagingExperiment`**
-  `validityChecks.R` lines 67–101: `generateMetapeaks("test")` fails with a cryptic downstream error. Add an explicit `is(x, "MSImagingExperiment")` check.
-
 ### Priority 4 — Low-priority cleanup
 
 - [ ] **Remove dead and commented-out code blocks**
@@ -67,37 +62,3 @@
 - [ ] **Fix `imageChannel.R` `@return` documentation**
   Function plots as a side effect and returns the `cimg` object invisibly. Document this correctly.
 
----
-
-## README.md Updates
-
-> General note: when next editing README.md, strip out outdated or redundant content and tighten the prose throughout. The current README is roughly half of a complete workflow and contains several inaccuracies.
-
-### Remove / correct outdated content
-
-- [ ] **Remove or update the PCA/NMF/UMAP claim** in the introduction — no exported wrapper functions exist for these yet. Either add the functions or replace the claim with a note that conversion to `SpatialExperiment`/`AnnData` enables downstream dimensionality reduction.
-- [ ] **Fix the `assignMetapeaks` output element list** — it omits `SummarySpectra` (a sixth return element) and does not name the sub-elements of `Untargeted` (`UntargetedIntensity`, `UntargetedCorrespondence`).
-- [ ] **Correct the `preProcess` description** — README says it calls `Cardinal::smoothSpectra`, but the actual code calls `Cardinal::smooth`.
-- [ ] **Fix the `assignMetapeaks` example argument order** — named args `refList = panel, pre = pre` are in the reverse order of the function signature `assignMetapeaks(x, pre, refList, ...)`.
-
-### Add missing sections
-
-- [ ] **Add a `## Citation` section** — point users to `citation("gutenTAG")` and acknowledge Cardinal (Bemis et al. 2023).
-- [ ] **Add a `## License` section** (MIT, with link to LICENSE file).
-- [ ] **Add Bioconductor installation instructions** (`BiocManager::install()`) as the primary route, with GitHub as the dev-version fallback.
-- [ ] **Add system/dependency note** — Bioconductor dependencies cannot be installed via `install.packages()`; direct users to `BiocManager`.
-- [ ] **Extend the Functionality section** to cover the QC and analysis steps promised in the introduction: `computeGearysC()`, `computeSNR()`, and the conversion functions (`asCytoImageList()`, `asSpatialExperiment()`, `asAnnData()`).
-- [ ] **Add status badges** (R-CMD-check, Bioconductor build status, license).
-- [ ] **Add `## Contributing` section** or link to `CONTRIBUTING.md` / issue tracker.
-
-### Prose and formatting fixes
-
-- [ ] **Fix typos in the opening paragraph**: "data handing" → "data handling"; "data is processing" → "data is processed".
-- [ ] **Rewrite the opening paragraph** — it is a copy-paste of `DESCRIPTION`; the README should be a more readable, user-facing expansion.
-- [ ] **Fix heading hierarchy** — numbered steps use `####` (H4) under a `##` (H2) parent; they should be `###` (H3).
-- [ ] **Standardise code fence tags** — some use ` ```r ` (trailing space), others ` ```r `; make them uniform.
-- [ ] **Fix the incomplete sentence** in the metapeak description: "contain information the same molecular species" should read "correspond to the same molecular species".
-- [ ] **Remove the dangling `---` rule** at the end of the file — the document ends abruptly with a thematic break and no closing section.
-- [ ] **Fix the `.ibd file` note** — currently says "not required to read in", which implies it's optional. Reword to clarify it is required for spectral data but does not need to be passed explicitly (Cardinal locates it automatically from the `.imzML` path).
-- [ ] **Resolve `metapeakGeneration` vs `generateMetapeaks`** — the introduction and some roxygen blocks reference a non-existent function `metapeakGeneration`; the actual export is `generateMetapeaks`. Fix all occurrences in README prose.
-- [ ] **Expand the `(and cytoviewer)` aside** — add a sentence explaining what cytoviewer is and how it relates to the package. (Leave wording to user.)

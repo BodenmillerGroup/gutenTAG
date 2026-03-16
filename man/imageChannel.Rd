@@ -30,7 +30,7 @@ imageChannel(
 \item{colna}{If NA values are present, should they be plotted as black background or as transparent?}
 }
 \value{
-An image.
+A \code{cimg} object, returned invisibly. The image is also plotted as a side effect.
 }
 \description{
 Image one channel

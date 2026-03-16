@@ -16,7 +16,7 @@ readPanel <- function(path){
   panel <- read.delim(path, sep = ",", header = TRUE, col.names = c("Name", "FeatureMass"))
 
   # sanity check: columns are correctly named
-  if (is.numeric(panel$Name) == TRUE){
+  if (is.numeric(panel$Name)){
 
     colnames(panel) = c("FeatureMass","Name")
 

@@ -6,7 +6,7 @@
 
   # 1. ensure column names are correct
 
-  if (is.numeric(panel$Name) == T){
+  if (is.numeric(panel$Name)){
     colnames(panel) <- c("FeatureMass","Name")
   }
 

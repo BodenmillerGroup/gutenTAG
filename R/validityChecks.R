@@ -66,6 +66,11 @@
 # metapeakGeneration ####
 .valid.generateMetapeaks <- function(x, threshold, fixed.limits, density){
 
+  # break if x is not a MSImagingExperiment
+  if (!is(x, "MSImagingExperiment")) {
+    stop("'x' should be of class 'MSImagingExperiment'")
+  }
+
   # break if threshold is not a single numeric
   if (length(threshold) > 1) {
     stop("'threshold' should be a single numeric.")
