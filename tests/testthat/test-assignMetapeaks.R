@@ -68,8 +68,4 @@ test_that("assignMetapeaks works",{
                  0.155767504458426, 0.203761595637217))
 
 
-
-
-
-
 })

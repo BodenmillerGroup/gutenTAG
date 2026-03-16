@@ -71,20 +71,20 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 .generateCorrespondence <- function(x, pre, refList, mz_threshold = mz_threshold){
 
   # extract metepeaks and propagation_selection from x
-  metapeaks <- x$metapeaks
+  mpeaks <- x$metapeaks
 
   # get m/z vector
   mz_vector <- as.data.frame(mz(pre))
 
   # Map metapeaks to panel
-  mapping_meta <- N2R::crossKnn(mA = matrix(metapeaks$max),
+  mapping_meta <- N2R::crossKnn(mA = matrix(mpeaks$max),
                                 mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
 
   # remove all mappings below the m/z distance association threshold
   mapping_meta[mapping_meta > mz_threshold] <- 0
   mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_min_ignore_zero)
   #construct correspondence matrix
-  correspondence_matrix <- data.frame(mz_location = metapeaks$max,
+  correspondence_matrix <- data.frame(mz_location = mpeaks$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
                                       marker = refList$Name[mapping_meta_cleaned])
   # get NA cols
@@ -95,12 +95,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
   return(list(
     correspondence_matrix = correspondence_matrix,
-    metapeaks = metapeaks,
+    metapeaks = mpeaks,
     mz_vector = mz_vector)
   )
 
 }
-
 # function for generating final intensity dataframe
 .generateFinalIntensityDF <- function(x, pre, prev_output, refList){
 
@@ -167,11 +166,15 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   correspondence$mean <- mean_intensity
   correspondence$sd <- sd_intensity
 
-  # set corrected sd as the ratio between the residuals (plus sd) and the sd
-  corrected_sd <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
-  residuals <- corrected_sd$residuals
-  correspondence$corrected_sd <- residuals + sd_intensity / sd_intensity
-  # former definition: correspondence_matrix$corrected_sd <- corrected_sd$residuals
+  # corrected_sd: residuals from mean-variance regression, normalised by sd_intensity
+  # this gives a dimensionless score comparable across markers, capturing deviation from
+  # the expected mean-variance trend independent of absolute variability
+  # note: zero-variance channels will produce Inf/-Inf (sd_intensity == 0); handle upstream
+  corrected_sd_model <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
+  residuals <- corrected_sd_model$residuals
+  # correspondence$corrected_sd <- residuals + sd_intensity / sd_intensity  # former (incorrect) definition
+  # correspondence$corrected_sd <- corrected_sd_model$residuals              # original raw residuals
+  correspondence$corrected_sd <- residuals / sd_intensity
 
   # store metapeak width in correspondence matrix
   correspondence$peak_width <- metapeaks$metapeaks$width
@@ -240,9 +243,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 
     channel <- final_intensity_targeted[,j]
 
-    # pixel values pass filter
-    filtered_vals <- channel[indices]
-    channel[!channel %in% filtered_vals] <- NA
+    # set pixels that do not pass the TIC filter to NA using index-based assignment
+    # (I previously used value-membership which could incorrectly retain/exclude pixels with duplicate intensity values)
+    channel[-indices] <- NA
     final_filtered[,j] <- channel
 
   }

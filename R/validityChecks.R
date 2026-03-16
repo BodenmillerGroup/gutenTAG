@@ -55,11 +55,6 @@
     stop("'cores' should be a single numeric.")
   }
 
-  # break if input is
-  if(!isS4(x)){
-    stop("'x' should be an MSImagingExperiement object.")
-  }
-
 }
 
 
