@@ -6,31 +6,36 @@
 \usage{
 imageChannel(
   x,
-  coords = NA,
-  channel_number = 1,
-  quantile_lim = 0.99,
-  interpolate = FALSE,
-  axes = FALSE,
-  colna = "black"
+  coords = NULL,
+  channel = 1,
+  quantile_threshold = 0.99,
+  palette = "viridis",
+  na_colour = "black",
+  ...
 )
 }
 \arguments{
-\item{x}{A targeted intensity dataframe (rows: pixels, cols: features) OR output of assignMetapeaks If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.}
+\item{x}{Output from \code{assignMetapeaks}, or a plain intensity data.frame
+(rows: pixels, cols: features). If a plain data.frame, \code{coords} must also be provided.}
 
-\item{coords}{A spatial coordinates dataframe.}
+\item{coords}{A spatial coordinates data.frame with columns \code{x} and \code{y}.
+Required when \code{x} is a data.frame or matrix.}
 
-\item{channel_number}{The index of the channel to be imaged.}
+\item{channel}{Character name or integer index of the channel to display. Default \code{1}.}
 
-\item{quantile_lim}{A parameter that thresholds the maximum intensity values. Default value is 99 percent. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.}
+\item{quantile_threshold}{Numeric in [0, 1]. Pixel intensities above this quantile are
+capped to that value before plotting. Default \code{0.99}.}
 
-\item{interpolate}{Perform pixel-wise interpolation.}
+\item{palette}{Viridis palette option passed to \code{scale_fill_viridis_c}. One of
+\code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"}, \code{"cividis"},
+etc. Default \code{"viridis"}.}
 
-\item{axes}{Plot axes when imaging.}
+\item{na_colour}{Colour used for NA pixels. Default \code{"black"}.}
 
-\item{colna}{If NA values are present, should they be plotted as black background or as transparent?}
+\item{...}{Additional arguments passed to \code{ggplot2::theme()}.}
 }
 \value{
-A \code{cimg} object, returned invisibly. The image is also plotted as a side effect.
+A \code{ggplot} object.
 }
 \description{
 Image one channel

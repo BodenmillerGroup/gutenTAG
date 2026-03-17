@@ -43,7 +43,7 @@ asMSImagingExperiment <- function(x, remove.na = FALSE){
   idata <- idata[correct_order, ]
 
   # remove NA clause
-  if (remove.na == TRUE){
+  if (remove.na) {
     keep <- !is.na(x$CorrespondenceMatrix$mz_location)
 
     # remove from idata

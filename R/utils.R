@@ -119,13 +119,18 @@
 
 }
 
+# helper: return the candidate mz with the smallest absolute distance to expected_mz
+.choose_closest <- function(cand_mz, expected_mz) {
+  cand_mz[which.min(abs(cand_mz - expected_mz))]
+}
+
 # remove duplicated metapeaks for a targeted MSI experiment.
 # x: output from assignMetapeaks (a list with IntensityDF, CorrespondenceMatrix, SpatialCoords).
-# shift: direction of expected mass shift ("left" or "right"). removeDuplicates will choose the closest metapeak in that direction.
+# shift: direction of expected mass shift ("left", "right", or "closest").
 .removeDuplicates <- function(x, shift){
 
-  if (!shift %in% c("left", "right")) {
-    stop("'shift' must be either \"left\" or \"right\".")
+  if (!shift %in% c("left", "right", "closest")) {
+    stop("'shift' must be \"left\", \"right\", or \"closest\".")
   }
 
   cur_df <- x$IntensityDF
@@ -147,19 +152,27 @@
     # extract cur pairing
     cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
-    compare_fn <- if (shift == "right") `>` else `<`
-    select_fn  <- if (shift == "right") min else max
+    if (shift == "closest") {
 
-    correct_shifted_mzs <- cur_pairing$mz_location[
-      compare_fn(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
-    ]
+      correct_peak <- .choose_closest(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
 
-    if (length(correct_shifted_mzs) == 0) {
-      warning(paste0("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak."))
-      correct_shifted_mzs <- cur_pairing$mz_location
+    } else {
+
+      compare_fn <- if (shift == "right") `>` else `<`
+      select_fn  <- if (shift == "right") min else max
+
+      correct_shifted_mzs <- cur_pairing$mz_location[
+        compare_fn(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
+      ]
+
+      if (length(correct_shifted_mzs) == 0) {
+        warning(paste0("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak."))
+        correct_shifted_mzs <- cur_pairing$mz_location
+      }
+
+      correct_peak <- select_fn(correct_shifted_mzs)
+
     }
-
-    correct_peak <- select_fn(correct_shifted_mzs)
 
     correct_peaks[idx] <- correct_peak
 

@@ -22,7 +22,6 @@ Depends:
   Cardinal (>= 3.6.2)
 Imports:
   ggplot2,
-  imager,
   N2R,
   ProtGenerics,
   dplyr,
@@ -42,7 +41,7 @@ Imports:
   flexmix
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Suggests:
     BiocStyle,
     knitr,

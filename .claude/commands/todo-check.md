@@ -40,3 +40,26 @@ For each group, produce a table with columns:
 Omit any tasks that are already ticked (`[x]`) or struck through (`~~…~~`).
 
 After the tables, print a one-line count: `X open tasks across Y groups.`
+
+## Step 3 — Display complexity ranking
+
+After the task table, display the following complexity ranking (simplest to most complex). Update it if tasks have been added, removed, or completed since this was last revised.
+
+| Rank | Task | Why |
+|------|------|-----|
+| 1 | **Replace `== TRUE` / `== T` comparisons** | Mechanical find-and-replace across files |
+| 2 | **Replace all mentions of "density" with "sparsity"** | Likely rename across a few files |
+| 3 | **Remove dead and commented-out code blocks** | Straightforward deletion, low risk |
+| 4 | **Fix `MulticoreParam` Windows incompatibility** | Pattern already exists in `peakDetection.R`, just copy it |
+| 5 | **Add input validation to `generateSeedMz` for `density` parameter** | Small guard + roxygen entry |
+| 6 | **Vectorise `cor` computation in `.finaliseCorrespondence`** | Single `cor()` call replacement |
+| 7 | **Replace column loop in `.filterTIC` with index-based assignment** | Already resolved by bug fix — consider removing |
+| 8 | **Replace vector-growing loops with pre-allocated vectors** | Mechanical but spread across multiple files |
+| 9 | **Fix NaN propagation in `computeGearysC` for zero-variance channels** | Small guard, but need to verify downstream behaviour |
+| 10 | **Replace `cbind` growing loop in `.generateFinalIntensityDF`** | Pre-allocation requires knowing dimensions upfront |
+| 11 | **Add `shift = "closest"` option to `.removeDuplicates`** | Small addition but needs `choose_closest` helper and validation update |
+| 12 | **Investigate `'x' should be a list object` error** | Needs reproduction and diagnosis first |
+| 13 | **Determine minimum compatible Cardinal version** | Requires systematic testing across versions |
+| 14 | **Add QC plot for mean-variance residuals** | New ggplot function, needs design decisions |
+| 15 | **Remove/reassign untargeted metapeaks incorrectly assigned to markers** | Requires understanding of metapeak assignment logic |
+| 16 | **Move discarded duplicate peaks into `Untargeted`** | Most involved — structural change to output, needs careful index tracking |
