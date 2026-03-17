@@ -67,3 +67,52 @@ test_that("computeGearysC works",{
 
 })
 
+test_that("computeGearysC edge cases work on synthetic data", {
+
+  # minimal synthetic fixture — 20 pixels on a 4x5 grid, 4 marker channels:
+  #   col1: normal variation (spatially structured)
+  #   col2: constant non-zero (zero variance) — should return NA_real_, not NaN
+  #   col3: all NA                             — should return NA_real_, not NaN
+  #   col4: normal variation (independent)
+  n <- 20
+  set.seed(42)
+  fake_intensity <- data.frame(
+    marker1  = rnorm(n, mean = 10, sd = 2),
+    constant = rep(5.0, n),
+    all_na   = rep(NA_real_, n),
+    marker2  = rnorm(n, mean = 3, sd = 1)
+  )
+  fake_coords <- data.frame(
+    x = rep(1:4, each = 5),
+    y = rep(1:5, times = 4)
+  )
+  fake_correspondence <- data.frame(
+    marker       = colnames(fake_intensity),
+    mz_location  = c(900.1, 901.2, 902.3, 903.4)
+  )
+  fake_processed <- list(
+    IntensityDF          = fake_intensity,
+    SpatialCoords        = fake_coords,
+    CorrespondenceMatrix = fake_correspondence
+  )
+
+  result <- computeGearysC(fake_processed, verbose = FALSE, update_correspondence = FALSE)
+
+  # return length matches number of marker channels
+  expect_equal(length(result), ncol(fake_intensity))
+
+  # zero-variance (constant non-zero) channel returns NA_real_, not NaN (element 2)
+  expect_true(is.na(result[2]))
+  expect_false(is.nan(result[2]))
+
+  # all-NA channel returns NA_real_, not NaN (element 3)
+  expect_true(is.na(result[3]))
+  expect_false(is.nan(result[3]))
+
+  # update_correspondence = TRUE and FALSE return the same numeric scores
+  scores_vec  <- computeGearysC(fake_processed, verbose = FALSE, update_correspondence = FALSE)
+  updated_obj <- computeGearysC(fake_processed, verbose = FALSE, update_correspondence = TRUE)
+  expect_equal(scores_vec, updated_obj$CorrespondenceMatrix$GearysC)
+
+})
+

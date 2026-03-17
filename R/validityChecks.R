@@ -58,7 +58,7 @@
 }
 
 
-# metapeakGeneration ####
+# generateMetapeaks ####
 .valid.generateMetapeaks <- function(x, threshold, fixed.limits, sparsity){
 
   # break if x is not a MSImagingExperiment
@@ -126,9 +126,13 @@
 # assignMetapeaks ####
 .valid.assignMetapeaks <- function(x, pre, refList, mz_threshold){
 
-  # break if input is not a list
+  # break if input is not a list with the required fields
   if (!is(x, "list")) {
-    stop("'x' should be a list object. It must explicitly be the output of the 'metapeakGeneration' function.")
+    stop("'x' should be a list object. It must be the output of the 'generateMetapeaks' function.")
+  }
+
+  if (!all(c("metapeaks", "propagation_selection") %in% names(x))) {
+    stop("'x' must contain 'metapeaks' and 'propagation_selection'. It must be the output of the 'generateMetapeaks' function.")
   }
 
   # break if mz_threshold is not a single numeric

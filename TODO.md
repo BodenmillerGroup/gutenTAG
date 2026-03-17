@@ -10,8 +10,6 @@
 
 ### Priority 1 — Bugs that will break on clean install or produce silent wrong results
 
-- [ ] **Investigate `'x' should be a list object` error in `assignMetapeaks`**
-  Users hitting `Error in .valid.assignMetapeaks(x, pre, refList, mz_threshold): 'x' should be a list object. It must explicitly be the output of the 'metapeakGeneration' function.` — determine whether this is a validity check that is too strict, a documentation issue, or a genuine misuse of the function.
 
 - [ ] **Determine minimum compatible Cardinal version**
   Currently pinned to `>= 3.6.2` in DESCRIPTION to avoid a version mismatch (Cardinal 3.x changed `summarizeFeatures` API: `stat=` → `FUN=`, dropping `"nnzero"`). Investigate the oldest Cardinal version that works correctly with gutenTAG and update the version pin accordingly.
@@ -36,17 +34,6 @@
 
 ### Priority 4 — Low-priority cleanup
 
-- [ ] **Expand tests for `computeGearysC`**
-  `tests/testthat/test-computeGearysC.R`: add tests identified by test-suggester agent:
-  - Zero-variance (constant non-zero) channel returns `NA_real_`, not `NaN` — core new behaviour, currently untested
-  - All-NA channel returns `NA_real_` (exercises `is.na(Var_X)` guard branch)
-  - `expect_false(is.nan(...))` assertion to pin `NA_real_` vs old `NaN` contract
-  - `update_correspondence` invalid type triggers validity error (only `verbose` path is currently tested)
-  - `update_correspondence = TRUE` vs `FALSE` return the same numeric scores
-  - Return vector length equals `ncol(IntensityDF)`
-  - Single-column `IntensityDF` edge case (exercises `seq_len` on length-1 sequence)
-  - `verbose = TRUE` runs without error
-  - Consider refactoring to one concept per `test_that` block with a shared `helper-computeGearysC.R` fixture
 
 - [ ] **Add QC plot for mean-variance residuals**
   Create a ggplot of `log(1 + mean_intensity)` vs `corrected_sd` residuals. Colour untargeted metapeaks in grey and annotated (targeted) ones in red. Useful for validating the `corrected_sd` metric in the correspondence matrix.
