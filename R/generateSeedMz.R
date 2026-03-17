@@ -2,12 +2,19 @@
 #' @description Generate seeds for the metapeak algorithm
 #' @param count_df A data frame with columns mz and count
 #' @param detection_threshold Number of counts below which to ignore peaks
+#' @param sparsity Controls the minimum separation between detected peaks.
+#'   Must be a single positive number. Higher values enforce greater spacing
+#'   between returned seed m/z values (fewer seeds detected); lower values
+#'   allow more closely-spaced seeds.
 #' @return A vector of seeds in terms of m/z values
 #' @export
-generateSeedMz <- function(count_df, detection_threshold = 0, density = 3) {
+generateSeedMz <- function(count_df, detection_threshold = 0, sparsity = 3) {
+
+  if (!is.numeric(sparsity) || length(sparsity) != 1 || sparsity <= 0)
+    stop("'sparsity' must be a single positive number.")
 
   # constraint for how far apart metapeaks should be
-  span_local_maxima <- density / .mzScalingFactor(count_df)
+  span_local_maxima <- sparsity / .mzScalingFactor(count_df)
 
   # find peaks
   counts <- count_df$count

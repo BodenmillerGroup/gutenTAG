@@ -59,7 +59,7 @@
 
 
 # metapeakGeneration ####
-.valid.generateMetapeaks <- function(x, threshold, fixed.limits, density){
+.valid.generateMetapeaks <- function(x, threshold, fixed.limits, sparsity){
 
   # break if x is not a MSImagingExperiment
   if (!is(x, "MSImagingExperiment")) {
@@ -89,13 +89,13 @@
     stop("fixed.limits must be a single numeric value or null")
   }
 
-  # break if density parameter anything other than NULL or a positive numeric value
-  if (!(is.null(density) | is.numeric(density))){
-    stop("density must be a single numeric value.")
+  # break if sparsity parameter anything other than NULL or a positive numeric value
+  if (!(is.null(sparsity) | is.numeric(sparsity))){
+    stop("sparsity must be a single numeric value.")
   }
 
-  #if (density <= 0){
-  #  stop("density must be a single numeric value.")
+  #if (sparsity <= 0){
+  #  stop("sparsity must be a single numeric value.")
   #}
 
 }

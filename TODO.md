@@ -34,9 +34,6 @@
 ### Priority 3 — Performance and style issues
 
 
-- [ ] **Add input validation to `generateSeedMz` for `density` parameter**
-  Zero or negative `density` causes a cryptic error from `splus2R::peaks`. Add explicit validation and a `@param density` Roxygen entry.
-
 ### Priority 4 — Low-priority cleanup
 
 - [ ] **Expand tests for `computeGearysC`**
@@ -62,14 +59,4 @@
 
 
 
-### Runtime Bottlenecks — `assignMetapeaks.R`
-
-- [ ] **Replace `cbind` growing loop in `.generateFinalIntensityDF`**
-  `assignMetapeaks.R` lines 117–125: `cbind(final_intensity, intensity_temp)` copies the entire matrix on every iteration. Pre-allocate `matrix(0, nrow = n_pixels, ncol = nrow(correspondence))` and fill by column index. Likely the largest runtime bottleneck on big datasets.
-
-- [ ] **Replace column loop in `.filterTIC` with index-based assignment**
-  `assignMetapeaks.R` lines 239–248: `for` loop over columns using `!channel %in% filtered_vals` is O(n²) per column. Replace with direct index assignment using the already-computed `indices` vector. Also fixes the existing value-membership correctness bug (P1).
-
-- [ ] **Vectorise `cor` computation in `.finaliseCorrespondence`**
-  `assignMetapeaks.R` line 183: `apply(..., FUN = function(x) cor(...))` computes correlations column-by-column. Replace with a single `cor()` call on the full matrix.
 

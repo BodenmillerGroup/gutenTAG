@@ -30,13 +30,6 @@ test_that("assignMetapeaks works",{
                                                  8.5176, 4.3037, 6.9910, 4.1411,
                                                  5.9847, 4.5863), tolerance = 0.001)
 
-  ### Uncomment when CorrespondenceMatrix$expected_mz_location is correctly changed from character to numeric ###
-
-  # check if output of correspondence matrix is the same
-  #expect_equal(cur_test$CorrespondenceMatrix$mean, c(7.84679001732988, 16.1002595411377, NA, NA, 26.0409182022813,
-  #                                                   NA, 14.4482423456346, 9.41933313316087, 4.88193039649564, 14.7482120965546,
-  #                                                   1.71918838044124, 6.78957980506437, 8.7250571739829))
-
   # check if spatial coordinates are correct
   expect_equal(range(cur_test$SpatialCoords), c(1, 16))
 

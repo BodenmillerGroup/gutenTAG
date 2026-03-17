@@ -9,7 +9,7 @@ generateMetapeaks(
   threshold = 0.01,
   hist_smooth_factor = 1,
   fixed.limits = NULL,
-  density = 3
+  sparsity = 3
 )
 }
 \arguments{

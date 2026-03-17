@@ -113,14 +113,16 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   metapeaks <- prev_output$metapeaks
 
   # create untargeted final intensity dataframe
-  final_intensity <- c()
+  # raw_intensity is mz_bins x pixels (spectra() convention), so ncol = n_pixels
+  n_pixels    <- ncol(raw_intensity)
+  n_metapeaks <- nrow(correspondence)
+  final_intensity <- matrix(0, nrow = n_pixels, ncol = n_metapeaks)
   eps <- sqrt(.Machine$double.eps)
-  for (k in seq_len(nrow(correspondence))) {
+  for (k in seq_len(n_metapeaks)) {
     # which mz locations are inside the peak (boolean)
     selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps & mz_vector$mz <= metapeaks$limits[k, 2] + eps
     # sum the intensity of the mz locations inside the peak
-    intensity_temp <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
-    final_intensity <- cbind(final_intensity, intensity_temp)
+    final_intensity[, k] <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
   }
 
   # get names for metapeak values
@@ -182,8 +184,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # total signal of each peak
   total_signal <- colSums(raw_intensity)
 
-  # correlation between the marker intensity and total raw signal intensity
-  total_signal_correlation <- apply(final_intensity, MARGIN = 2, FUN = function(x) {cor(log(x + 1), log(1 + total_signal))})
+  # correlation between each marker's intensity and total raw signal intensity
+  total_signal_correlation <- drop(cor(log(final_intensity + 1), log(1 + total_signal)))
   correspondence$total_signal_correlation <- total_signal_correlation^2
 
   # Remove all un-annotated peaks from correspondence matrix
@@ -237,18 +239,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # which pixels pass filtering
   indices <- which(tic %in% tic_filtered)
 
-  # create zero matrix with correct dims
-  final_filtered <- matrix(NA, nrow = nrow(final_intensity_targeted), ncol = ncol(final_intensity_targeted))
-  for (j in 1:ncol(final_intensity_targeted)){
-
-    channel <- final_intensity_targeted[,j]
-
-    # set pixels that do not pass the TIC filter to NA using index-based assignment
-    # (I previously used value-membership which could incorrectly retain/exclude pixels with duplicate intensity values)
-    channel[-indices] <- NA
-    final_filtered[,j] <- channel
-
-  }
+  # set all pixels that do not pass the TIC filter to NA across all channels at once
+  final_filtered <- as.matrix(final_intensity_targeted)
+  final_filtered[-indices, ] <- NA
 
   # add column names to filtered dataframe
   final_filtered <- data.frame(final_filtered)
