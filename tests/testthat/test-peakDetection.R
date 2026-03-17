@@ -3,14 +3,14 @@ test_that("peakDetection works",{
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- Cardinal::readMSIData(path)
-  pre <- preProcess(raw, cores = 2)
+  pre <- preProcess(raw)
 
   # test that the object loaded in is of the correct class
   expect_s4_class(pre, "MSImagingExperiment")
   expect_false(Cardinal::isCentroided(pre))
 
   # test that message is generated during peakDetection
-  cur_test <- peakDetection(raw, snr = 3, cores = 2)
+  cur_test <- peakDetection(raw, snr = 3)
 
   # test that the object after peakDetection is still the correct object class
   expect_s4_class(cur_test, "MSImagingExperiment")
@@ -31,9 +31,9 @@ test_that("peakDetection works",{
   expect_equal(dim(Cardinal::coord(cur_test)), c(256, 2))
 
   # test if errors in arguments throws errors
-  expect_error(peakDetection(x = "test", snr = 3, win = 50, cores = 2))
-  expect_error(peakDetection(x = test, snr = -1, win = 50, cores = 2))
-  expect_error(peakDetection(x = cur_test, snr = 3, win = 50, cores = "2"))
+  expect_error(peakDetection(x = "test", snr = 3, win = 50))
+  expect_error(peakDetection(x = test, snr = -1, win = 50))
+  expect_error(peakDetection(x = cur_test, snr = 3, win = 50, BPPARAM = "not_a_param"))
 
 
 })

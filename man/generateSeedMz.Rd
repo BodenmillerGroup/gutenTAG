@@ -10,6 +10,11 @@ generateSeedMz(count_df, detection_threshold = 0, sparsity = 3)
 \item{count_df}{A data frame with columns mz and count}
 
 \item{detection_threshold}{Number of counts below which to ignore peaks}
+
+\item{sparsity}{Controls the minimum separation between detected peaks.
+Must be a single positive number. Higher values enforce greater spacing
+between returned seed m/z values (fewer seeds detected); lower values
+allow more closely-spaced seeds.}
 }
 \value{
 A vector of seeds in terms of m/z values

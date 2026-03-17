@@ -63,8 +63,20 @@ panel <- readPanel(path = panel_path)
 The `preProcess` function applies `Cardinal::normalize`, `Cardinal::smooth`, and `Cardinal::reduceBaseline` in series. The output is an `MSImagingExperiment` object. Alternatively, you can call the Cardinal functions directly.
 
 ```r
-pre <- preProcess(rawFile, cores = 2)
+pre <- preProcess(rawFile)
 ```
+
+**Parallelisation:** `preProcess` and `peakDetection` both accept a `BPPARAM` argument for parallel execution via `BiocParallel`. Register a backend once at the start of your session and all subsequent calls will use it automatically:
+
+```r
+# Linux / macOS
+BiocParallel::register(BiocParallel::MulticoreParam(workers = 4))
+
+# Windows
+BiocParallel::register(BiocParallel::SnowParam(workers = 4))
+```
+
+See the package vignette for full details.
 
 ### 3. Processing
 

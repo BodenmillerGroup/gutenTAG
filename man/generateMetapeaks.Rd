@@ -21,7 +21,7 @@ generateMetapeaks(
 
 \item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
 
-\item{density}{A density parameter controlling the permissible distance between metapeaks. Small density values (i.e. 1) allow closer metapeaks, while higher values enforce greater spacing.}
+\item{sparsity}{A sparsity parameter controlling the permissible distance between metapeaks. Higher sparsity values enforce greater spacing (fewer metapeaks detected); lower values allow more closely-spaced metapeaks.}
 }
 \value{
 A list containing information on the location, limits and width of metapeaks

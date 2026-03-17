@@ -3,8 +3,8 @@ test_that("generateMetapeaks works",{
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
-  pre <- preProcess(raw, cores = 2)
-  peaks <- peakDetection(pre, cores = 2)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
 
   # test that the object after peakDetection is still the correct object class
   expect_s4_class(peaks, "MSImagingExperiment")

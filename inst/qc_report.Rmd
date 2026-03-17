@@ -99,6 +99,18 @@ plotMeanVariance(x = processed, interactive = TRUE)
 ```{r mean_var_annotated, warning=FALSE, out.width="100%", message=FALSE}
 plotMeanVariance(x = processed, annotated_only = TRUE, interactive = TRUE)
 ```
+
+## Residuals
+
+```{r mean_var_residuals, warning=FALSE, out.width="100%", message=FALSE}
+plotMeanVarianceResiduals(x = processed, interactive = TRUE)
+```
+
+## Standardised Residuals
+
+```{r mean_var_std_residuals, warning=FALSE, out.width="100%", message=FALSE}
+plotMeanVarianceResiduals(x = processed, standardised = TRUE, interactive = TRUE)
+```
 :::
 
 ### Geary's C: Spatial QC

@@ -306,7 +306,99 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
 }
 
 
-# ── 4. plotGearysC ────────────────────────────────────────────────────────────
+# ── 4. plotMeanVarianceResiduals ───────────────────────────────────────────────
+
+#' Plot Mean-Variance Residuals
+#'
+#' @description Scatter plot of residuals from a linear fit of
+#'   \code{log(1 + sd)} against \code{log(1 + mean)} across all metapeaks.
+#'   A horizontal reference line at zero is drawn in red. Annotated
+#'   (targeted) metapeaks are coloured \code{red3}; untargeted metapeaks
+#'   are shown in grey. Useful for identifying outlier markers that deviate
+#'   from the mean-variance trend.
+#'
+#' @param x List output of \code{\link{assignMetapeaks}}.
+#' @param standardised Logical; if \code{TRUE}, the y-axis shows
+#'   \code{residuals / sd} (dimensionless standardised residuals).
+#'   Default \code{FALSE}.
+#' @param interactive Logical; if \code{TRUE} returns a \code{plotly} object.
+#'   Requires the \pkg{plotly} package. Default \code{FALSE}.
+#'
+#' @return A \code{ggplot} object, or a \code{plotly} object when
+#'   \code{interactive = TRUE}.
+#'
+#' @examples
+#' \dontrun{
+#'   plotMeanVarianceResiduals(x = processed)
+#'   plotMeanVarianceResiduals(x = processed, standardised = TRUE)
+#'   plotMeanVarianceResiduals(x = processed, interactive = TRUE)
+#' }
+#' @export
+plotMeanVarianceResiduals <- function(x, standardised = FALSE,
+                                      interactive = FALSE) {
+
+  all_df         <- data.frame(x$Untargeted$UntargetedIntensity,
+                                check.names = FALSE)
+  mean_intensity <- colMeans(all_df)
+  sd_intensity   <- apply(all_df, MARGIN = 2, FUN = sd)
+
+  lm_fit    <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
+  raw_resid <- lm_fit$residuals
+  std_resid <- raw_resid / sd_intensity
+
+  resid_df <- data.frame(
+    mean      = mean_intensity,
+    residual  = if (standardised) std_resid else raw_resid,
+    annotated = colnames(all_df) %in%
+                  paste0(round(x$CorrespondenceMatrix$mz_location, 2), " m/z"),
+    label     = colnames(all_df),
+    stringsAsFactors = FALSE
+  )
+
+  annotated_idx <- which(resid_df$annotated)
+  cm_labels <- setNames(x$CorrespondenceMatrix$marker,
+                        paste0(round(x$CorrespondenceMatrix$mz_location, 2), " m/z"))
+  resid_df$label[annotated_idx] <- cm_labels[resid_df$label[annotated_idx]]
+
+  y_label <- if (standardised) "Standardised residuals" else "Residuals"
+  title   <- if (standardised) "Standardised Residuals vs Mean Intensity" else
+               "Residuals vs Mean Intensity"
+
+  untargeted_df <- resid_df[!resid_df$annotated, ]
+  targeted_df   <- resid_df[ resid_df$annotated, ]
+
+  p <- ggplot() +
+    theme_minimal() +
+    ggtitle(title) +
+    geom_hline(yintercept = 0, color = "red", linetype = "solid") +
+    geom_point(
+      data  = untargeted_df,
+      aes(x = log(1 + .data[["mean"]]), y = .data[["residual"]]),
+      color = "black", fill = "grey", shape = 21, size = 2
+    ) +
+    geom_point(
+      data  = targeted_df,
+      aes(x = log(1 + .data[["mean"]]),
+          y = .data[["residual"]],
+          text = paste0("Marker: ", .data[["label"]])),
+      color = "black", fill = "red3", shape = 21, size = 3
+    ) +
+    labs(x = "log(1 + mean)", y = y_label)
+
+  if (!interactive) return(p)
+
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop(
+      "Package 'plotly' is required for interactive = TRUE. ",
+      "Install it with install.packages('plotly')."
+    )
+  }
+
+  plotly::ggplotly(p, dynamicTicks = TRUE)
+}
+
+
+# ── 5. plotGearysC ────────────────────────────────────────────────────────────
 
 #' Plot Geary's C Score per Marker
 #'
@@ -347,7 +439,7 @@ plotGearysC <- function(x) {
 }
 
 
-# ── 5. plotSNR ────────────────────────────────────────────────────────────────
+# ── 6. plotSNR ────────────────────────────────────────────────────────────────
 
 #' Plot Signal-to-Noise Ratio per Marker
 #'

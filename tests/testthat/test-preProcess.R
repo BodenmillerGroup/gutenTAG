@@ -8,7 +8,7 @@ test_that("preProcess works",{
 
   # test that message is generated during preProcessing
   #expect_message(cur_test <- preProcess(raw, cores = 2))
-  cur_test <- preProcess(raw, cores = 2)
+  cur_test <- preProcess(raw)
 
   # test that the object after preProcess is still the correct object class
   expect_s4_class(cur_test, "MSImagingExperiment")
@@ -23,7 +23,10 @@ test_that("preProcess works",{
                tolerance = 0.001)
 
   # test if character in first argument throws error
-  expect_error(preProcess("test", cores = 2))
+  expect_error(preProcess("test"))
+
+  # test if invalid BPPARAM throws error
+  expect_error(preProcess(raw, BPPARAM = "not_a_param"))
 
 })
 

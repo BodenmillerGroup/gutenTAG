@@ -4,7 +4,7 @@
 \alias{peakDetection}
 \title{Peak Detection}
 \usage{
-peakDetection(x, snr = 3, win = 50, cores = 1)
+peakDetection(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam())
 }
 \arguments{
 \item{x}{A pre-processing MSImagingExperiment object}
@@ -13,7 +13,12 @@ peakDetection(x, snr = 3, win = 50, cores = 1)
 
 \item{win}{Window size over which moving noise levels are calculated.}
 
-\item{cores}{Number of cores to use for peak detection.}
+\item{BPPARAM}{A \code{\link[BiocParallel]{BiocParallelParam}} object
+controlling parallel execution. Defaults to
+\code{\link[BiocParallel]{bpparam}()}, which uses the session-wide
+registered backend. Use \code{BiocParallel::MulticoreParam(n)} on
+Linux/macOS or \code{BiocParallel::SnowParam(n)} on Windows for
+multi-core processing.}
 }
 \value{
 An MSImagingExperiment object containing a list of detected peaks
@@ -26,6 +31,6 @@ path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)
-pre <- preProcess(raw, cores = 2)
+pre <- preProcess(raw)
 peakDetection(pre)
 }

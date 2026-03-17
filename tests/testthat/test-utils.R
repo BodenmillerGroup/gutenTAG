@@ -35,7 +35,7 @@ test_that(".translate_coordinates works",{
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
-  pre <- preProcess(raw, cores = 2)
+  pre <- preProcess(raw)
 
   coords <- as.data.frame(Cardinal::coord(pre))
 

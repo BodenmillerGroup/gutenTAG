@@ -7,15 +7,42 @@
 computeGearysC(x, verbose = FALSE, update_correspondence = FALSE)
 }
 \arguments{
-\item{x}{Output from assignMetapeaks}
+\item{x}{A list. Output from \code{\link{assignMetapeaks}}, containing at
+minimum \code{IntensityDF} (pixels x markers intensity matrix),
+\code{SpatialCoords} (pixels x 2 coordinate data.frame), and
+\code{CorrespondenceMatrix}.}
 
-\item{verbose}{Boolean flag for verbose output}
+\item{verbose}{logical. If \code{TRUE}, passes verbose output through to the
+internal \code{Knn} nearest-neighbour call. Default \code{FALSE}.}
 
-\item{update_correspondence}{Should the output from computing Geary's C score be added to the Correspondence Matrix (bool)}
+\item{update_correspondence}{logical. If \code{TRUE}, appends a \code{GearysC}
+column to \code{x$CorrespondenceMatrix} and returns the full updated list.
+If \code{FALSE} (default), returns a numeric vector of Geary's C scores,
+one per marker channel.}
 }
 \value{
-A vector of Geary's C score for each marker.
+If \code{update_correspondence = FALSE}, a numeric vector of length
+  equal to the number of marker channels, with \code{NA} for channels that
+  have zero or missing variance. If \code{update_correspondence = TRUE},
+  the input list \code{x} with a \code{GearysC} column appended to
+  \code{x$CorrespondenceMatrix}.
 }
 \description{
-Compute Geary's C score for each marker.
+Computes Geary's C spatial autocorrelation statistic for each marker channel
+in the intensity matrix. Values close to 0 indicate strong positive spatial
+autocorrelation; values close to 2 indicate negative autocorrelation; a value
+of 1 indicates no spatial structure. Channels with zero variance (e.g.
+all-zero after failed peak detection) or all-NA pixels return \code{NA}.
+}
+\examples{
+path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+panel <- readPanel(path = panel_path)
+raw <- readMSIData(path)
+pre <- preProcess(raw, cores = 2)
+peaks <- peakDetection(pre, cores = 2)
+metapeaks <- generateMetapeaks(peaks)
+processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+computeGearysC(processed, verbose = FALSE)
+
 }

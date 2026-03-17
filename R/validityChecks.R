@@ -1,27 +1,23 @@
 #### Integration tests ####
 
 # preProcess ####
-.valid.preProcess <- function(x, cores) {
+.valid.preProcess <- function(x, BPPARAM) {
 
   # break if input is not a MSImagingExperiment
   if (!is(x, "MSImagingExperiment")) {
     stop("'x' should be of class 'MSImagingExperiment'")
   }
 
-  # break if cores argument is anything other than a single number
-  if (length(cores) > 1) {
-    stop("'cores' should be a single numeric.")
-  }
-
-  if (!is.numeric(cores)) {
-    stop("'cores' should be a single numeric.")
+  # break if BPPARAM is not a BiocParallelParam object
+  if (!is(BPPARAM, "BiocParallelParam")) {
+    stop("'BPPARAM' should be a BiocParallelParam object (e.g. BiocParallel::SerialParam()).")
   }
 
 }
 
 
 # peakDetection ####
-.valid.peakDetection <- function(x, snr, win, cores){
+.valid.peakDetection <- function(x, snr, win, BPPARAM){
 
   # break if input is not a MSImagingExperiment
   if (!is(x, "MSImagingExperiment")) {
@@ -46,13 +42,9 @@
     stop("'win' should be a single numeric.")
   }
 
-  # break if cores is not a single numeric
-  if (length(cores) > 1) {
-    stop("'cores' should be a single numeric.")
-  }
-
-  if (!is.numeric(cores)) {
-    stop("'cores' should be a single numeric.")
+  # break if BPPARAM is not a BiocParallelParam object
+  if (!is(BPPARAM, "BiocParallelParam")) {
+    stop("'BPPARAM' should be a BiocParallelParam object (e.g. BiocParallel::MulticoreParam(4)).")
   }
 
 }

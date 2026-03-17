@@ -201,7 +201,7 @@ This can be done simply using the `preProcess` function from this
 package, which can be implemented as follows.
 
 ```{r pre-processing}
-pre <- preProcess(rawFile, cores = 2)
+pre <- preProcess(rawFile)
 ```
 
 This function is a wrapper for the Cardinal functions `normalize`,
@@ -216,7 +216,7 @@ pre <- rawFile |>
     Cardinal::normalize(method = "tic") |>
     smoothSignal(method = "gaussian", plot = FALSE) |>
     reduceBaseline(method = "locmin") |>
-    process(BPPARAM = MulticoreParam(workers = 2))
+    process(BPPARAM = BiocParallel::bpparam())
 
 ```
 
@@ -234,7 +234,7 @@ spectra. This function is essentially a wrapper for
 detection algorithm for robust noise evaluation.
 
 ```{r Peak detection}
-detected <- peakDetection(pre, snr = 3, cores = 2)
+detected <- peakDetection(pre, snr = 3)
 ```
 
 ### Metapeak generation {#metapeak-generation}
@@ -283,6 +283,64 @@ parameters can be adjusted to improve results.
 
 ```{r Generate final output}
 processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
+```
+
+## Parallelisation {#parallelisation}
+
+gutenTAG uses the `BiocParallel` framework for parallel processing. Both
+`preProcess` and `peakDetection` accept a `BPPARAM` argument that accepts
+any `BiocParallelParam` object. By default, both functions use
+`BiocParallel::bpparam()`, which returns the session-wide registered backend.
+
+### Setting a backend for the session
+
+The recommended approach is to register a backend once at the top of your
+script, before calling any gutenTAG functions:
+
+```{r parallelisation-register, eval=FALSE}
+# Linux / macOS — fork-based, lowest overhead
+BiocParallel::register(BiocParallel::MulticoreParam(workers = 4))
+
+# Windows — socket-based (also works on Linux/macOS)
+BiocParallel::register(BiocParallel::SnowParam(workers = 4))
+
+# Single-core (no parallelisation, all platforms)
+BiocParallel::register(BiocParallel::SerialParam())
+```
+
+After registering, all subsequent calls to `preProcess` and `peakDetection`
+will use the registered backend automatically:
+
+```{r parallelisation-registered-call, eval=FALSE}
+pre      <- preProcess(rawFile)
+detected <- peakDetection(pre, snr = 3)
+```
+
+### Passing a backend per call
+
+You can also pass a backend directly to override the registered default for a
+single call:
+
+```{r parallelisation-per-call, eval=FALSE}
+pre      <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
+detected <- peakDetection(pre, snr = 3, BPPARAM = BiocParallel::SnowParam(workers = 4))
+```
+
+### Choosing the right backend
+
+| Platform       | Recommended backend          | Notes                              |
+|----------------|------------------------------|------------------------------------|
+| Linux / macOS  | `MulticoreParam(n)`          | Fork-based, minimal overhead       |
+| Windows        | `SnowParam(n)`               | Socket-based, works on all systems |
+| Any (serial)   | `SerialParam()`              | Default; no parallelisation        |
+
+`SnowParam` also works on Linux/macOS and is the safest choice if you are
+writing code intended to run on multiple platforms.
+
+### Checking what backend is currently registered
+
+```{r parallelisation-check, eval=FALSE}
+BiocParallel::bpparam()
 ```
 
 ## Visualisation of processed data {#visualisation}
