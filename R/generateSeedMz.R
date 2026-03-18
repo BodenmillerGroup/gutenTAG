@@ -7,6 +7,12 @@
 #'   between returned seed m/z values (fewer seeds detected); lower values
 #'   allow more closely-spaced seeds.
 #' @return A vector of seeds in terms of m/z values
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' seeds <- generateSeedMz(results$metapeaks$count_df)
+#'
 #' @export
 generateSeedMz <- function(count_df, detection_threshold = 0, sparsity = 3) {
 

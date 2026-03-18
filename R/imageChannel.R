@@ -15,6 +15,11 @@
 #'
 #' @return A \code{ggplot} object.
 #'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' imageChannel(x = results$processed, channel = 1)
+#'
 #' @importFrom ggplot2 geom_raster coord_equal scale_fill_viridis_c
 #' @importFrom rlang .data
 #' @export

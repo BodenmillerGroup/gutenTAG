@@ -29,9 +29,7 @@ Scatter plot of residuals from a linear fit of
   from the mean-variance trend.
 }
 \examples{
-\dontrun{
-  plotMeanVarianceResiduals(x = processed)
-  plotMeanVarianceResiduals(x = processed, standardised = TRUE)
-  plotMeanVarianceResiduals(x = processed, interactive = TRUE)
-}
+rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+plotMeanVarianceResiduals(x = results$processed)
 }

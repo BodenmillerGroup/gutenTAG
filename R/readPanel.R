@@ -4,6 +4,10 @@
 #'
 #' @return A clean and ordered panel.
 #'
+#' @examples
+#' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+#' panel <- readPanel(path = panel_path)
+#'
 #' @importFrom dplyr arrange
 #' @importFrom dplyr relocate
 #' @importFrom utils read.delim

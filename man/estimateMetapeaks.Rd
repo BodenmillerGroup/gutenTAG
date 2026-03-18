@@ -32,3 +32,11 @@ It first applies Gaussian smoothing over the counts, removes values below a cert
 segments the histogram using seed_point m/z values, and then calculates metapeak parameters.
 The parameters include the center, maximum, delimitation, and width of each metapeak. The width is rescaled to the m/z scale.
 }
+\examples{
+rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+mp <- estimateMetapeaks(results$metapeaks$count_df,
+                        results$metapeaks$count_smooth_df,
+                        seed_mz = results$metapeaks$seed_mz)
+
+}

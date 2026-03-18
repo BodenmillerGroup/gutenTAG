@@ -20,9 +20,10 @@ Histogram of intensity values for a single channel, with bars
   \code{computeSNR}.
 }
 \examples{
-\dontrun{
-  processed_snr <- computeSNR(processed, update_correspondence = TRUE)
+\donttest{
+  rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+  load(rdata_path)
+  processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
   plotSNRHistogram(x = processed_snr, channel = 1)
-  plotSNRHistogram(x = processed_snr, channel = "CD4")
 }
 }

@@ -20,9 +20,8 @@ Bar chart of SNR per marker sorted ascending. Bars are coloured
   by whether their SNR falls below the threshold (red) or above it (teal).
 }
 \examples{
-\dontrun{
-  processed_snr <- computeSNR(processed, update_correspondence = TRUE)
-  plotSNR(x = processed_snr)
-  plotSNR(x = processed_snr, snr_threshold = 5)
-}
+rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+plotSNR(x = processed_snr)
 }

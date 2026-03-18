@@ -5,6 +5,12 @@
 #' @param count_df A data frame with columns: mz, count.
 #' @param smooth_factor The standard deviation of the Gaussian filter is scaled by this factor.
 #' @return A data frame with the same mz values and the smoothed counts.
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' smooth_df <- smoothPeakCounts(results$metapeaks$count_df, smooth_factor = 3)
+#'
 #' @export
 smoothPeakCounts <- function(count_df, smooth_factor) {
 

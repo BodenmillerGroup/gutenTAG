@@ -40,3 +40,9 @@ A \code{ggplot} object.
 \description{
 Image one channel
 }
+\examples{
+rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+imageChannel(x = results$processed, channel = 1)
+
+}

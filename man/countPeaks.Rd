@@ -17,3 +17,13 @@ data frame with mz and count columns
 If all counts are identical, this method will print a warning, since most likely the provided
 MSProcessedImagingExperiment object has not been processed with peak detection.
 }
+\examples{
+\donttest{
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  raw  <- readMSIData(path)
+  pre  <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  count_df <- countPeaks(peaks)
+}
+
+}

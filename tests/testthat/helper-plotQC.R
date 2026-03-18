@@ -12,3 +12,4 @@ qc_processed_geary <- computeGearysC(qc_processed, verbose = FALSE,
                                      update_correspondence = TRUE)
 qc_processed_snr   <- computeSNR(qc_processed_geary, update_correspondence = TRUE,
                                  package = "mclust")
+

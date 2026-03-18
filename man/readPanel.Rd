@@ -15,3 +15,8 @@ A clean and ordered panel.
 \description{
 Read .csv file panel
 }
+\examples{
+panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+panel <- readPanel(path = panel_path)
+
+}

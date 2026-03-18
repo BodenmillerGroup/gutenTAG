@@ -18,8 +18,9 @@ Bar chart of Geary's C spatial autocorrelation score per marker,
   sorted ascending, with a dashed horizontal line at the mean score.
 }
 \examples{
-\dontrun{
-  processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
-  plotGearysC(x = processed_geary)
-}
+rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+processed_geary <- computeGearysC(results$processed, update_correspondence = TRUE,
+                                  verbose = FALSE)
+plotGearysC(x = processed_geary)
 }
