@@ -20,10 +20,10 @@ test_that("assignMetapeaks works",{
   expect_equal(dim(cur_test$IntensityDF), c(256, 13))
   expect_equal(dim(cur_test$SpatialCoords), c(256, 2))
   expect_equal(dim(cur_test$FilteredDF), c(256, 13))
-  expect_equal(dim(cur_test$Untargeted$UntargetedCorrespondence), c(218, 7))
-  expect_equal(dim(cur_test$Untargeted$UntargetedIntensity), c(256, 218))
-  # check that number of untargeted metapeaks is same as in watershed output
-  expect_equal(dim(cur_test$Untargeted$UntargetedIntensity)[2], max(metapeaks$propagation_selection))
+  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksCorrespondence), c(218, 7))
+  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity), c(256, 218))
+  # check that number of metapeaks matches watershed output
+  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity)[2], max(metapeaks$propagation_selection))
 
   # check if output of intensity df is the same
   expect_equal(cur_test$IntensityDF[1][1:10,], c(9.7875, 8.8391, 9.2086, 7.8215,

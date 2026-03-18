@@ -32,3 +32,4 @@
 - Fix `MulticoreParam` Windows incompatibility — resolved by migrating `preProcess` and `peakDetection` to `BPPARAM = BiocParallel::bpparam()` pattern; `MulticoreParam` no longer hardcoded; users control backend via `BiocParallel::register()`
 - Replace all mentions of "density" with "sparsity"
 - Add QC plot for mean-variance residuals — implemented `plotMeanVarianceResiduals` in `R/plotQC.R`; plots raw and standardised residuals from `lm(log(1+sd) ~ log(1+mean))`; annotated peaks in red3, untargeted in grey; added to `inst/qc_report.Rmd` as tabbed panel
+- Add tests for `plotQC.R` — implemented `tests/testthat/helper-plotQC.R` (shared fixtures from `Example_processed.Rdata`) and `tests/testthat/test-plotQC.R` (49 assertions across all 12 plot functions); coverage of `plotQC.R` raised from 0% to 95.79%; fixed `text` aesthetic warnings in non-interactive paths of `plotMeanVariance`, `plotMeanVarianceResiduals`, `plotMeanVsSNR`, and `plotQCOverview`

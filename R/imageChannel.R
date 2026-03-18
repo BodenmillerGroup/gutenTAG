@@ -16,6 +16,7 @@
 #' @return A \code{ggplot} object.
 #'
 #' @importFrom ggplot2 geom_raster coord_equal scale_fill_viridis_c
+#' @importFrom rlang .data
 #' @export
 #'
 

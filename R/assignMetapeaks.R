@@ -17,8 +17,8 @@
 #'     all markers associated with an observed metapeak.}
 #'   \item{SpatialCoords}{Data frame of spatial pixel coordinates.}
 #'   \item{SummarySpectra}{Data frame of summary spectra (mean and skyline).}
-#'   \item{Untargeted}{List with \code{UntargetedIntensity} and
-#'     \code{UntargetedCorrespondence} for metapeaks not assigned to any marker.}
+#'   \item{AllMetapeaks}{List with \code{AllMetapeaksIntensity} and
+#'     \code{AllMetapeaksCorrespondence} containing all detected metapeaks (targeted and untargeted).}
 #'   \item{FilteredDF}{TIC-filtered intensity data frame.}
 #' }
 #'
@@ -26,6 +26,7 @@
 #' @importFrom Cardinal mz
 #' @importFrom matter colSums rowSums
 #' @importFrom dplyr relocate
+#' @importFrom stats cor na.omit
 #' @export
 #'
 #' @examples
@@ -59,8 +60,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # extract for return
   Correspondence <- final_correspondence_matrix$final_correspondence
   Intensity <- final_intensity_dataframe$final_intensity_targeted
-  UntargetedDF <- final_intensity_dataframe$final_intensity
-  UntargetedCorrespondence <- final_correspondence_matrix$untargeted_correspondence
+  AllMetapeaksDF <- final_intensity_dataframe$final_intensity
+  AllMetapeaksCorrespondence <- final_correspondence_matrix$untargeted_correspondence
 
   # order dataframe columns by mz order
   Intensity <- Intensity[, Correspondence$marker]
@@ -74,8 +75,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
               IntensityDF = Intensity,
               SpatialCoords = coords,
               SummarySpectra = summarised_spectra,
-              Untargeted = list(UntargetedIntensity = UntargetedDF,
-                                UntargetedCorrespondence = UntargetedCorrespondence),
+              AllMetapeaks = list(AllMetapeaksIntensity = AllMetapeaksDF,
+                                  AllMetapeaksCorrespondence = AllMetapeaksCorrespondence),
               FilteredDF = final_filtered))
 
 }

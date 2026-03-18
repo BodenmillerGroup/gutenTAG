@@ -1,3 +1,6 @@
+#' @importFrom stats var
+NULL
+
 #############################  Helper functions ###################################
 
 # Marker panel cleaning function ####

@@ -107,9 +107,9 @@ The output is a list containing 6 elements:
 - `SpatialCoords` — Spatial coordinates for each pixel.
 - `SummarySpectra` — Summary spectral information across pixels.
 - `FilteredDF` — Intensity dataframe with background pixels filtered out. Useful for clustering analysis.
-- `Untargeted` — A list with two elements:
-  - `UntargetedIntensity` — Intensity dataframe for all unassigned metapeaks.
-  - `UntargetedCorrespondence` — Correspondence matrix for unassigned metapeaks.
+- `AllMetapeaks` — A list with two elements:
+  - `AllMetapeaksIntensity` — Intensity dataframe for all detected metapeaks (targeted and untargeted).
+  - `AllMetapeaksCorrespondence` — Correspondence matrix for all detected metapeaks.
 
 ### 4. Quality control
 

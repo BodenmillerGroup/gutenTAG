@@ -13,6 +13,8 @@
 #'
 #' @return A list containing the center, maximum, delimitation, and width of each metapeak.
 #'
+#' @importFrom stats weighted.mean
+#' @importFrom utils head tail
 #' @export
 
 estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {

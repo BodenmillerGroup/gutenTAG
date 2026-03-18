@@ -52,6 +52,7 @@ Suggests:
     testthat (>= 3.0.0),
     plotly,
     sessioninfo,
-    quarto,
+    quarto
+biocViews: MassSpectrometryImaging, Spatial, Proteomics
 VignetteBuilder: knitr
 Config/testthat/edition: 3

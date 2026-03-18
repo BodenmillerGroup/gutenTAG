@@ -22,9 +22,6 @@
 
 ### Priority 2 — Convention violations and R CMD CHECK failures
 
-- [ ] **Add tests for `plotQC.R` — currently 0% coverage**
-  `covr::package_coverage()` reports `R/plotQC.R: 0.00%`, dragging overall coverage to 49.17%. All plot functions need tests: `plotMetapeaks`, `plotIntensityDistribution`, `plotMeanVariance`, `plotMeanVarianceResiduals`, `plotGearysC`, `plotSNR`, `plotSNRHistogram`, `plotSpatialSNR`, `plotMeanVsSNR`, `plotQCOverview`, `plotTICHistogram`, `plotTICSpatial`. At minimum, tests should assert return type (`ggplot` vs `plotly`) and that they run without error on the example dataset. Lower-priority gaps: `validityChecks.R` (78%), `readPanel.R` (83%), `generateSeedMz.R` (86%).
-
 ### Priority 3 — Performance and style issues
 
 - [ ] **Add BiocParallel parallelisation to `generateMetapeaks` and `assignMetapeaks`**

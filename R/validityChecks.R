@@ -1,3 +1,6 @@
+#' @importFrom methods is
+NULL
+
 #### Integration tests ####
 
 # preProcess ####

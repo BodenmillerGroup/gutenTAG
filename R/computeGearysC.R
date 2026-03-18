@@ -36,6 +36,8 @@
 #'
 #' @importFrom N2R Knn
 #' @importFrom Matrix t
+#' @importFrom methods as
+#' @importFrom stats var
 #' @export computeGearysC
 #'
 

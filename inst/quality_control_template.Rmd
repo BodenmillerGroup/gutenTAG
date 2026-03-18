@@ -154,7 +154,7 @@ Why is this important? In analysis of high dimensional biological datasets, it i
 ```{r Mean-var plot data loading}
 
 # mean and sd of untarted metapeaks
-untargeted_df <- data.frame(processed$Untargeted$UntargetedIntensity)
+untargeted_df <- data.frame(processed$AllMetapeaks$AllMetapeaksIntensity)
 
 untargeted_mean <- colMeans(untargeted_df)
 untargeted_sd = apply(untargeted_df, MARGIN = 2, FUN = sd)

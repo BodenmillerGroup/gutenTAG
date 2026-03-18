@@ -28,8 +28,8 @@ A list with the following elements:
     all markers associated with an observed metapeak.}
   \item{SpatialCoords}{Data frame of spatial pixel coordinates.}
   \item{SummarySpectra}{Data frame of summary spectra (mean and skyline).}
-  \item{Untargeted}{List with \code{UntargetedIntensity} and
-    \code{UntargetedCorrespondence} for metapeaks not assigned to any marker.}
+  \item{AllMetapeaks}{List with \code{AllMetapeaksIntensity} and
+    \code{AllMetapeaksCorrespondence} containing all detected metapeaks (targeted and untargeted).}
   \item{FilteredDF}{TIC-filtered intensity data frame.}
 }
 }

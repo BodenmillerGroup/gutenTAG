@@ -8,7 +8,7 @@
 #'   element_text
 #' @importFrom rlang .data
 #' @importFrom dplyr arrange filter
-#' @importFrom stats lm sd quantile
+#' @importFrom stats lm sd quantile reorder setNames
 NULL
 
 
@@ -242,7 +242,7 @@ plotIntensityDistribution <- function(x) {
 #' @export
 plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
 
-  untargeted_df   <- data.frame(x$Untargeted$UntargetedIntensity)
+  untargeted_df   <- data.frame(x$AllMetapeaks$AllMetapeaksIntensity)
   untargeted_mean <- colMeans(untargeted_df)
   untargeted_sd   <- apply(untargeted_df, MARGIN = 2, FUN = sd)
   untargeted_stats <- data.frame(
@@ -258,14 +258,27 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
     Name          = rownames(data.frame(targeted_mean))
   )
 
+  targeted_aes <- if (interactive) {
+    aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]],
+        text = .data[["Name"]])
+  } else {
+    aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]])
+  }
+
+  targeted_aes_labeled <- if (interactive) {
+    aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]],
+        text = paste0("Marker: ", .data[["Name"]]))
+  } else {
+    aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]])
+  }
+
   if (annotated_only) {
     p <- ggplot() +
       theme_minimal() +
       ggtitle("Mean-Variance Plot: Annotated Peaks Only") +
       geom_point(
-        data  = targeted_stats,
-        aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]],
-            text = .data[["Name"]]),
+        data    = targeted_stats,
+        mapping = targeted_aes,
         color = "black", fill = "#3B9AB5", shape = 21, size = 4
       ) +
       scale_x_log10() +
@@ -281,9 +294,8 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
         color = "black", fill = "grey", shape = 21, size = 2
       ) +
       geom_point(
-        data  = targeted_stats,
-        aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]],
-            text = paste0("Marker: ", .data[["Name"]])),
+        data    = targeted_stats,
+        mapping = targeted_aes_labeled,
         color = "black", fill = "red3", shape = 21, size = 3
       ) +
       scale_x_log10() +
@@ -337,7 +349,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
 plotMeanVarianceResiduals <- function(x, standardised = FALSE,
                                       interactive = FALSE) {
 
-  all_df         <- data.frame(x$Untargeted$UntargetedIntensity,
+  all_df         <- data.frame(x$AllMetapeaks$AllMetapeaksIntensity,
                                 check.names = FALSE)
   mean_intensity <- colMeans(all_df)
   sd_intensity   <- apply(all_df, MARGIN = 2, FUN = sd)
@@ -367,6 +379,13 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
   untargeted_df <- resid_df[!resid_df$annotated, ]
   targeted_df   <- resid_df[ resid_df$annotated, ]
 
+  targeted_resid_aes <- if (interactive) {
+    aes(x = log(1 + .data[["mean"]]), y = .data[["residual"]],
+        text = paste0("Marker: ", .data[["label"]]))
+  } else {
+    aes(x = log(1 + .data[["mean"]]), y = .data[["residual"]])
+  }
+
   p <- ggplot() +
     theme_minimal() +
     ggtitle(title) +
@@ -377,10 +396,8 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
       color = "black", fill = "grey", shape = 21, size = 2
     ) +
     geom_point(
-      data  = targeted_df,
-      aes(x = log(1 + .data[["mean"]]),
-          y = .data[["residual"]],
-          text = paste0("Marker: ", .data[["label"]])),
+      data    = targeted_df,
+      mapping = targeted_resid_aes,
       color = "black", fill = "red3", shape = 21, size = 3
     ) +
     labs(x = "log(1 + mean)", y = y_label)
@@ -643,14 +660,14 @@ plotMeanVsSNR <- function(x) {
     Name          = colnames(x$IntensityDF)
   )
 
+  snr_aes <- aes(x = .data[["targeted_mean"]], y = .data[["targeted_snr"]])
+
   ggplot() +
     theme_minimal() +
     ggtitle("Mean-SNR Plot") +
     geom_point(
-      data  = plot_df,
-      aes(x    = .data[["targeted_mean"]],
-          y    = .data[["targeted_snr"]],
-          text = .data[["Name"]]),
+      data    = plot_df,
+      mapping = snr_aes,
       color = "black", fill = "#3B9AB5", shape = 21, size = 4
     ) +
     labs(x = "Mean Intensity", y = "SNR")
@@ -716,11 +733,14 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
       fill = "red3", alpha = 0.5
     ) +
     geom_point(
-      data  = plot_df,
-      aes(x    = .data[["GearysC"]],
-          y    = .data[["snr"]],
-          fill = .data[["fill_color"]],
-          text = .data[["marker"]]),
+      data    = plot_df,
+      mapping = if (interactive) {
+        aes(x    = .data[["GearysC"]], y = .data[["snr"]],
+            fill = .data[["fill_color"]], text = .data[["marker"]])
+      } else {
+        aes(x    = .data[["GearysC"]], y = .data[["snr"]],
+            fill = .data[["fill_color"]])
+      },
       color = "black", shape = 21, size = 4
     ) +
     geom_hline(yintercept = snr_threshold, linetype = "solid", color = "black") +
