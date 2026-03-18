@@ -12,7 +12,8 @@ test_that(".cleanPanel works",{
   expect_type(cur_test, "list")
 
   # test that dimensions are corrent
-  expect_equal(dim(cur_test), c(13, 2))
+  expect_equal(dim(cur_test), c(13, 3))
+  expect_true("OriginalName" %in% colnames(cur_test))
 
   # test that order of names is correct
   expect_equal(cur_test$Name, c("CD98", "NFKB", "FN1", "CD73", "beta.actin", "VIM", "Collagen.1A1", "AASM", "Caveolin1",
@@ -26,6 +27,17 @@ test_that(".cleanPanel works",{
   expect_error(.cleanPanel("panel_path"))
 
 
+})
+
+test_that(".cleanPanel captures OriginalName before cleaning", {
+  dirty_panel <- data.frame(
+    Name        = c("beta-actin", "HLA/ABC", "CD 98"),
+    FeatureMass = c(1206.72, 1569.8, 943.59)
+  )
+  result <- .cleanPanel(dirty_panel)
+  # sorted by FeatureMass: CD 98 (943), beta-actin (1206), HLA/ABC (1569)
+  expect_equal(result$OriginalName, c("CD 98", "beta-actin", "HLA/ABC"))
+  expect_equal(result$Name,         c("CD98",  "beta.actin", "HLAABC"))
 })
 
 # .translate_coordinates doesn't add coverage

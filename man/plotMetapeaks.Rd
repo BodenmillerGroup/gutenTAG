@@ -11,8 +11,8 @@ plotMetapeaks(x, metapeaks, panel, interactive = FALSE)
 
 \item{metapeaks}{List output of \code{generateMetapeaks}.}
 
-\item{panel}{Data frame from \code{readPanel} with columns \code{FeatureMass}
-and \code{Name}.}
+\item{panel}{Data frame with columns \code{FeatureMass} and \code{Name}.
+When loaded via \code{readPanel}, also contains \code{OriginalName}.}
 
 \item{interactive}{Logical; if \code{TRUE} returns a \code{plotly} object
 with mean and skyline spectra on a secondary y-axis. Requires the

@@ -23,8 +23,8 @@ NULL
 #'
 #' @param x List output of \code{assignMetapeaks}.
 #' @param metapeaks List output of \code{generateMetapeaks}.
-#' @param panel Data frame from \code{readPanel} with columns \code{FeatureMass}
-#'   and \code{Name}.
+#' @param panel Data frame with columns \code{FeatureMass} and \code{Name}.
+#'   When loaded via \code{readPanel}, also contains \code{OriginalName}.
 #' @param interactive Logical; if \code{TRUE} returns a \code{plotly} object
 #'   with mean and skyline spectra on a secondary y-axis. Requires the
 #'   \pkg{plotly} package. Default \code{FALSE}.

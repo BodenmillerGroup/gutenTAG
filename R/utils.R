@@ -18,6 +18,7 @@ NULL
   panel <- dplyr::arrange(panel, panel$FeatureMass)
 
   # 3. clean marker names
+  panel$OriginalName <- panel$Name   # record pre-clean names
 
   for(a in seq_along(panel$Name)){
 
@@ -48,7 +49,7 @@ NULL
   }
 
   # 4. rearrange column order so Name is first column
-  panel <- relocate(panel, "Name", .before = "FeatureMass")
+  panel <- relocate(panel, c("Name", "OriginalName"), .before = "FeatureMass")
 
   return(panel)
 

@@ -10,7 +10,10 @@ readPanel(path)
 \item{path}{The path to the panel.}
 }
 \value{
-A clean and ordered panel.
+A clean and ordered data frame with three columns:
+  \code{Name} (cleaned marker name), \code{OriginalName} (name as
+  supplied in the CSV before cleaning), and \code{FeatureMass}
+  (target m/z value).
 }
 \description{
 Read .csv file panel
