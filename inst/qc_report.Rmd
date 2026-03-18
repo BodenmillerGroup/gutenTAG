@@ -119,7 +119,7 @@ Geary's C score is a spatial autocorrelation score borrowed from Geostatistics. 
 
 In all Geary's C score is a handy statistic to show how spatially structured the ion images for each marker are. Spatially structured images are usually indicative of high quality staining.
 
-```{r Gearys C barchart}
+```{r gearys_c_barchart}
 
 processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
 
@@ -133,7 +133,7 @@ Signal-to-noise ratio can be a good indicator of how strong the observed signal 
 
 It may be worth considering removing features that perform poorly in SNR.
 
-```{r SNR barchart, eval=TRUE, warning=FALSE, message=FALSE}
+```{r snr_barchart, eval=TRUE, warning=FALSE, message=FALSE}
 
 processed_snr <- computeSNR(processed_geary, package = "mclust",
                              update_correspondence = TRUE, q = 0.995)
@@ -225,7 +225,7 @@ dput(sort(trashcan_zone$marker))
 
 Thresholding on the total ion current of the sample can be potentially useful in terms of determining which pixels are off-tissue regions. Off-tissue pixels often have a lower TIC than tissue pixels.
 
-```{r TIC histogram thresholding}
+```{r tic_histogram_thresholding}
 
 plotTICHistogram(x = processed)
 

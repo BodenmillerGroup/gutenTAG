@@ -6,7 +6,7 @@ test_that("assignMetapeaks works",{
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
   pre <- preProcess(raw)
-  peaks <- peakDetection(pre, core = 2)
+  peaks <- peakDetection(pre)
   metapeaks <- generateMetapeaks(peaks)
 
   # test that the object after generateMetapeaks is a list

@@ -214,7 +214,7 @@ smoothing for spectral smoothing and local minimum baseline reduction.
 ```{r Cardinal pre-processing}
 pre <- rawFile |>
     Cardinal::normalize(method = "tic") |>
-    smoothSignal(method = "gaussian", plot = FALSE) |>
+    Cardinal::smooth(method = "gaussian") |>
     reduceBaseline(method = "locmin") |>
     process(BPPARAM = BiocParallel::bpparam())
 
@@ -414,8 +414,8 @@ These functions are written to be called on the output of the
 # Contributions
 
 [Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
-generation step for data processing, as well as being instrumental in
-developing the architecture of the pipeline.\ [Leonardo Schwarz](https://github.com/leoschwarz) was contributed enormously  
+generation step for data processing and was instrumental in
+developing the initial architecture of the pipeline.\ [Leonardo Schwarz](https://github.com/leoschwarz) contributed enormously  
 to the package codebase.\ Thank you to [Nils Eling](https://github.com/nilseling) and [Lasse
 Meyer](https://github.com/lassedochreden) for assisting in the development of the package, as well as helping with 
 integrating the package with `cytomapper` and `cytoviewer`. \ 

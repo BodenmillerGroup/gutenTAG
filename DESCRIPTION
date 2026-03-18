@@ -38,7 +38,9 @@ Imports:
   SpatialExperiment,
   BiocParallel,
   anndata,
-  flexmix
+  flexmix,
+  ggrepel,
+  rlang
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3
@@ -49,7 +51,6 @@ Suggests:
     markdown,
     testthat (>= 3.0.0),
     plotly,
-    ggrepel,
     sessioninfo,
     quarto,
 VignetteBuilder: knitr
