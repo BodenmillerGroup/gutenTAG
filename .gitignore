@@ -17,4 +17,6 @@ inst/doc
 .Rproj.user/
 *.swp
 CLAUDE.md
+COMPLETED.md
+TODO.md
 .claude/commands/
