@@ -61,7 +61,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # extract for return
   Correspondence <- final_correspondence_matrix$final_correspondence
   Intensity <- final_intensity_dataframe$final_intensity_targeted
-  AllMetapeaksDF <- final_intensity_dataframe$final_intensity
+  AllMetapeaksIntensity <- final_intensity_dataframe$final_intensity
   AllMetapeaksCorrespondence <- final_correspondence_matrix$untargeted_correspondence
 
   # order dataframe columns by mz order
