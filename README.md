@@ -8,7 +8,7 @@
 
 gutenTAG is an R package for the data handling, processing, quality control, and analysis of targeted MALDI mass spectrometry imaging (MALDI-MSI) data. It builds on [Cardinal](https://bioconductor.org/packages/Cardinal/), a Bioconductor framework for MSI data, and extends it with targeted workflows specific to MALDI-imaging experiments.
 
-The core processing approach uses a novel metapeak construction strategy to account for mass shift and isotopic peaks in the spectra. Downstream, the package provides image-level and spatial quality control statistics (including Geary's C scores), and supports conversion to standard Bioconductor formats such as `SpatialExperiment`, `CytoImageList`, and `AnnData` — enabling dimensionality reduction, clustering, and visualisation using the broader Bioconductor ecosystem. Image visualisation is supported through [cytomapper](https://bioconductor.org/packages/cytomapper/) and [cytoviewer](https://bioconductor.org/packages/cytoviewer/), a Shiny-based interactive viewer for CytoImageList objects that enables interactive exploration of multichannel images.
+The core processing approach uses a novel metapeak construction strategy to account for mass shift and isotopic peaks in the spectra. Downstream, the package provides image-level and spatial quality control statistics, and supports conversion to standard Bioconductor formats such as `SpatialExperiment`, `CytoImageList`, and `AnnData` — enabling dimensionality reduction, clustering, and visualisation using the broader Bioconductor ecosystem. Image visualisation is supported through [cytomapper](https://bioconductor.org/packages/cytomapper/) and [cytoviewer](https://bioconductor.org/packages/cytoviewer/), a Shiny-based interactive viewer for CytoImageList objects that enables interactive exploration of multichannel images.
 
 ## Installation
 
@@ -130,18 +130,22 @@ ann <- asAnnData(processed)
 
 ## Citation
 
-If you use gutenTAG in your work, please cite it using:
+If you use gutenTAG in your work, please cite it using our pre-print:
 
-> Abbey J, Bost P (2026). *gutenTAG: MALDI-Imaging Data Processing and Analysis*. R package version 0.12.1.
+> Zhang M, Abbey J, (2025). *Spatial proteomics with 100+ markers with High Multiplexed MALDI-IHC* bioRxiv (2025). https://www.biorxiv.org/content/10.1101/2025.04.18.649415v1.abstract
 
 ```bibtex
-@Manual{,
-  title  = {gutenTAG: MALDI-Imaging Data Processing and Analysis},
-  author = {John Abbey and Pierre Bost},
-  year   = {2026},
-  note   = {R package version 0.12.1},
+@article{,
+  title  = {Spatial proteomics with 100+ markers with High Multiplexed MALDI-IHC},
+  author = {Mengze Zhang and John Abbey},
+  year   = {2025},
+  doi = {https://doi.org/10.1101/2025.04.18.649415},
+  url = {https://www.biorxiv.org/content/10.1101/2025.04.18.649415v1.abstract},
+  journal   = {bioRxiv}
 }
 ```
+
+We will soon have a pre-print out for gutenTAG!
 
 Please also acknowledge the Cardinal framework:
 

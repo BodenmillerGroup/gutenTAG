@@ -13,6 +13,7 @@ analysis/site_libs
 inst/doc
 /doc/
 /Meta/
+*html
 
 .Rproj.user/
 *.swp
