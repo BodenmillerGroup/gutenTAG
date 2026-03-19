@@ -99,19 +99,9 @@ capped by the abundance of heavy metals as in IMC.
 ## MALDI-IHC
 
 MALDI-IHC data shows some persistent features which must be taken into
-consideration for analysis. Firstly, it is large. Very large. Depending
+consideration for analysis. Firstly, it is quite large. Depending
 on the size of the tissue in question and the pixel size chosen for
-acquisition, it is not uncommon to see files in excess of 50GB. This
-makes running even computationally efficient tasks quite a burden. On
-the technical side, MALDI-IHC, and indeed MALDI-imaging in general,
-commonly exhibit a significant mass shift. This can hamper our analysis,
-as our peaks are not always in their expected location. This mass shift
-can vary from sample to sample as well as vary within the same sample
-(can be due to height effects in the tissue, laser defocusing, etc.). A
-further feature of MALDI-imaging data is the presence of isotopic peaks,
-which split the signal locally across the spectrum. These are the
-primary features of MALDI-imaging data which can be corrected for
-computationally using `gutenTAG`.
+acquisition, it is not uncommon to see files in excess of 50GB. This will only increase as the field pushes for smaller pixel sizes and larger acquisition areas. This makes running even computationally efficient tasks quite a burden. MALDI-imaging data processing is hampered by a few acquisitional features, resulting in mass tag signal not always being in its expected location. Mass shift, where there is a systematic shift of a peak from it's expected location, can vary from sample to sample, as well as vary within the same sample (can be due to height effects in the tissue, laser defocusing, etc.). A further feature of MALDI-imaging data is the presence of isotopic peaks, which split the signal locally across the spectrum. These are the primary features of MALDI-imaging data which can be accounted for computationally with `gutenTAG`.
 
 ## gutenTAG overview
 
@@ -149,6 +139,7 @@ following analyses:
 3.  [Data processing](#processing)
 4.  [Visualisation](#visualisation) of processed targeted images
 5.  [Interoperability](#interoperability) with object classes
+6.  [Quality Control](#qc)
 
 To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
@@ -303,7 +294,7 @@ BiocParallel::register(BiocParallel::MulticoreParam(workers = 4))
 # Windows — socket-based (also works on Linux/macOS)
 BiocParallel::register(BiocParallel::SnowParam(workers = 4))
 
-# Single-core (no parallelisation, all platforms)
+# Single-core
 BiocParallel::register(BiocParallel::SerialParam())
 ```
 
@@ -409,6 +400,10 @@ frameworks in the spatial omics ecosystem. These functions include:
 
 These functions are written to be called on the output of the
 `assignMetapeaks()` function.
+
+## Quality Control {#qc}
+
+`gutenTAG` provides many quality control functions. These can be useful for assessing data quality, filtering low performance peaks and assessing the overall quality of gutenTAG's segmentation. A full QC report can be found in `inst/qc_report.Rmd`.
 
 # Contributions
 

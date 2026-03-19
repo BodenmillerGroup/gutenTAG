@@ -115,7 +115,7 @@ A detailed quality control report can be found under `inst/qc_report.Rmd`. This 
 
 ### 5. Conversion to Bioconductor formats
 
-The processed output can be converted to standard Bioconductor objects for downstream analysis, including dimensionality reduction (PCA, NMF, UMAP) and clustering via the respective ecosystem tools:
+The processed output can be converted to standard Bioconductor objects for downstream analysis via the respective ecosystem tools:
 
 ```r
 # CytoImageList for image visualisation with cytomapper/cytoviewer
@@ -132,11 +132,20 @@ ann <- asAnnData(processed)
 
 If you use gutenTAG in your work, please cite it using:
 
-```r
-citation("gutenTAG")
+> Abbey J, Bost P (2026). *gutenTAG: MALDI-Imaging Data Processing and Analysis*. R package version 0.12.1.
+
+```bibtex
+@Manual{,
+  title  = {gutenTAG: MALDI-Imaging Data Processing and Analysis},
+  author = {John Abbey and Pierre Bost},
+  year   = {2026},
+  note   = {R package version 0.12.1},
+}
 ```
 
-Please also acknowledge the Cardinal framework: Bemis et al. (2023). Cardinal v3: scalable, out-of-memory computing for mass spectrometry imaging. *Bioinformatics*.
+Please also acknowledge the Cardinal framework:
+
+> Bemis et al. (2023). Cardinal v3: scalable, out-of-memory computing for mass spectrometry imaging. *Bioinformatics*.
 
 ## License
 
