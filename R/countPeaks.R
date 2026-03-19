@@ -8,13 +8,11 @@
 #' @return data frame with mz and count columns
 #'
 #' @examples
-#' \donttest{
-#'   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
-#'   raw  <- readMSIData(path)
-#'   pre  <- preProcess(raw)
-#'   peaks <- peakDetection(pre)
-#'   count_df <- countPeaks(peaks)
-#' }
+#' path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+#' raw  <- readMSIData(path)
+#' pre  <- preProcess(raw)
+#' peaks <- peakDetection(pre)
+#' count_df <- countPeaks(peaks)
 #'
 #' @importFrom Cardinal mz peakData
 #' @importFrom matter as.list
