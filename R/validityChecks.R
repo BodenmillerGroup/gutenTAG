@@ -89,9 +89,6 @@ NULL
     stop("sparsity must be a single numeric value.")
   }
 
-  #if (sparsity <= 0){
-  #  stop("sparsity must be a single numeric value.")
-  #}
 
 }
 
