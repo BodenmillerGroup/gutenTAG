@@ -1,5 +1,5 @@
 ---
-title: "gutenTAG: Processing and analysis of MALDI-IHC data"
+title: "gutenTAG: Processing and Quality Control of MALDI-IHC data"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('gutenTAG')`"
 author:
@@ -24,7 +24,7 @@ output:
 bibliography: library.bib
 
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the Bioconductor package `Cardinal`, a tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
+    This R package supports the processing and quality control of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the Bioconductor package `Cardinal`, a tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
     %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
