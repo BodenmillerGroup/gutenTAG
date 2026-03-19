@@ -76,7 +76,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
               IntensityDF = Intensity,
               SpatialCoords = coords,
               SummarySpectra = summarised_spectra,
-              AllMetapeaks = list(AllMetapeaksIntensity = AllMetapeaksDF,
+              AllMetapeaks = list(AllMetapeaksIntensity = AllMetapeaksIntensity,
                                   AllMetapeaksCorrespondence = AllMetapeaksCorrespondence),
               FilteredDF = final_filtered))
 
