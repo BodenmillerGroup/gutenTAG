@@ -3,8 +3,6 @@
 # gutenTAG
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/BodenmillerGroup/gutenTAG/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BodenmillerGroup/gutenTAG/actions/workflows/R-CMD-check.yaml)
-[![Bioconductor build status](https://bioconductor.org/shields/build/devel/bioc/gutenTAG.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/gutenTAG/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
@@ -113,12 +111,7 @@ The output is a list containing 6 elements:
 
 ### 4. Quality control
 
-Spatial quality control statistics can be computed with `computeGearysC` and `computeSNR`:
-
-```r
-geary <- computeGearysC(processed)
-snr   <- computeSNR(processed)
-```
+A detailed quality control report can be found under `inst/qc_report.Rmd`. This runs and explains all exported QC functions from gutenTAG.
 
 ### 5. Conversion to Bioconductor formats
 
