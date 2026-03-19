@@ -15,7 +15,7 @@ author:
 
 - name: Leonardo Schwarz
   affiliation:
-    - Functional Genomics Center Zurich
+    - Functional Genomics Center Zurich, ETH Zurich and University of Zurich
     
 output:
     BiocStyle::html_document:
