@@ -9,7 +9,7 @@ generateMetapeaks(
   threshold = 0.01,
   hist_smooth_factor = 1,
   fixed.limits = NULL,
-  density = 3
+  sparsity = 3
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ generateMetapeaks(
 
 \item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
 
-\item{density}{A density parameter controlling the permissible distance between metapeaks. Small density values (i.e. 1) allow closer metapeaks, while higher values enforce greater spacing.}
+\item{sparsity}{A sparsity parameter controlling the permissible distance between metapeaks. Higher sparsity values enforce greater spacing (fewer metapeaks detected); lower values allow more closely-spaced metapeaks.}
 }
 \value{
 A list containing information on the location, limits and width of metapeaks
@@ -46,7 +46,7 @@ path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)
-pre <- preProcess(raw, cores = 2)
-peaks <- peakDetection(pre, core = 2)
+pre <- preProcess(raw)
+peaks <- peakDetection(pre)
 generateMetapeaks(peaks, hist_smooth_factor = 1)
 }

@@ -5,7 +5,6 @@
 #'
 #' @return An object of the class MSImagingExperiment from Cardinal.
 #'
-#' @import Cardinal
 #' @importFrom matter as.matrix
 #' @export
 #'
@@ -14,8 +13,8 @@
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
-#' pre <- preProcess(raw, cores = 2)
-#' peaks <- peakDetection(pre, core = 2)
+#' pre <- preProcess(raw)
+#' peaks <- peakDetection(pre)
 #' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
@@ -44,7 +43,7 @@ asMSImagingExperiment <- function(x, remove.na = FALSE){
   idata <- idata[correct_order, ]
 
   # remove NA clause
-  if (remove.na == TRUE){
+  if (remove.na) {
     keep <- !is.na(x$CorrespondenceMatrix$mz_location)
 
     # remove from idata

@@ -13,6 +13,15 @@
 #'
 #' @return A list containing the center, maximum, delimitation, and width of each metapeak.
 #'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' mp <- estimateMetapeaks(results$metapeaks$count_df,
+#'                         results$metapeaks$count_smooth_df,
+#'                         seed_mz = results$metapeaks$seed_mz)
+#'
+#' @importFrom stats weighted.mean
+#' @importFrom utils head tail
 #' @export
 
 estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {

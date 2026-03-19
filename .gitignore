@@ -13,5 +13,11 @@ analysis/site_libs
 inst/doc
 /doc/
 /Meta/
+*html
 
 .Rproj.user/
+*.swp
+CLAUDE.md
+COMPLETED.md
+TODO.md
+.claude/commands/

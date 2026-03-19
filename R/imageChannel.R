@@ -1,72 +1,74 @@
 #' Image one channel
 #'
-#' @param x A targeted intensity dataframe (rows: pixels, cols: features) OR output of assignMetapeaks If only dataframe/matrix is provided, spatial coordinates must also be provided using coords.
-#' @param coords A spatial coordinates dataframe.
-#' @param channel_number The index of the channel to be imaged.
-#' @param quantile_lim A parameter that thresholds the maximum intensity values. Default value is 99 percent. This means that all pixel intensities greater than the 99th percentile are reduced to that of the 99th percentile.
-#' @param interpolate Perform pixel-wise interpolation.
-#' @param axes Plot axes when imaging.
-#' @param colna If NA values are present, should they be plotted as black background or as transparent?
+#' @param x Output from \code{assignMetapeaks}, or a plain intensity data.frame
+#'   (rows: pixels, cols: features). If a plain data.frame, \code{coords} must also be provided.
+#' @param coords A spatial coordinates data.frame with columns \code{x} and \code{y}.
+#'   Required when \code{x} is a data.frame or matrix.
+#' @param channel Character name or integer index of the channel to display. Default \code{1}.
+#' @param quantile_threshold Numeric in [0, 1]. Pixel intensities above this quantile are
+#'   capped to that value before plotting. Default \code{0.99}.
+#' @param palette Viridis palette option passed to \code{scale_fill_viridis_c}. One of
+#'   \code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"}, \code{"cividis"},
+#'   etc. Default \code{"viridis"}.
+#' @param na_colour Colour used for NA pixels. Default \code{"black"}.
+#' @param ... Additional arguments passed to \code{ggplot2::theme()}.
 #'
-#' @return An image.
+#' @return A \code{ggplot} object.
 #'
-#' @importFrom imager as.cimg
-#' @importFrom imager add.colour
-#' @importFrom imager R
-#' @importFrom imager B
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' imageChannel(x = results$processed, channel = 1)
+#'
+#' @importFrom ggplot2 geom_raster coord_equal scale_fill_viridis_c
+#' @importFrom rlang .data
 #' @export
 #'
 
-imageChannel <- function(x, coords = NA, channel_number = 1, quantile_lim = 0.99, interpolate = FALSE, axes = FALSE, colna = "black") {
+imageChannel <- function(x, coords = NULL, channel = 1,
+                         quantile_threshold = 0.99,
+                         palette = "viridis",
+                         na_colour = "black",
+                         ...) {
 
   # validity checks
-  .valid.imageChannel(x, coords, channel_number, quantile_lim, interpolate, axes, colna)
+  .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour)
 
-  # if input is just a matrix or dataframe (eg. if PCA/NMF) do nothing
-  if(is.data.frame(x) | is.matrix(x)){
-    df <- x
+  # input handling — accept assignMetapeaks list or plain df/matrix
+  if (is.data.frame(x) || is.matrix(x)) {
+    df     <- x
     coords <- coords
-  # otherwise treat as list
-  }else{
-    df <- x$IntensityDF
+  } else {
+    df     <- x$IntensityDF
     coords <- x$SpatialCoords
   }
 
-  # create matrix of NAs
-  matrix_image <- matrix(NA, ncol = max(coords$y), nrow = max(coords$x))
-
-  # intensity vector
-  x <- df[, channel_number]
-  # get intensity value for 99th percentile most intense pixels
-  #x_max <- quantile(x, probs = quantile_lim)
-  x_max <- quantile(x, probs = quantile_lim, na.rm = TRUE)
-
-  # set all pixel values greater than x_max to that of x_max
-  x[x > x_max] <- x_max
-  matrix_image[as.matrix(coords)] <- x
-  # convert matrix to image
-  matrix_image <- imager::as.cimg(matrix_image - min(matrix_image, na.rm = TRUE))
-
-  # add colour channels to the image
-  matrix_image <- imager::add.color(matrix_image, simple = TRUE)
-
-  # set red and blue channels to zero to get only green
-  R(matrix_image) <- 0
-  B(matrix_image) <- 0
-
-  if(colna == "black"){
-    bg <- 1
+  # channel resolution — accept name or index
+  if (is.character(channel)) {
+    channel_idx <- which(colnames(df) == channel)
+    if (length(channel_idx) == 0) stop(paste0("Channel '", channel, "' not found in the data."))
+  } else {
+    channel_idx <- channel
   }
+  channel_name <- colnames(df)[channel_idx]
 
-  if(colna == "white"){
-    bg <- 0
-  }
+  # quantile thresholding
+  intensity <- df[, channel_idx]
+  cap <- quantile(intensity, probs = quantile_threshold, na.rm = TRUE)
+  intensity[intensity > cap] <- cap
 
-  plot(matrix_image, main = colnames(df)[channel_number],
-       interpolate = interpolate,
-       xlim = c(1, max(coords$x)), ylim = c(max(coords$y), 1),
-       axes = axes,
-       col.na = rgb(0, 0, 0, bg)) # black background for NA
+  # build plot dataframe
+  plot_df <- data.frame(x = coords$x, y = coords$y, intensity = intensity)
 
+  # build ggplot
+  p <- ggplot(plot_df, aes(x = x, y = y, fill = intensity)) +
+    geom_raster() +
+    coord_equal() +
+    scale_fill_viridis_c(option = palette, na.value = na_colour) +
+    ggtitle(channel_name) +
+    theme_void(base_size = 12) +
+    theme(...)
+
+  return(p)
 
 }

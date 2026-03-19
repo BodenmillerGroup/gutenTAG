@@ -5,8 +5,10 @@
 #'
 #' @return A CytoImageList object
 #'
+#' @importFrom abind abind
 #' @importFrom cytomapper CytoImageList
 #' @importFrom cytomapper channelNames
+#' @importFrom EBImage Image
 #'
 #' @export
 #' @examples
@@ -14,8 +16,8 @@
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
-#' pre <- preProcess(raw, cores = 2)
-#' peaks <- peakDetection(pre, core = 2)
+#' pre <- preProcess(raw)
+#' peaks <- peakDetection(pre)
 #' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'

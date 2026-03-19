@@ -5,7 +5,12 @@
 #' @param x A pre-processing MSImagingExperiment object
 #' @param snr Signal to noise ratio for peak picking.
 #' @param win Window size over which moving noise levels are calculated.
-#' @param cores Number of cores to use for peak detection.
+#' @param BPPARAM A \code{\link[BiocParallel]{BiocParallelParam}} object
+#'   controlling parallel execution. Defaults to
+#'   \code{\link[BiocParallel]{bpparam}()}, which uses the session-wide
+#'   registered backend. Use \code{BiocParallel::MulticoreParam(n)} on
+#'   Linux/macOS or \code{BiocParallel::SnowParam(n)} on Windows for
+#'   multi-core processing.
 #'
 #' @return An MSImagingExperiment object containing a list of detected peaks
 #'
@@ -16,31 +21,17 @@
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
-#' pre <- preProcess(raw, cores = 2)
+#' pre <- preProcess(raw)
 #' peakDetection(pre)
 
-peakDetection <- function(x, snr = 3, win = 50, cores = 1){
+peakDetection <- function(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam()){
 
   # validity checks for peakDetection
-  .valid.peakDetection(x, snr, win, cores)
-
-  # is any of this necessary?
-  #raw_intensity <- iData(x)
-
-  #range_peaks <- range(mz(x))
-  #n_features <- length(mz(x))
-  #n_pixels <- dim(x)["Pixels"]
-  #threshold_detection <- n_pixels*0.01
-  #mz_vector <- as.data.frame(mz(x))
-  #location_pixels <- as.data.frame(pData(x))[, c("x","y")]
+  .valid.peakDetection(x, snr, win, BPPARAM)
 
   # peak detection
   picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
-  if (cores > 1){
-    list_peaks <- Cardinal::process(picker, BPPARAM = BiocParallel::MulticoreParam(workers = cores))
-  } else {
-    list_peaks <- Cardinal::process(picker)
-  }
+  list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
 
   return(list_peaks)
 

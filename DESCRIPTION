@@ -1,60 +1,48 @@
 Package: gutenTAG
 Type: Package
-Title: MALDI-Imaging Data Processing and Analysis
-Version: 0.1.0
-Author: c(John Abbey, Pierre Bost)
-Maintainer: John Abbey <john.abbey@uzh.ch>
-Description: This R package supports the data handing, processing, quality control and analysis of 
-  targeted MALDI-imaging data. The data handling capabilities (import, pre-processing, export) build 
-  heavily on the R package Cardinal, designed for general Mass Spectrometry Imaging data. The main 
-  functionality of this package includes reliable data processing, extensive quality control and data
-  analysis. First, data is processing using a novel approach involving the construction of metapeaks
-  to account for mass shift and the presence of isotopic peaks. Then image-level and spatial quality
-  control statistics, such as computing Geary's C scores can be computed for every marker. Furthermore, 
-  spatial analysis can be performed on the high-dimensional images, including constructing variograms 
-  and a variety of clustering algorithms. The package also supports dimensionality reduction methods, 
-  including PCA, NMF and UMAP. Additionally, the package supports image visualisation from cytomapper
-  (and cytoviewer) through the construction of a CytoImageList object. As such, once the data is coerced
-  to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
-Depends: 
-  Cardinal,
-  imager
+Title: gutenTAG: MALDI-IHC Data Processing and Quality Control
+Version: 0.13.1
+Authors@R: c(
+    person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre")),
+    person("Pierre", "Bost", role = "aut"),
+    person("Leonardo", "Schwarz", role = "aut")
+  )
+Description: gutenTAG is an R package for the data processing and quality control of targeted MALDI mass spectrometry imaging (MALDI-MSI) data. It builds on [Cardinal](https://bioconductor.org/packages/Cardinal/), a Bioconductor framework for MSI data, and extends it with targeted workflows specific to MALDI-imaging experiments.The core processing approach uses a novel metapeak construction strategy to account for mass shift and isotopic peaks in the spectra. Downstream, the package provides image-level and spatial quality control statistics, and supports conversion to standard Bioconductor formats such as `SpatialExperiment`, `CytoImageList`, and `AnnData` — enabling dimensionality reduction, clustering, and visualisation using the broader Bioconductor ecosystem. Image visualisation is supported through [cytomapper](https://bioconductor.org/packages/cytomapper/) and [cytoviewer](https://bioconductor.org/packages/cytoviewer/), a Shiny-based interactive viewer for CytoImageList objects that enables interactive exploration of multichannel images.
+Depends:
+  Cardinal (>= 3.6.2)
 Imports:
-  N2R,
-  RcppML,
-  dplyr,
   ggplot2,
-  gstat,
-  irlba, 
-  igraph, 
-  uwot, 
-  stats, 
-  methods, 
-  mclust, 
-  splus2R, 
-  cytomapper, 
-  Matrix, 
-  grDevices, 
-  graphics, 
-  utils, 
-  matter, 
-  SpatialExperiment, 
-  BiocParallel, 
-  BiocStyle,
+  N2R,
+  ProtGenerics,
+  dplyr,
+  stats,
+  methods,
+  mclust,
+  splus2R,
+  abind,
+  cytomapper,
+  EBImage,
+  Matrix,
+  utils,
+  matter,
+  SpatialExperiment,
+  BiocParallel,
   anndata,
-  flexmix
-License: MIT License
+  flexmix,
+  ggrepel,
+  rlang
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
-Suggests: 
+RoxygenNote: 7.3.3
+Suggests:
+    BiocStyle,
     knitr,
     rmarkdown,
     markdown,
     testthat (>= 3.0.0),
     plotly,
-    ggrepel,
     sessioninfo,
-    quarto,
+    quarto
+biocViews: ImagingMassSpectrometry, Spatial, Proteomics
 VignetteBuilder: knitr
 Config/testthat/edition: 3

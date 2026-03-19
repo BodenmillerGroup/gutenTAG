@@ -1,103 +1,160 @@
-<img src="vignettes/gutenTAG_logo_v0.3.png" align="right" alt="" width="100" />
-
+<img src="vignettes/imgs/gutenTAG_logo.png" align="right" alt="" width="100" />
 
 # gutenTAG
 
-This R package supports the data handing, processing, quality control and analysis of 
-  targeted MALDI-imaging data. The data handling capabilities (import, pre-processing, export) build 
-  heavily on the R package Cardinal, designed for general Mass Spectrometry Imaging data. The main 
-  functionality of this package includes reliable data processing, extensive quality control and data
-  analysis. 
-  
-  First, data is processing using a novel approach involving the construction of metapeaks
-  to account for mass shift and the presence of isotopic peaks. Then image-level and spatial quality
-  control statistics, such as computing Geary's C scores can be computed for every marker. Furthermore, 
-  spatial analysis can be performed on the high-dimensional images, including constructing variograms 
-  and a variety of clustering algorithms. The package also supports dimensionality reduction methods, 
-  including PCA, NMF and UMAP. Additionally, the package supports image visualisation from cytomapper
-  (and cytoviewer) through the construction of a CytoImageList object. As such, once the data is coerced
-  to this format, many of the analysis techniques that are applicable to CytoImageList can be applied.
+<!-- badges: start -->
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- badges: end -->
+
+gutenTAG is an R package for the data processing and quality control of targeted MALDI mass spectrometry imaging (MALDI-MSI) data. It builds on [Cardinal](https://bioconductor.org/packages/Cardinal/), a Bioconductor framework for MSI data, and extends it with targeted workflows specific to MALDI-imaging experiments.
+
+The core processing approach uses a novel metapeak construction strategy to account for mass shift and isotopic peaks in the spectra. Downstream, the package provides image-level and spatial quality control statistics, and supports conversion to standard Bioconductor formats such as `SpatialExperiment`, `CytoImageList`, and `AnnData` — enabling dimensionality reduction, clustering, and visualisation using the broader Bioconductor ecosystem. Image visualisation is supported through [cytomapper](https://bioconductor.org/packages/cytomapper/) and [cytoviewer](https://bioconductor.org/packages/cytoviewer/), a Shiny-based interactive viewer for CytoImageList objects that enables interactive exploration of multichannel images.
 
 ## Installation
 
-To install the development version of the package, install via GitHub:
+### Bioconductor (recommended)
 
-``` r
+```r
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
+BiocManager::install("gutenTAG")
+```
+
+> **Note:** gutenTAG depends on several Bioconductor packages that cannot be installed via `install.packages()`. Always use `BiocManager::install()`.
+
+### Development version (GitHub)
+
+```r
 install.packages("devtools")
 devtools::install_github("BodenmillerGroup/gutenTAG")
-
 ```
 
 ## Functionality
 
-`gutenTAG` provides an end-to-end workflow for processing targeted MALDI-imaging data. The main workhorse for this are the pre-processing and processing steps.
+`gutenTAG` provides an end-to-end workflow for processing targeted MALDI-imaging data.
 
-#### 1. Read in data
+### 1. Read in data
 
 Three input files are required for targeted MALDI-imaging experiments:
 
-- .imzML file (metadata)
-- .ibd file (binary data, not required to read in, but should be in the same directory as the metadata file)
-- .csv file (Panel)
+- `.imzML` file (metadata)
+- `.ibd` file (binary spectral data — required, but does not need to be passed explicitly; Cardinal locates it automatically from the `.imzML` path)
+- `.csv` file (panel of target masses)
 
-Example raw data is stored in the `inst/extdata` directory of this repository. These files can be retrieved using the two chunks of code below.
-It is recommended to use the Cardinal `readMSIData` function to easily read in the .imzML data. 
+Example raw data is stored in the `inst/extdata` directory of this repository. It is recommended to use the Cardinal `readMSIData` function to read in the `.imzML` data:
 
 ```r
 path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 rawFile <- readMSIData(path)
 ```
 
-The panel can be conveniently loaded into your R session using the `readPanel` function:
+The panel can be loaded using `readPanel`:
 
 ```r
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
-
 ```
 
-#### 2. Pre-processing
+### 2. Pre-processing
 
-The `preProcess` function implements the `Cardinal::normalize`, `Cardinal::smoothSpectra` and `Cardinal::reduceBaseline` functions in series. The output is an `MSImagingExperiment` object, in-line with the Cardinal framework. Alternatively, you can perform pre-processing using the above Cardinal functions directly. 
+The `preProcess` function applies `Cardinal::normalize`, `Cardinal::smooth`, and `Cardinal::reduceBaseline` in series. The output is an `MSImagingExperiment` object. Alternatively, you can call the Cardinal functions directly.
 
-``` r
-
-pre <- preProcess(rawFile, cores = 2)
-
+```r
+pre <- preProcess(rawFile)
 ```
 
-#### 3. Processing
+**Parallelisation:** `preProcess` and `peakDetection` both accept a `BPPARAM` argument for parallel execution via `BiocParallel`. Register a backend once at the start of your session and all subsequent calls will use it automatically:
 
-Full processing of the pre-processed MALDI-imaging data can be performed using the `peakDetection`, `metapeakGeneration` and `assignMetapeaks` functions in series.
+```r
+# Linux / macOS
+BiocParallel::register(BiocParallel::MulticoreParam(workers = 4))
 
-The first step of processing is to identify peaks in the pre-processed spectra. This function is essentially a wrapper for `Cardinal::peakPick`.
+# Windows
+BiocParallel::register(BiocParallel::SnowParam(workers = 4))
+```
 
-``` r
+See the package vignette for full details.
 
+### 3. Processing
+
+Full processing is performed using `peakDetection`, `generateMetapeaks`, and `assignMetapeaks` in series.
+
+`peakDetection` identifies peaks in the pre-processed spectra (a wrapper for `Cardinal::peakPick`):
+
+```r
 list_peaks <- peakDetection(pre)
-
 ```
 
-Once `peakDetection` has been run, `generateMetapeaks` can be run. Metapeaks are single peaks that correspond to clusters of peaks that contain information the same molecular species. The function used to generate these metapeaks, `generateMetapeaks`, is implemented to compensate for the loss of signal through technical shift and isotopic peaks in the spectra. 
+`generateMetapeaks` groups peaks into metapeaks — single composite peaks that correspond to the same molecular species, compensating for technical mass shift and isotopic peaks:
 
-``` r
-
+```r
 metapeaks <- generateMetapeaks(list_peaks)
-
-```
-`assignMetapeaks` is the final function needed to complete the processing workflow. It is responsible for generating the targeted intensity dataframe.
-
-``` r
-
-processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre)
-
 ```
 
-The output of processing is a simple object containing 5 elements
+`assignMetapeaks` matches metapeaks to the target panel and generates the final intensity dataframe:
 
-- `IntensityDF` An intensity dataframe for all markers that were paired with a metapeak.
-- `CorrespondenceMatrix` A targeted correspondence matrix detailing which metapeaks were associated to which mass tags.
-- `SpatialCoords` The spatial coordinates for each pixel.
-- `FilteredDF` An intensity dataframe for all markers assigned to a metapeak, with background pixels filtered out. Useful for clustering analysis.
-- `Untargeted` A list containing the untargeted intensity dataframe (all metapeaks) and the untargeted correspondence matrix. 
+```r
+processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+```
+
+The output is a list containing 6 elements:
+
+- `IntensityDF` — Intensity dataframe for all markers paired with a metapeak.
+- `CorrespondenceMatrix` — Targeted correspondence matrix detailing which metapeaks were associated with which mass tags.
+- `SpatialCoords` — Spatial coordinates for each pixel.
+- `SummarySpectra` — Summary spectral information across pixels.
+- `FilteredDF` — Intensity dataframe with background pixels filtered out. Useful for clustering analysis.
+- `AllMetapeaks` — A list with two elements:
+  - `AllMetapeaksIntensity` — Intensity dataframe for all detected metapeaks (targeted and untargeted).
+  - `AllMetapeaksCorrespondence` — Correspondence matrix for all detected metapeaks.
+
+### 4. Quality control
+
+A detailed quality control report can be found under `inst/qc_report.Rmd`. This runs and explains all exported QC functions from gutenTAG.
+
+### 5. Conversion to Bioconductor formats
+
+The processed output can be converted to standard Bioconductor objects for downstream analysis via the respective ecosystem tools:
+
+```r
+# CytoImageList for image visualisation with cytomapper/cytoviewer
+cil <- asCytoImageList(processed)
+
+# SpatialExperiment for spatial omics workflows
+spe <- asSpatialExperiment(processed)
+
+# AnnData for interoperability with Python/scanpy
+ann <- asAnnData(processed)
+```
+
+## Citation
+
+If you use gutenTAG in your work, please cite it using our pre-print:
+
+> Zhang M, Abbey J, (2025). *Spatial proteomics with 100+ markers with High Multiplexed MALDI-IHC* bioRxiv (2025). https://www.biorxiv.org/content/10.1101/2025.04.18.649415v1.abstract
+
+```bibtex
+@article{,
+  title  = {Spatial proteomics with 100+ markers with High Multiplexed MALDI-IHC},
+  author = {Mengze Zhang and John Abbey},
+  year   = {2025},
+  doi = {https://doi.org/10.1101/2025.04.18.649415},
+  url = {https://www.biorxiv.org/content/10.1101/2025.04.18.649415v1.abstract},
+  journal   = {bioRxiv}
+}
+```
+
+We will soon have a pre-print out for gutenTAG!
+
+Please also acknowledge the Cardinal framework:
+
+> Bemis et al. (2023). Cardinal v3: scalable, out-of-memory computing for mass spectrometry imaging. *Bioinformatics*.
+
+## License
+
+MIT © BodenmillerGroup. See [LICENSE](LICENSE) for details.
+
+## Contributing
+
+Contributions are welcome. Please open an issue at the [issue tracker](https://github.com/BodenmillerGroup/gutenTAG/issues) before submitting a pull request.

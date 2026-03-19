@@ -3,14 +3,14 @@ test_that("generateMetapeaks works",{
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   raw <- readMSIData(path)
-  pre <- preProcess(raw, cores = 2)
-  peaks <- peakDetection(pre, cores = 2)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
 
   # test that the object after peakDetection is still the correct object class
   expect_s4_class(peaks, "MSImagingExperiment")
 
   # generate metapeaks
-  cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1, density = 3)
+  cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1, sparsity = 3)
 
   # test that metapeak center is correct
   expect_equal(cur_test$metapeaks$center[1:10], c(903.09, 906.31, 913.88, 917.16,
@@ -49,17 +49,19 @@ test_that("generateMetapeaks works",{
   # check that logical input produces error
   expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE))
 
-  # check that density param fails if not a positive number
-  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, density = TRUE))
-  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, density = "2"))
-  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, density = as.factor(2)))
-  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, density = -1))
+  # check that sparsity param fails if not a positive number
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, sparsity = TRUE))
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, sparsity = "2"))
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, sparsity = as.factor(2)))
+  expect_error(generateMetapeaks(x = peaks, fixed.limits = TRUE, sparsity = -1))
 
-  # check density output is expected
-  density_test <- generateMetapeaks(x = peaks, fixed.limits = limits, hist_smooth_factor = 1, density = 1)
-  expect_equal(density_test$metapeaks$max[1:10] , c(903.185974121094, 905.19140625, 907.196838378906, 912.266174316406,
+  # check sparsity output is expected
+  sparsity_test <- generateMetapeaks(x = peaks, fixed.limits = limits, hist_smooth_factor = 1, sparsity = 1)
+  expect_equal(sparsity_test$metapeaks$max[1:10] , c(903.185974121094, 905.19140625, 907.196838378906, 912.266174316406,
                    914.71728515625, 917.168395996094, 919.173828125, 921.234985351562,
                    923.129028320312, 925.190185546875), tolerance = 0.1)
+  # (note: sparsity = 1 → lower value → more closely-spaced metapeaks)
+
 
 
 

@@ -1,3 +1,6 @@
+#' @importFrom stats var
+NULL
+
 #############################  Helper functions ###################################
 
 # Marker panel cleaning function ####
@@ -6,18 +9,16 @@
 
   # 1. ensure column names are correct
 
-  if (is.numeric(panel$Name) == T){
+  if (is.numeric(panel$Name)){
     colnames(panel) <- c("FeatureMass","Name")
   }
-
-  # rearrange column order so Name is first column
-  dplyr::relocate(panel, "Name", .before = "FeatureMass")
 
   # 2. sort by mass tag size
 
   panel <- dplyr::arrange(panel, panel$FeatureMass)
 
   # 3. clean marker names
+  panel$OriginalName <- panel$Name   # record pre-clean names
 
   for(a in seq_along(panel$Name)){
 
@@ -30,14 +31,8 @@
 
       # split strings with spaces into list with individual strings as elements
       new_string <- gsub(" ", "", panel$Name[a])
-      # replace fullstops with underscores
+      # replace dashes with dots
       new_string <- gsub("-", ".", new_string, fixed = TRUE)
-      # if there is a dash at the end of the name, remove it
-      if(endsWith(new_string, "-")){
-
-        new_string <- substr(new_string,1, nchar(new_string)-1)
-
-      }
       # replace names in peakAnnotation
       panel$Name[a] <- new_string
 
@@ -54,7 +49,7 @@
   }
 
   # 4. rearrange column order so Name is first column
-  panel <- relocate(panel, "Name", .before = "FeatureMass")
+  panel <- relocate(panel, c("Name", "OriginalName"), .before = "FeatureMass")
 
   return(panel)
 
@@ -94,16 +89,21 @@
 
 
 # One dimensional otsu thresholding  ####
+## x is logTIC
+## number_bins is the number of histogram bins
+## safe_var returns 0 for partitions with fewer than 2 elements to avoid NA from var() on length-0 or length-1 vectors
 .otsu_thresholding = function(x, number_bins = 100) {
 
   list_bin = quantile(x,base::seq(from = 0, to = 1, length.out = number_bins))
-  intravariance_vector = c()
+  intravariance_vector <- numeric(number_bins)
 
-  for (k in 1:number_bins) {
+  for (k in seq_len(number_bins)) {
 
     threshold_temp <- list_bin[k]
-    s <- length(x[x < threshold_temp]) * var(x[x < threshold_temp]) + length(x[x > threshold_temp]) * var(x[x > threshold_temp])
-    intravariance_vector <- c(intravariance_vector, s)
+    safe_var <- function(v) if (length(v) < 2) 0 else var(v)
+    s <- length(x[x < threshold_temp]) * safe_var(x[x < threshold_temp]) +
+         length(x[x > threshold_temp]) * safe_var(x[x > threshold_temp])
+    intravariance_vector[k] <- s
 
   }
 
@@ -123,12 +123,22 @@
 
 }
 
-# remove duplicated metapeaks for a targeted MSI experiment.
-## Specify which direction of the expected mass you expect the mass shift to occur in. removeDuplicates will choose the closest metapeak in that direction.
-.removeDuplicates <- function(sample, shift){
+# helper: return the candidate mz with the smallest absolute distance to expected_mz
+.choose_closest <- function(cand_mz, expected_mz) {
+  cand_mz[which.min(abs(cand_mz - expected_mz))]
+}
 
-  cur_df <- sample$processed$IntensityDF
-  cur_correspondence <- sample$processed$CorrespondenceMatrix
+# remove duplicated metapeaks for a targeted MSI experiment.
+# x: output from assignMetapeaks (a list with IntensityDF, CorrespondenceMatrix, SpatialCoords).
+# shift: direction of expected mass shift ("left", "right", or "closest").
+.removeDuplicates <- function(x, shift){
+
+  if (!shift %in% c("left", "right", "closest")) {
+    stop("'shift' must be \"left\", \"right\", or \"closest\".")
+  }
+
+  cur_df <- x$IntensityDF
+  cur_correspondence <- x$CorrespondenceMatrix
 
   # get the correspondence matrix of just the duplicated values
   dup_tags <- unique(cur_correspondence$expected_mz_location)[which(table(cur_correspondence$expected_mz_location) > 1)]
@@ -136,7 +146,8 @@
 
   # loop through all duplicates and choose the correct peak for each
   duplicate_expected_mzs <- unique(dup_correspondence$expected_mz_location)
-  correct_peaks <- c()
+  correct_peaks <- numeric(length(duplicate_expected_mzs))
+
 
   for(i in duplicate_expected_mzs){
 
@@ -145,20 +156,26 @@
     # extract cur pairing
     cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
-    # if you expect mass shift to be to the right of the expected mass
-    if(shift == "right"){
-      # first select masses that are greater than the expected value
-      correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location > unique(cur_pairing$expected_mz_location)]
-      # choose the closest one (moot if there is only 1, most common case)
-      correct_peak <- min(correct_shifted_mzs)
-    }
+    if (shift == "closest") {
 
-    # if you expect mass shift to be to the right of the expected mass
-    if(shift == "left"){
-      # first select masses that are less than the expected value
-      correct_shifted_mzs <- cur_pairing$mz_location[cur_pairing$mz_location < unique(cur_pairing$expected_mz_location)]
-      # choose the closest one (moot if there is only 1, most common case)
-      correct_peak <- max(correct_shifted_mzs)
+      correct_peak <- .choose_closest(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
+
+    } else {
+
+      compare_fn <- if (shift == "right") `>` else `<`
+      select_fn  <- if (shift == "right") min else max
+
+      correct_shifted_mzs <- cur_pairing$mz_location[
+        compare_fn(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
+      ]
+
+      if (length(correct_shifted_mzs) == 0) {
+        warning(paste0("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak."))
+        correct_shifted_mzs <- cur_pairing$mz_location
+      }
+
+      correct_peak <- select_fn(correct_shifted_mzs)
+
     }
 
     correct_peaks[idx] <- correct_peak
@@ -181,8 +198,8 @@
 
   # get the marker names only
   ## initialse binary vector (TRUE/FALSE if marker name is duplicate)
-  bin_vector <- c()
-  for (i in 1:length(colnames(cur_df))){
+  bin_vector <- logical(ncol(cur_df))
+  for (i in seq_len(ncol(cur_df))){
 
     ## identify markers with duplicate in the name
     needle <- "duplicate"
@@ -190,7 +207,7 @@
     ## find needle in haystack
     cur_val <- grepl(needle, haystack, fixed = TRUE)
     ## add to binary vector
-    bin_vector <- c(bin_vector, cur_val)
+    bin_vector[i] <- cur_val
 
   }
 
@@ -201,10 +218,11 @@
   updated_df <- cur_df[, keep_idx]
   colnames(updated_df) <- colnames(cur_df)[!bin_vector]
 
-  ## Create new sample list
-  updated_sample <- list("IntensityDF" = updated_df,
-                         "CorrespondenceMatrix" = updated_correspondence,
-                         "SpatialCoords" = sample$processed$SpatialCoords)
+  ## Update relevant fields in the original structure
+  updated_sample <- x
+  updated_sample$IntensityDF <- updated_df
+  updated_sample$CorrespondenceMatrix <- updated_correspondence
+  updated_sample$FilteredDF <- x$FilteredDF[, colnames(updated_df)]
 
   return(updated_sample)
 

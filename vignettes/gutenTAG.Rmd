@@ -1,5 +1,5 @@
 ---
-title: "Processing and analysis of MALDI-imaging data"
+title: "gutenTAG: Processing and Quality Control of MALDI-IHC data"
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('gutenTAG')`"
 author:
@@ -7,16 +7,15 @@ author:
   affiliation: 
   - Department for Quantitative Biomedicine, University of Zurich
   - Institute for Molecular Health Sciences, ETH Zurich
-  - Functional Genomics Center Zurich
   email: john.abbey@uzh.ch
   
 - name: Pierre Bost
   affiliation:
-  - Department for Quantitative Biomedicine, University of Zurich
+  -  Institut Curie, PSL Université, Sorbonne Université, Paris, France
 
 - name: Leonardo Schwarz
   affiliation:
-    - Functional Genomics Center Zurich
+    - Functional Genomics Center Zurich, ETH Zurich and University of Zurich
     
 output:
     BiocStyle::html_document:
@@ -25,7 +24,7 @@ output:
 bibliography: library.bib
 
 abstract: |
-    This R package supports the processing and analysis of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the R package `Cardinal`, a very useful tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
+    This R package supports the processing and quality control of highly multiplexed MALDI-imaging data. `gutenTAG` is aimed at processing of highly-multiplexed targeted MALDI-IHC data in particular. It is characterised by a novel 'metapeak' generation step to account for mass shift and the presence of isotopic peaks. The data handling capabilities build heavily on the Bioconductor package `Cardinal`, a tool for general processing and analysis of Mass Spectrometry Imaging data. The data can easily be converted into `MSImagingExperiment`, `SpatialExperiment` objects and `AnnData` objects through inbuilt conversion functions, facilitating further downstream analysis. Additionally, the package supports image visualisation from `cytomapper` (and therefore `cytoviewer`, an RShiny extension of cytomapper) through the construction of a `CytoImageList` object.
     
 vignette: |
     %\VignetteIndexEntry{"Tools for MALDI-imaging data analysis"}
@@ -100,19 +99,9 @@ capped by the abundance of heavy metals as in IMC.
 ## MALDI-IHC
 
 MALDI-IHC data shows some persistent features which must be taken into
-consideration for analysis. Firstly, it is large. Very large. Depending
+consideration for analysis. Firstly, it is quite large. Depending
 on the size of the tissue in question and the pixel size chosen for
-acquisition, it is not uncommon to see files in excess of 50GB. This
-makes running even computationally efficient tasks quite a burden. On
-the technical side, MALDI-IHC, and indeed MALDI-imaging in general,
-commonly exhibit a significant mass shift. This can hamper our analysis,
-as our peaks are not always in their expected location. This mass shift
-can vary from sample to sample as well as vary within the same sample
-(can be due to height effects in the tissue, laser defocusing, etc.). A
-further feature of MALDI-imaging data is the presence of isotopic peaks,
-which split the signal locally across the spectrum. These are the
-primary features of MALDI-imaging data which can be corrected for
-computationally using `gutenTAG`.
+acquisition, it is not uncommon to see files in excess of 50GB. This will only increase as the field pushes for smaller pixel sizes and larger acquisition areas. This makes running even computationally efficient tasks quite a burden. MALDI-imaging data processing is hampered by a few acquisitional features, resulting in mass tag signal not always being in its expected location. Mass shift, where there is a systematic shift of a peak from it's expected location, can vary from sample to sample, as well as vary within the same sample (can be due to height effects in the tissue, laser defocusing, etc.). A further feature of MALDI-imaging data is the presence of isotopic peaks, which split the signal locally across the spectrum. These are the primary features of MALDI-imaging data which can be accounted for computationally with `gutenTAG`.
 
 ## gutenTAG overview
 
@@ -150,6 +139,7 @@ following analyses:
 3.  [Data processing](#processing)
 4.  [Visualisation](#visualisation) of processed targeted images
 5.  [Interoperability](#interoperability) with object classes
+6.  [Quality Control](#qc)
 
 To highlight the usability of these function, the `gutenTAG` package
 also exports a number of [test data files](#test-data).
@@ -201,7 +191,7 @@ This can be done simply using the `preProcess` function from this
 package, which can be implemented as follows.
 
 ```{r pre-processing}
-pre <- preProcess(rawFile, cores = 2)
+pre <- preProcess(rawFile)
 ```
 
 This function is a wrapper for the Cardinal functions `normalize`,
@@ -214,9 +204,9 @@ smoothing for spectral smoothing and local minimum baseline reduction.
 ```{r Cardinal pre-processing}
 pre <- rawFile |>
     Cardinal::normalize(method = "tic") |>
-    smoothSignal(method = "gaussian", plot = FALSE) |>
+    Cardinal::smooth(method = "gaussian") |>
     reduceBaseline(method = "locmin") |>
-    process(BPPARAM = MulticoreParam(workers = 2))
+    process(BPPARAM = BiocParallel::bpparam())
 
 ```
 
@@ -234,7 +224,7 @@ spectra. This function is essentially a wrapper for
 detection algorithm for robust noise evaluation.
 
 ```{r Peak detection}
-detected <- peakDetection(pre, snr = 3, cores = 2)
+detected <- peakDetection(pre, snr = 3)
 ```
 
 ### Metapeak generation {#metapeak-generation}
@@ -260,7 +250,7 @@ peaks. Many of the metapeaks generated will be formed by signal that is
 from untargeted peaks.
 
 ```{r Metapeak generation}
-metapeaks <- generateMetapeaks(detected, hist_smooth_factor = 1, fixed.limits = 0.5, density = 1)
+metapeaks <- generateMetapeaks(detected, hist_smooth_factor = 1, fixed.limits = 0.5, sparsity = 1)
 ```
 
 ### Assigning metapeaks {#metapeak-assignment}
@@ -283,6 +273,64 @@ parameters can be adjusted to improve results.
 
 ```{r Generate final output}
 processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
+```
+
+## Parallelisation {#parallelisation}
+
+gutenTAG uses the `BiocParallel` framework for parallel processing. Both
+`preProcess` and `peakDetection` accept a `BPPARAM` argument that accepts
+any `BiocParallelParam` object. By default, both functions use
+`BiocParallel::bpparam()`, which returns the session-wide registered backend.
+
+### Setting a backend for the session
+
+The recommended approach is to register a backend once at the top of your
+script, before calling any gutenTAG functions:
+
+```{r parallelisation-register, eval=FALSE}
+# Linux / macOS — fork-based, lowest overhead
+BiocParallel::register(BiocParallel::MulticoreParam(workers = 4))
+
+# Windows — socket-based (also works on Linux/macOS)
+BiocParallel::register(BiocParallel::SnowParam(workers = 4))
+
+# Single-core
+BiocParallel::register(BiocParallel::SerialParam())
+```
+
+After registering, all subsequent calls to `preProcess` and `peakDetection`
+will use the registered backend automatically:
+
+```{r parallelisation-registered-call, eval=FALSE}
+pre      <- preProcess(rawFile)
+detected <- peakDetection(pre, snr = 3)
+```
+
+### Passing a backend per call
+
+You can also pass a backend directly to override the registered default for a
+single call:
+
+```{r parallelisation-per-call, eval=FALSE}
+pre      <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
+detected <- peakDetection(pre, snr = 3, BPPARAM = BiocParallel::SnowParam(workers = 4))
+```
+
+### Choosing the right backend
+
+| Platform       | Recommended backend          | Notes                              |
+|----------------|------------------------------|------------------------------------|
+| Linux / macOS  | `MulticoreParam(n)`          | Fork-based, minimal overhead       |
+| Windows        | `SnowParam(n)`               | Socket-based, works on all systems |
+| Any (serial)   | `SerialParam()`              | Default; no parallelisation        |
+
+`SnowParam` also works on Linux/macOS and is the safest choice if you are
+writing code intended to run on multiple platforms.
+
+### Checking what backend is currently registered
+
+```{r parallelisation-check, eval=FALSE}
+BiocParallel::bpparam()
 ```
 
 ## Visualisation of processed data {#visualisation}
@@ -353,15 +401,15 @@ frameworks in the spatial omics ecosystem. These functions include:
 These functions are written to be called on the output of the
 `assignMetapeaks()` function.
 
+## Quality Control {#qc}
+
+`gutenTAG` provides many quality control functions. These can be useful for assessing data quality, filtering low performance peaks and assessing the overall quality of gutenTAG's segmentation. A full QC report can be found in `inst/qc_report.Rmd`.
+
 # Contributions
 
-[Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
-generation step for data processing, as well as being instrumental in
-developing the architecture of the pipeline.\ [Leonardo Schwarz](https://github.com/leoschwarz) was contributed enormously  
-to the package codebase.\ Thank you to [Nils Eling](https://github.com/nilseling) and [Lasse
-Meyer](https://github.com/lassedochreden) for assisting in the development of the package, as well as helping with 
-integrating the package with `cytomapper` and `cytoviewer`. \ 
-We thank all the members of FGCZ Proteomics Informatics unit for their support.
+[John Abbey](https://github.com/JohnAbbey98) wrote the package.
+[Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak generation step for data processing and was instrumental in
+developing the initial architecture of the pipeline. [Leonardo Schwarz](https://github.com/leoschwarz) contributed enormously to the package codebase. Thank you to [Nils Eling](https://github.com/nilseling) and [Lasse Meyer](https://github.com/lassedochreden) for assisting in the development of the package, as well as helping with integrating the package with `cytomapper` and `cytoviewer`. We also thank [Christian Panse](https://github.com/cpanse) and [Witold Wolski](https://github.com/wolski) of the Functional Genomics Center Zurich (FGCZ) for all of their support.
 
 # Session info {.unnumbered}
 
