@@ -154,3 +154,4 @@ test_that("plotTICSpatial works", {
   expect_equal(nrow(ggplot2::layer_data(p)), n_nonzero)
 
 })
+

@@ -18,16 +18,15 @@ test_that("computeSNR works",{
 
   # Test correspondence matrix
   expect_true("snr" %in% colnames(cur_test$CorrespondenceMatrix))
-  expect_equal(cur_test$CorrespondenceMatrix$snr, c(2.07919158184831, 1.48489368089413, 0, 0, 2.22915785723627,
-                                                    0, 3.1144754240626, 3.72397173486482, 3.323669305973, 16.9176896774671,
-                                                    2.40921027994661, 1.41160848191838, 3.03517059385205))
+  expect_equal(cur_test$CorrespondenceMatrix$snr, c(1.46674417788158, 1.68252354822219, 1.89190839866574, 0, 3.99920021456553, 
+                                                    0, 2.44622835834056, 2.90072853664465, 3.81615438430949, 0, 1.54626104953847, 
+                                                    1.38225470794779, 3.10914667005805))
 
   # test flexmix snr
   set.seed(123)
   flexmix_test <- computeSNR(processed, update_correspondence = TRUE, package = "flexmix")
-  expect_equal(flexmix_test$CorrespondenceMatrix$snr, c(1, 1.46662215920315, 0, 0, 2.00872721014486, 0, 3.08641724395242,
-                                                        3.80602499772131, 1, 15.2477686105868, 2.38579865682754, 1.40678431312882,
-                                                        2.9132994473942), tolerance = 0.1)
+  expect_equal(flexmix_test$CorrespondenceMatrix$snr, c(1, 1.65067019405939, 1, 0, 1, 0, 2.51257502580874, 1, 4.25386455758169, 
+                                                        0, 1.29670203517052, 1.36948499744764, 3.10914667005805), tolerance = 0.1)
 
 })
 

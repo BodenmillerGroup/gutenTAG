@@ -17,21 +17,21 @@ test_that("assignMetapeaks works",{
 
   # test that dimensions are correct
   expect_equal(dim(cur_test$CorrespondenceMatrix), c(13, 7))
-  expect_equal(dim(cur_test$IntensityDF), c(256, 13))
-  expect_equal(dim(cur_test$SpatialCoords), c(256, 2))
-  expect_equal(dim(cur_test$FilteredDF), c(256, 13))
-  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksCorrespondence), c(218, 7))
-  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity), c(256, 218))
+  expect_equal(dim(cur_test$IntensityDF), c(64, 13))
+  expect_equal(dim(cur_test$SpatialCoords), c(64, 2))
+  expect_equal(dim(cur_test$FilteredDF), c(64, 13))
+  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksCorrespondence), c(225, 7))
+  expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity), c(64, 225))
   # check that number of metapeaks matches watershed output
   expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity)[2], max(metapeaks$propagation_selection))
 
   # check if output of intensity df is the same
-  expect_equal(cur_test$IntensityDF[1][1:10,], c(9.7875, 8.8391, 9.2086, 7.8215,
-                                                 8.5176, 4.3037, 6.9910, 4.1411,
-                                                 5.9847, 4.5863), tolerance = 0.001)
+  expect_equal(cur_test$IntensityDF[1][1:10,], c(17.422048725, 15.534756338, 16.601248495, 13.599311602,
+                                                 15.486051244,  8.579481466, 12.378848085,  9.653047280,
+                                                 12.303031797, 17.647776591), tolerance = 0.001)
 
   # check if spatial coordinates are correct
-  expect_equal(range(cur_test$SpatialCoords), c(1, 16))
+  expect_equal(range(cur_test$SpatialCoords), c(1, 8))
 
 
   # test if character in arguments throws error
@@ -53,12 +53,12 @@ test_that("assignMetapeaks works",{
                  900.177795410156, 900.233459472656))
   # skyline spectrum
   expect_equal(head(cur_test$SummarySpectra$skyline),
-               c(0, 0.0944778578430998, 0.189315670352099, 0.43788513619033,
-                 0.742802278955215, 0.832960263949027))
+               c(0, 0.0944778578430998, 0.1707933512843987, 0.4378851361903300,
+                 0.3125056625444678, 0.4527385734712326))
   # mean spectrum
   expect_equal(head(cur_test$SummarySpectra$mean),
-               c(0, 0.0104144228680699, 0.0239233157355273, 0.0803053741897167,
-                 0.155767504458426, 0.203761595637217))
+               c(0, 0.0138080050313242, 0.0190293616937189, 0.0481658760419839,
+                 0.0928549807330610, 0.1370896593443408))
 
 
 })

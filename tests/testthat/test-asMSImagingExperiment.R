@@ -28,11 +28,12 @@ test_that("asMSImagingExperiment works",{
 
   # test that values in intensity are correct
   expect_equal(ProtGenerics::spectra(cur_test)[1:5, 1:5],
-               structure(c(9.78751411382999, 18.9425446633928, 0, 0, 50.5297566319526,
-                           8.83914708481089, 16.8270374577648, 0, 0, 52.6146794330136, 9.20862181033298,
-                           16.8391295927981, 0, 0, 59.2717356611516, 7.82156800846123, 19.7860939843446,
-                           0, 0, 38.417457849565, 8.51768733290817, 20.4836879757656, 0,
-                           0, 32.0163733894236), dim = c(5L, 5L), dimnames = list(c("CD98",
+               structure(c(17.4220487250521, 11.6045427325578, 1.59979813813778, 
+                           0, 50.5297566319526, 15.5347563384415, 10.5207882749363, 2.24746236445432, 
+                           0, 52.6146794330136, 16.6012484948729, 9.19882619912138, 0.987749064337182, 
+                           0, 59.2717356611516, 13.599311601724, 12.1501598978989, 1.37411748506043, 
+                           0, 38.417457849565, 15.4860512443758, 10.5693464394191, 2.20248356662481, 
+                           0, 32.0163733894236), dim = c(5L, 5L), dimnames = list(c("CD98", 
                                                                                     "NFKB", "FN1", "CD73", "beta.actin"), NULL)),
                tolerance = 0.01)
 
@@ -40,7 +41,7 @@ test_that("asMSImagingExperiment works",{
   new_test <- asMSImagingExperiment(processed, remove.na = TRUE)
 
   # check shape is correct
-  expect_equal(as.numeric(dim(new_test)), c(10, 256))
+  expect_equal(as.numeric(dim(new_test)), c(10, 64))
 
   # check there are no more zero columns
   expect_true(all(rowSums(ProtGenerics::spectra(new_test)) > 0))

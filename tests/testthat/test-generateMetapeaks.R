@@ -23,13 +23,13 @@ test_that("generateMetapeaks works",{
                                                937.78, 941.18), tolerance = 0.1)
 
   # test that metapeak width is correct
-  expect_equal(cur_test$metapeaks$width[1:10], c(0.173770378018388, 0.232730795454847, 0.304097311566525, 0.0713699159742911,
-                                                 0.145843906514347, 0.0403393699044857, 0.121018109713457, 0.384779451238109,
-                                                 0.0124128984004448, 0.0124094985378317), tolerance = 0.01)
+  expect_equal(cur_test$metapeaks$width[1:10], c(0.338231932202095, 0.366158403706136, 0.0557033490531052, 0.148944581217498, 
+                                                 0.0527522683049305, 0.00620474926891583, 0.117917435010306, 0.32581903380165, 
+                                                 0.0124128984004448, 0.0155135731035961), tolerance = 0.01)
 
 
   # test that max value of propagation selection is correct
-  expect_equal(max(cur_test$propagation_selection), 218)
+  expect_equal(max(cur_test$propagation_selection), 225)
 
   # test if character in first argument throws error
   expect_error(generateMetapeaks("test"))

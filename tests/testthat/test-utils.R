@@ -57,11 +57,11 @@ test_that(".translate_coordinates works",{
   expect_type(cur_test, "list")
 
   # test that dimensions are corrent
-  expect_equal(dim(cur_test), c(256L, 2L))
+  expect_equal(dim(cur_test), c(64L, 2L))
 
   # test that order of names is correct
-  expect_equal(head(cur_test$x, 10), c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
-  expect_equal(head(cur_test$y, 10), c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
+  expect_equal(head(cur_test$x, 10), c(1, 1, 1, 1, 1, 1, 1, 1, 2, 2))
+  expect_equal(head(cur_test$y, 10), c(1, 2, 3, 4, 5, 6, 7, 8, 1, 2))
 
   # test if character in first argument throws error
   expect_error(.cleanPanel("panel_path"))

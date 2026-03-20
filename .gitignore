@@ -8,6 +8,9 @@ analysis/*png
 analysis/*html
 inst/*html
 inst/*_files/
+inst/extdata/regenerate_processed.R
+inst/extdata/reduce_example_data.R
+inst/extdata/old_example_data
 analysis/*_cache
 analysis/site_libs
 inst/doc
