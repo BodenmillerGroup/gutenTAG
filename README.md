@@ -149,7 +149,8 @@ We will soon have a pre-print out for gutenTAG!
 
 Please also acknowledge the Cardinal framework:
 
-> Bemis et al. (2023). Cardinal v3: scalable, out-of-memory computing for mass spectrometry imaging. *Bioinformatics*.
+> Bemis et al. (2023). Cardinal v3: a versatile open-source software for mass spectrometry imaging analysis. *Bioinformatics*.
+
 
 ## License
 
