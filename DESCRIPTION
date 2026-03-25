@@ -12,7 +12,6 @@ Depends:
   Cardinal (>= 3.6.2)
 Imports:
   ggplot2,
-  N2R,
   ProtGenerics,
   dplyr,
   stats,

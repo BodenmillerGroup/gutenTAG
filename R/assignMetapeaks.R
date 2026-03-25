@@ -23,7 +23,7 @@
 #'   \item{FilteredDF}{TIC-filtered intensity data frame.}
 #' }
 #'
-#' @importFrom N2R crossKnn
+#'
 #' @importFrom Cardinal mz
 #' @importFrom matter colSums rowSums
 #' @importFrom dplyr relocate
@@ -93,13 +93,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # get m/z vector
   mz_vector <- as.data.frame(mz(pre))
 
-  # Map metapeaks to panel
-  mapping_meta <- N2R::crossKnn(mA = matrix(mpeaks$max),
-                                mB = matrix(refList$FeatureMass, ncol = 1), k = 10, indexType = "L2", verbose = FALSE)
-
-  # remove all mappings below the m/z distance association threshold
-  mapping_meta[mapping_meta > mz_threshold] <- 0
-  mapping_meta_cleaned <- apply(as.matrix(mapping_meta), MARGIN = 2, FUN = .which_min_ignore_zero)
+  # Map metapeaks to panel: for each metapeak find nearest reference mass within threshold
+  dist_matrix          <- abs(outer(mpeaks$max, refList$FeatureMass, "-"))  # n_metapeaks x n_ref
+  min_dist             <- apply(dist_matrix, 1, min)
+  mapping_meta_cleaned <- apply(dist_matrix, 1, which.min)
+  mapping_meta_cleaned[min_dist > mz_threshold] <- NA
   #construct correspondence matrix
   correspondence_matrix <- data.frame(mz_location = mpeaks$max,
                                       expected_mz_location = refList$FeatureMass[mapping_meta_cleaned],
