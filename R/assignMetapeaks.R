@@ -93,9 +93,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # get m/z vector
   mz_vector <- as.data.frame(mz(pre))
 
-  # Map metapeaks to panel: for each metapeak find nearest reference mass within threshold
-  dist_matrix          <- abs(outer(mpeaks$max, refList$FeatureMass, "-"))  # n_metapeaks x n_ref
-  min_dist             <- apply(dist_matrix, 1, min)
+  # Map metapeaks to panel. for each metapeak find nearest reference mass within threshold
+  dist_matrix <- abs(outer(mpeaks$max, refList$FeatureMass, "-")) 
+  min_dist <- apply(dist_matrix, 1, min)
   mapping_meta_cleaned <- apply(dist_matrix, 1, which.min)
   mapping_meta_cleaned[min_dist > mz_threshold] <- NA
   #construct correspondence matrix
