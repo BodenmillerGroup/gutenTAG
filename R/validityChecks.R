@@ -200,6 +200,29 @@ NULL
 
 }
 
+# computePixelMassShift ####
+.valid.computePixelMassShift <- function(x, pre, metapeaks, update_correspondence) {
+
+  required_fields <- c("CorrespondenceMatrix", "SpatialCoords")
+  if (!is.list(x) || !all(required_fields %in% names(x))) {
+    stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+  }
+
+  if (!is(pre, "MSImagingExperiment")) {
+    stop("'pre' must be an MSImagingExperiment object (output of preProcess).")
+  }
+
+  if (!is.list(metapeaks) || !("metapeaks" %in% names(metapeaks)) ||
+      !all(c("max", "limits") %in% names(metapeaks$metapeaks))) {
+    stop("'metapeaks' must be a list with '$metapeaks$max' and '$metapeaks$limits' (output of generateMetapeaks).")
+  }
+
+  if (!is.logical(update_correspondence)) {
+    stop("'update_correspondence' should be a boolean (TRUE/FALSE)")
+  }
+
+}
+
 # imageChannel ####
 .valid.imageChannel <- function(x, coords, channel, quantile_threshold, palette, na_colour){
 

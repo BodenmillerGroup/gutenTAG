@@ -2,10 +2,13 @@
 # All functions in this file produce quality control plots for MALDI-MSI data.
 
 #' @importFrom ggplot2 ggplot aes geom_bar geom_boxplot geom_histogram
-#'   geom_hline geom_line geom_point geom_rect geom_violin geom_vline
-#'   scale_color_manual scale_fill_identity scale_fill_manual scale_linetype_manual
+#'   geom_hline geom_line geom_point geom_rect geom_smooth geom_violin geom_vline
+#'   scale_color_manual scale_colour_gradient2 scale_colour_viridis_c
+#'   scale_fill_identity scale_fill_manual scale_linetype_manual
 #'   scale_x_log10 scale_y_log10 labs ggtitle theme theme_minimal theme_void
 #'   element_text
+#' @importFrom ggbeeswarm geom_beeswarm
+#' @importFrom ggrepel geom_text_repel
 #' @importFrom rlang .data
 #' @importFrom dplyr arrange filter
 #' @importFrom stats lm sd quantile reorder setNames
@@ -872,4 +875,307 @@ plotTICSpatial <- function(x) {
       x     = "X",
       y     = "Y"
     )
+}
+
+
+# ── 12. plotMassShiftDistribution ─────────────────────────────────────────────
+
+#' Plot Mass Shift Distribution per Marker
+#'
+#' @description Beeswarm plot showing the mass shift (observed m/z minus
+#'   panel reference m/z) for each annotated marker. Markers are ordered
+#'   along the x-axis by expected m/z. Points are coloured by the magnitude
+#'   of the shift using a viridis scale. A horizontal reference line is drawn
+#'   at zero shift. Markers with \code{|shift| > 1} Da are labelled with
+#'   \pkg{ggrepel}.
+#'
+#' @param x List output of \code{\link{assignMetapeaks}}. Must contain
+#'   \code{CorrespondenceMatrix} with columns \code{mz_location},
+#'   \code{expected_mz_location}, and \code{marker}.
+#' @param label_threshold Numeric; markers with \code{|shift| > label_threshold}
+#'   Da are labelled with \pkg{ggrepel}. Default \code{1}.
+#' @param interactive Logical; if \code{TRUE} returns a \code{plotly} object.
+#'   Requires the \pkg{plotly} package. Default \code{FALSE}.
+#'
+#' @return A \code{ggplot} object, or a \code{plotly} object when
+#'   \code{interactive = TRUE}.
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' plotMassShiftDistribution(x = results$processed)
+#' @export
+plotMassShiftDistribution <- function(x, label_threshold = 1, interactive = FALSE) {
+
+  cm <- x$CorrespondenceMatrix
+  plot_df <- cm[!is.na(cm$mz_location), ]
+  plot_df$mass_shift <- plot_df$mz_location - plot_df$expected_mz_location
+  plot_df$abs_shift  <- abs(plot_df$mass_shift)
+
+  # Order markers by expected m/z
+  plot_df$marker_ordered <- reorder(plot_df$marker, plot_df$expected_mz_location)
+
+  # Label outliers exceeding threshold
+  label_df <- plot_df[plot_df$abs_shift > label_threshold, ]
+
+  p <- ggplot(plot_df,
+              aes(x     = .data[["marker_ordered"]],
+                  y     = .data[["mass_shift"]],
+                  color = .data[["abs_shift"]])) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+    geom_beeswarm(size = 3, cex = 2) +
+    scale_colour_viridis_c(name = "|Shift| (Da)", option = "viridis") +
+    theme_minimal() +
+    ggtitle("Mass Shift Distribution") +
+    labs(x = "Marker (ordered by expected m/z)", y = "Mass shift (Da)") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  if (nrow(label_df) > 0) {
+    p <- p +
+      ggrepel::geom_text_repel(
+        data          = label_df,
+        aes(label     = .data[["marker"]]),
+        color         = "black",
+        size          = 3,
+        box.padding   = 0.3,
+        point.padding = 0.2,
+        segment.color = "grey50",
+        max.overlaps  = Inf
+      )
+  }
+
+  if (!interactive) return(p)
+
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop(
+      "Package 'plotly' is required for interactive = TRUE. ",
+      "Install it with install.packages('plotly')."
+    )
+  }
+
+  plotly::ggplotly(p, dynamicTicks = TRUE)
+}
+
+
+# ── 13. plotMassShiftVsMz ─────────────────────────────────────────────────────
+
+#' Plot Mass Shift as a Function of Expected m/z
+#'
+#' @description Scatter plot of mass shift (observed minus expected m/z) versus
+#'   the panel reference m/z for all annotated markers. A loess smooth with
+#'   95\% confidence interval is overlaid to reveal systematic m/z-dependent
+#'   drift. Points are coloured by whether a marker was matched to a panel
+#'   feature.
+#'
+#' @param x List output of \code{\link{assignMetapeaks}}. Must contain
+#'   \code{CorrespondenceMatrix} with columns \code{mz_location},
+#'   \code{expected_mz_location}, and \code{marker}.
+#' @param interactive Logical; if \code{TRUE} returns a \code{plotly} object.
+#'   Requires the \pkg{plotly} package. Default \code{FALSE}.
+#'
+#' @return A \code{ggplot} object, or a \code{plotly} object when
+#'   \code{interactive = TRUE}.
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' plotMassShiftVsMz(x = results$processed)
+#' @export
+plotMassShiftVsMz <- function(x, interactive = FALSE) {
+
+  cm <- x$CorrespondenceMatrix
+  plot_df <- cm[!is.na(cm$mz_location), ]
+  plot_df$mass_shift <- plot_df$mz_location - plot_df$expected_mz_location
+
+  point_aes <- if (interactive) {
+    aes(x    = .data[["expected_mz_location"]],
+        y    = .data[["mass_shift"]],
+        text = .data[["marker"]])
+  } else {
+    aes(x = .data[["expected_mz_location"]], y = .data[["mass_shift"]])
+  }
+
+  p <- ggplot(plot_df, point_aes) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+    geom_point(color = "black", fill = "#3B9AB5", shape = 21, size = 3) +
+    theme_minimal() +
+    ggtitle("Mass Shift vs m/z") +
+    labs(x = "Expected m/z (Da)", y = "Mass shift (Da)")
+
+  # Loess requires at least 10 points for a stable fit
+  if (nrow(plot_df) >= 10L) {
+    p <- p + geom_smooth(method = "loess", formula = y ~ x, se = TRUE,
+                         color = "steelblue", fill = "steelblue", alpha = 0.2,
+                         linewidth = 0.8)
+  }
+
+  # Static mode: add repel labels; interactive mode: tooltip via plotly text aes
+  if (!interactive) {
+    p <- p + geom_text_repel(
+      aes(label     = .data[["marker"]]),
+      size          = 3,
+      color         = "black",
+      box.padding   = 0.3,
+      point.padding = 0.2,
+      segment.color = "grey50",
+      max.overlaps  = 10
+    )
+    return(p)
+  }
+
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop(
+      "Package 'plotly' is required for interactive = TRUE. ",
+      "Install it with install.packages('plotly')."
+    )
+  }
+
+  plotly::ggplotly(p, dynamicTicks = TRUE)
+}
+
+
+# ── 14. plotMassShiftVsIntensity ──────────────────────────────────────────────
+
+#' Plot Mass Shift vs Mean Marker Intensity
+#'
+#' @description Scatter plot of mass shift (observed minus expected m/z) versus
+#'   log10-transformed mean pixel intensity for each annotated marker.
+#'   Markers are labelled using \pkg{ggrepel}. Markers with low signal and
+#'   large shift are likely to have unreliable centroid estimates from peak
+#'   detection.
+#'
+#' @param x List output of \code{\link{assignMetapeaks}}. Must contain
+#'   \code{CorrespondenceMatrix} and \code{IntensityDF}.
+#' @param interactive Logical; if \code{TRUE} returns a \code{plotly} object.
+#'   Requires the \pkg{plotly} package. Default \code{FALSE}.
+#'
+#' @return A \code{ggplot} object, or a \code{plotly} object when
+#'   \code{interactive = TRUE}.
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' plotMassShiftVsIntensity(x = results$processed)
+#' @export
+plotMassShiftVsIntensity <- function(x, interactive = FALSE) {
+
+  cm <- x$CorrespondenceMatrix
+  obs_df <- cm[!is.na(cm$mz_location), ]
+  obs_df$mass_shift <- obs_df$mz_location - obs_df$expected_mz_location
+
+  # Per-marker mean intensity (markers are columns of IntensityDF)
+  mean_int <- colMeans(x$IntensityDF, na.rm = TRUE)
+  obs_df$mean_intensity <- mean_int[obs_df$marker]
+  obs_df$log_mean_int   <- log10(obs_df$mean_intensity + 1)
+
+  point_aes <- if (interactive) {
+    aes(x    = .data[["log_mean_int"]],
+        y    = .data[["mass_shift"]],
+        text = .data[["marker"]])
+  } else {
+    aes(x = .data[["log_mean_int"]], y = .data[["mass_shift"]])
+  }
+
+  p <- ggplot(obs_df, point_aes) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+    geom_point(color = "black", fill = "#3B9AB5", shape = 21, size = 3) +
+    ggrepel::geom_text_repel(
+      aes(label = .data[["marker"]]),
+      size          = 3,
+      color         = "black",
+      box.padding   = 0.3,
+      point.padding = 0.2,
+      segment.color = "grey50",
+      max.overlaps  = Inf
+    ) +
+    theme_minimal() +
+    ggtitle("Mass Shift vs Mean Intensity") +
+    labs(x = "log10(Mean Intensity + 1)", y = "Mass shift (Da)")
+
+  if (!interactive) return(p)
+
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop(
+      "Package 'plotly' is required for interactive = TRUE. ",
+      "Install it with install.packages('plotly')."
+    )
+  }
+
+  plotly::ggplotly(p, dynamicTicks = TRUE)
+}
+
+
+# ── 15. plotMassShiftSpatial ──────────────────────────────────────────────────
+
+#' Plot Spatial Map of Per-Pixel Consensus Mass Shift
+#'
+#' @description Spatial scatter plot coloured by the per-pixel consensus mass
+#'   shift computed by \code{\link{computePixelMassShift}}. The colour scale
+#'   is centred at zero (white), with negative shifts in blue and positive
+#'   shifts in red. Pixels where mass shift could not be computed (all
+#'   markers with zero intensity) appear as \code{NA} and are not plotted.
+#'
+#' @param x List output of \code{\link{computePixelMassShift}} with
+#'   \code{update_correspondence = TRUE}. Must contain \code{PixelMassShift}
+#'   (numeric vector, one value per pixel) and \code{SpatialCoords}
+#'   (data frame with columns \code{x} and \code{y}).
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' \donttest{
+#'   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+#'   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+#'   panel <- readPanel(path = panel_path)
+#'   raw <- readMSIData(path)
+#'   pre <- preProcess(raw)
+#'   peaks <- peakDetection(pre)
+#'   mpeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
+#'   processed <- assignMetapeaks(mpeaks, pre = pre, refList = panel)
+#'   processed_shift <- computePixelMassShift(processed, pre = pre,
+#'                                            metapeaks = mpeaks,
+#'                                            update_correspondence = TRUE)
+#'   plotMassShiftSpatial(x = processed_shift)
+#' }
+#' @export
+plotMassShiftSpatial <- function(x) {
+
+  if (is.null(x$PixelMassShift)) {
+    stop(
+      "'x' does not contain '$PixelMassShift'. ",
+      "Run computePixelMassShift(x, pre, metapeaks, update_correspondence = TRUE) first."
+    )
+  }
+
+  coords <- x$SpatialCoords
+  plot_df <- data.frame(
+    x           = coords$x,
+    y           = coords$y,
+    mass_shift  = x$PixelMassShift
+  )
+
+  # Drop pixels with no computed shift
+  plot_df <- plot_df[!is.na(plot_df$mass_shift), ]
+
+  if (nrow(plot_df) == 0L) {
+    stop("No pixels with a computed mass shift to plot. ",
+         "Check that computePixelMassShift() produced non-NA values.")
+  }
+
+  shift_lim <- max(abs(plot_df$mass_shift))
+
+  ggplot(plot_df,
+         aes(x = .data[["x"]], y = -.data[["y"]],
+             color = .data[["mass_shift"]])) +
+    geom_point(size = 7) +
+    scale_colour_gradient2(
+      low      = "blue",
+      mid      = "white",
+      high     = "red",
+      midpoint = 0,
+      limits   = c(-shift_lim, shift_lim),
+      name     = "Mean shift (Da)"
+    ) +
+    theme_void() +
+    labs(title = "Spatial Mass Shift")
 }

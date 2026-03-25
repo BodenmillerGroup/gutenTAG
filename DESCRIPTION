@@ -29,6 +29,7 @@ Imports:
   BiocParallel,
   anndata,
   flexmix,
+  ggbeeswarm,
   ggrepel,
   rlang
 License: MIT + file LICENSE

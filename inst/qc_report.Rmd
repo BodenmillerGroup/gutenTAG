@@ -219,6 +219,76 @@ dput(sort(trashcan_zone$marker))
 
 ```
 
+## Mass Shift QC
+
+Mass shift measures how far the observed m/z position of each targeted metapeak
+deviates from the panel reference m/z. It is defined as
+`mz_location − expected_mz_location` for each annotated marker. Systematic or
+large shifts can indicate instrument recalibration drift, incorrect isotope
+assignment, or panel reference errors. Reviewing mass shift before downstream
+analysis helps validate that each marker is being measured at the correct mass.
+
+::: {.panel-tabset group="massshift"}
+
+## Distribution
+
+Each point represents one annotated marker, ordered along the x-axis by its
+panel reference m/z. The y-axis shows the mass shift in Daltons; the dashed
+line at zero indicates a perfect match between observed and expected m/z.
+Points are coloured by the magnitude of the shift. Markers labelled by
+`ggrepel` exceed the `label_threshold` and warrant manual inspection —
+they may indicate a metapeak assignment error or a large instrument drift for
+that mass range.
+
+```{r mass_shift_distribution, warning=FALSE, message=FALSE, out.width="100%"}
+plotMassShiftDistribution(x = processed_snr)
+```
+
+## vs m/z
+
+This plot reveals whether mass shift is uniform across the m/z range or follows
+a systematic trend. A monotone slope (visible in the loess smooth) is consistent
+with a linear recalibration error, where higher or lower masses are progressively
+shifted. A flat line close to zero is ideal. Points labelled with marker names
+allow identification of specific outliers.
+
+```{r mass_shift_vs_mz, warning=FALSE, message=FALSE, out.width="100%"}
+plotMassShiftVsMz(x = processed_snr)
+```
+
+## vs Intensity
+
+Low-signal markers may have unreliable peak centroid estimates because the
+intensity-weighted m/z centre is dominated by noise when signal is weak. This
+plot shows whether markers with low mean intensity also tend to have larger mass
+shifts, which would support this hypothesis. Markers appearing in the lower-left
+quadrant (low intensity, large absolute shift) are candidates for removal or
+further validation.
+
+```{r mass_shift_vs_intensity, warning=FALSE, message=FALSE, out.width="100%"}
+plotMassShiftVsIntensity(x = processed_snr)
+```
+
+## Spatial
+
+The spatial mass shift map assigns a consensus shift value to each pixel by
+averaging the per-pixel intensity-weighted m/z centroid deviation across all
+observed markers. Spatially structured shift patterns (e.g. gradients from one
+edge of the tissue to another) can indicate stage drift or beam angle variation
+during the acquisition. A uniform colour indicates globally consistent
+recalibration. This plot requires running `computePixelMassShift()` first with
+the preprocessed `MSImagingExperiment` object (`pre`) and the `metapeaks` list.
+
+```{r mass_shift_spatial, warning=FALSE, message=FALSE, eval=FALSE}
+# Uncomment and run after loading 'pre' (MSImagingExperiment from preProcess())
+# processed_shift <- computePixelMassShift(processed_snr, pre = pre,
+#                                          metapeaks = metapeaks,
+#                                          update_correspondence = TRUE)
+# plotMassShiftSpatial(x = processed_shift)
+```
+
+:::
+
 ## Pixel-level QC
 
 ### TIC histogram thresholding
