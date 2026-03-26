@@ -8,6 +8,7 @@ analysis/*png
 analysis/*html
 inst/*html
 inst/*_files/
+inst/update_assignMetapeaks.Rmd
 inst/extdata/regenerate_processed.R
 inst/extdata/reduce_example_data.R
 inst/extdata/old_example_data
