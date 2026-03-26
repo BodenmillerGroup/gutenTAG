@@ -34,7 +34,6 @@
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #' computeGearysC(processed, verbose = FALSE)
 #'
-#' @importFrom N2R Knn
 #' @importFrom Matrix t
 #' @importFrom methods as
 #' @importFrom stats var
@@ -52,8 +51,7 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   coords <- x$SpatialCoords
 
   # create spatial weight matrix (adjacency matrix on spatial coordinates for rooks case, k = 4)
-  spatial_weight_matrix <- Knn(as.matrix(coords), k = 4, verbose = verbose, indexType = "L2")
-  spatial_weight_matrix <- as(spatial_weight_matrix, "dgCMatrix")
+  spatial_weight_matrix <- .knn_weight_matrix(as.matrix(coords), k = 4)
 
   geary_vector <- numeric(ncol(df))
   for (i in seq_len(ncol(df))){
