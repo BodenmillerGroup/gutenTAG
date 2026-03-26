@@ -60,7 +60,6 @@ test_that("generateMetapeaks works",{
   expect_equal(sparsity_test$metapeaks$max[1:10] , c(903.185974121094, 905.19140625, 907.196838378906, 912.266174316406,
                    914.71728515625, 917.168395996094, 919.173828125, 921.234985351562,
                    923.129028320312, 925.190185546875), tolerance = 0.1)
-  # (note: sparsity = 1 → lower value → more closely-spaced metapeaks)
 
 
 
