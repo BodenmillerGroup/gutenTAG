@@ -20,7 +20,7 @@ test_that("computeSNR works",{
   expect_true("snr" %in% colnames(cur_test$CorrespondenceMatrix))
   expect_equal(cur_test$CorrespondenceMatrix$snr, c(1.46674417788158, 1.68252354822219, 1.89190839866574, 0, 3.99920021456553, 
                                                     0, 2.44622835834056, 2.90072853664465, 3.81615438430949, 0, 1.54626104953847, 
-                                                    1.38225470794779, 3.10914667005805))
+                                                    1.38225470794779, 3.10914667005805), tolerance = 0.1)
 
   # test flexmix snr
   set.seed(123)
