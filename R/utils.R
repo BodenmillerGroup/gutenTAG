@@ -88,6 +88,32 @@ NULL
 }
 
 
+# KNN spatial weight matrix ####
+# Build a symmetric sparse n x n weight matrix of squared L2 distances to k nearest
+# neighbours. Symmetric: if j is a KNN of i OR i is a KNN of j, both [i,j] and [j,i]
+# are set — matching the output of N2R::Knn(indexType = "L2").
+.knn_weight_matrix <- function(coords, k) {
+  n  <- nrow(coords)
+  d2 <- as.matrix(dist(coords))^2
+  diag(d2) <- Inf  # exclude self
+
+  # asymmetric KNN adjacency: knn_adj[i,j] = TRUE if j is among k nearest of i
+  knn_adj <- matrix(FALSE, n, n)
+  for (i in seq_len(n)) {
+    knn_adj[i, order(d2[i, ])[seq_len(k)]] <- TRUE
+  }
+
+  # symmetrize: include (i,j) if j is KNN of i OR i is KNN of j
+  knn_sym <- knn_adj | t(knn_adj)
+
+  # restore diagonal to 0 for value lookup
+  diag(d2) <- 0
+
+  idx <- which(knn_sym, arr.ind = TRUE)
+  Matrix::sparseMatrix(i = idx[, 1], j = idx[, 2], x = d2[idx], dims = c(n, n))
+}
+
+
 # One dimensional otsu thresholding  ####
 ## x is logTIC
 ## number_bins is the number of histogram bins
