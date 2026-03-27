@@ -1,7 +1,7 @@
 Package: gutenTAG
 Type: Package
 Title: gutenTAG: MALDI-IHC Data Processing and Quality Control
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(
     person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre")),
     person("Pierre", "Bost", role = "aut"),

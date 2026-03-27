@@ -62,6 +62,4 @@ test_that("generateMetapeaks works",{
                    923.129028320312, 925.190185546875), tolerance = 0.1)
 
 
-
-
 })
