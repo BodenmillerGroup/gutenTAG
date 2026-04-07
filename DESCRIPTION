@@ -1,7 +1,7 @@
 Package: gutenTAG
 Type: Package
 Title: gutenTAG: MALDI-IHC Data Processing and Quality Control
-Version: 0.99.9
+Version: 0.99.10
 Authors@R: c(
     person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre")),
     person("Pierre", "Bost", role = "aut"),
@@ -30,7 +30,7 @@ Imports:
   flexmix,
   ggrepel,
   rlang
-License: MIT + file LICENSE
+License: GPL-3
 Encoding: UTF-8
 RoxygenNote: 7.3.3
 Suggests:
