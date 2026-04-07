@@ -3,7 +3,7 @@
 # gutenTAG
 
 <!-- badges: start -->
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 <!-- badges: end -->
 
 gutenTAG is an R package for the data processing and quality control of targeted MALDI mass spectrometry imaging (MALDI-MSI) data. It builds on [Cardinal](https://bioconductor.org/packages/Cardinal/), a Bioconductor framework for MSI data, and extends it with targeted workflows specific to MALDI-imaging experiments.
@@ -154,7 +154,7 @@ Please also acknowledge the Cardinal framework:
 
 ## License
 
-MIT © BodenmillerGroup. See [LICENSE](LICENSE) for details.
+GPL-3 © BodenmillerGroup.
 
 ## Contributing
 
