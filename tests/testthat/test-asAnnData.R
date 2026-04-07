@@ -1,6 +1,7 @@
 test_that("asAnnData works",{
 
-  skip_if_not(requireNamespace("anndata", quietly = TRUE) && anndata::py_module_available(),
+  skip_if_not(requireNamespace("anndata", quietly = TRUE) &&
+                reticulate::py_module_available("anndata"),
               "Python anndata module not available")
 
   # get input data
