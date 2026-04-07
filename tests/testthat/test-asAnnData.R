@@ -1,5 +1,8 @@
 test_that("asAnnData works",{
 
+  skip_if_not(requireNamespace("anndata", quietly = TRUE) && anndata::py_module_available(),
+              "Python anndata module not available")
+
   # get input data
   path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
