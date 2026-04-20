@@ -62,13 +62,12 @@ jobs:
           extra-packages: |
             any::rcmdcheck
             any::BiocManager
-            Bioc::BiocCheck
 
       - name: Configure BiocManager devel and install Bioc deps
         run: |
           BiocManager::install(version = "devel", update = FALSE, ask = FALSE)
           BiocManager::install(
-            c("Cardinal", "SpatialExperiment", "EBImage",
+            c("BiocCheck", "Cardinal", "SpatialExperiment", "EBImage",
               "ProtGenerics", "BiocParallel", "cytomapper", "matter",
               "BiocStyle"),
             version = "devel",
