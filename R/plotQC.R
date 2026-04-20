@@ -70,7 +70,12 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
     ) +
     geom_vline(
       data = panel,
-      aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass", text = Name),
+      if (interactive) {
+        aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass",
+            text = .data[["Name"]])
+      } else {
+        aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass")
+      },
       color = "purple", linewidth = 1
     ) +
     geom_vline(
@@ -119,7 +124,7 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
     )
   }
 
-  plotly_p <- plotly::ggplotly(p, dynamicTicks = TRUE)
+  plotly_p <- suppressWarnings(plotly::ggplotly(p, dynamicTicks = TRUE))
 
   plotly_p <- plotly::add_trace(
     plotly_p,
@@ -312,7 +317,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
     )
   }
 
-  plotly::ggplotly(p, dynamicTicks = TRUE)
+  suppressWarnings(plotly::ggplotly(p, dynamicTicks = TRUE))
 }
 
 
@@ -407,7 +412,7 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
     )
   }
 
-  plotly::ggplotly(p, dynamicTicks = TRUE)
+  suppressWarnings(plotly::ggplotly(p, dynamicTicks = TRUE))
 }
 
 
@@ -776,7 +781,7 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
     )
   }
 
-  plotly::ggplotly(p, dynamicTicks = FALSE)
+  suppressWarnings(plotly::ggplotly(p, dynamicTicks = FALSE))
 }
 
 

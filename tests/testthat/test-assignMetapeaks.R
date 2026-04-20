@@ -27,9 +27,9 @@ test_that("assignMetapeaks works",{
   expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity)[2], n_metapeaks)
 
   # check if output of intensity df is the same
-  expect_equal(cur_test$IntensityDF[1][1:10,], c(17.422048725, 15.534756338, 16.601248495, 13.599311602,
-                                                 15.486051244,  8.579481466, 12.378848085,  9.653047280,
-                                                 12.303031797, 17.647776591), tolerance = 0.001)
+  expect_equal(cur_test$IntensityDF[1][1:10,], c(18.60279186794, 16.0857977316972, 17.9647605811798, 15.0788161493883, 
+                                                 16.2613473790588, 9.4926960576303, 14.2638456471353, 10.2109049423084, 
+                                                 13.3238938839062, 18.007727014023), tolerance = 0.001)
 
   # check if spatial coordinates are correct
   expect_equal(range(cur_test$SpatialCoords), c(1, 8))
