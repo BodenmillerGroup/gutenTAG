@@ -56,26 +56,11 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
     metapeak_max[k] <- peak_mzs[which.max(peak_counts)]
 
     if (is.null(fixed.limits)){
-
-      # Define peak limits as being inside the 1% and 99% of the metapeak.
-      cumsum_freq <- cumsum(peak_counts) / sum(peak_counts)
-
-      # TODO more stable implementation, that does not require NA handling afterwards.
-      #cumsum_rev <- rev(cumsum(rev(peak_counts)) / sum(peak_counts))
-      #begin_mz <- peak_mzs[tail(which(cumsum_rev > 0.99), n = 1)[1]]
-      begin_mz <- peak_mzs[tail(which(cumsum_freq < 0.01), n = 1)[1]]
-      end_mz <- peak_mzs[head(which(cumsum_freq > 0.99), n = 1)[1]]
-
-      # TODO might be worth revisiting, in principle at least the end should always be found already.
-      if (!is.finite(begin_mz)) {
-        begin_mz <- end_mz - 1
-      }
-      if (!is.finite(end_mz)) {
-        end_mz <- begin_mz + 1
-      }
-
-      # Store beginning and end of peak location.
-      metapeak_limits[k, ] <- c(begin_mz, end_mz)
+      # Limits are the intersection of the smoothed metapeak with the
+      # detection_threshold line. segmentPeakCounts() already excludes
+      # bins at or below threshold, so the segment's min/max mz are
+      # exactly those crossings.
+      metapeak_limits[k, ] <- c(min(peak_mzs), max(peak_mzs))
     }else{
       # set binning limits to be within specified fixed limit around metapeak max
       metapeak_limits[k, 1] <- metapeak_max[k] - fixed.limits
