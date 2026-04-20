@@ -78,7 +78,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Build package tarball (no vignettes)
-        run: R CMD BUILD --no-build-vignettes .
+        run: R CMD build --no-build-vignettes .
 
       - name: Run BiocCheck
         run: |
