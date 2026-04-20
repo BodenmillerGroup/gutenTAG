@@ -65,12 +65,12 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
     ) +
     geom_line(
       data = metapeaks$count_smooth_df,
-      aes(x = .data[["mz"]], y = .data[["count"]] / 8, color = "SmoothCount"),
+      aes(x = .data[["mz"]], y = .data[["count"]], color = "SmoothCount"),
       alpha = 1, linewidth = 0.5
     ) +
     geom_vline(
       data = panel,
-      aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass"),
+      aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass", text = Name),
       color = "purple", linewidth = 1
     ) +
     geom_vline(

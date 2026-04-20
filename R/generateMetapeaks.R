@@ -45,6 +45,11 @@ generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed
   # smooth counts
   smooth_counts <- smoothPeakCounts(count_df, hist_smooth_factor)
 
+  # rescale smoothed counts so the pixel-count detection_threshold remains
+  # meaningful (Gaussian smoothing lowers the histogram maximum)
+  scale_factor <- max(count_df$count) / max(smooth_counts$count)
+  smooth_counts$count <- smooth_counts$count * scale_factor
+
   # generate seeds for segmentatation.
   seed_mz <- generateSeedMz(count_df = smooth_counts, detection_threshold = detection_threshold, sparsity = sparsity)
 
