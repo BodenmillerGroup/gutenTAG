@@ -65,7 +65,7 @@ jobs:
         run: |
           pkg_tarball <- list.files(".", pattern = "gutenTAG.*\\.tar\\.gz",
                                     full.names = TRUE)[1]
-          BiocCheck::BiocCheck(
+          check_results <- BiocCheck::BiocCheck(
             pkg_tarball,
             `new-package`                    = TRUE,
             `no-check-bioc-views`            = FALSE,
@@ -74,6 +74,8 @@ jobs:
             `no-check-vignettes`             = TRUE,
             `no.quit.on.nonstandard.workdir` = TRUE
           )
+          n_problems <- length(check_results$error) + length(check_results$warning)
+          quit(save = "no", status = n_problems)
         shell: Rscript {0}
 
       - name: Upload BiocCheck report
