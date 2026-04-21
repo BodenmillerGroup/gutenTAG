@@ -24,7 +24,9 @@ generateMetapeaks(
 \item{sparsity}{A sparsity parameter controlling the permissible distance between metapeaks. Higher sparsity values enforce greater spacing (fewer metapeaks detected); lower values allow more closely-spaced metapeaks.}
 }
 \value{
-A list containing information on the location, limits and width of metapeaks
+A list containing information on the location, limits and width of
+  metapeaks, with a \code{$params} element carrying all pipeline parameters
+  propagated from upstream steps.
 }
 \description{
 We define a metapeak as a single peak that represents a cluster of peaks that correspond to the same molecular species.

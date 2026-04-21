@@ -7,7 +7,7 @@ test_that("generateMetapeaks works",{
   peaks <- peakDetection(pre)
 
   # test that the object after peakDetection is still the correct object class
-  expect_s4_class(peaks, "MSImagingExperiment")
+  expect_s4_class(peaks$peaks, "MSImagingExperiment")
 
   # generate metapeaks
   cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1, sparsity = 3)

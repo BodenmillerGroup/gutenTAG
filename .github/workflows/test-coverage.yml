@@ -30,27 +30,8 @@ jobs:
           r-version: 'devel'
           use-public-rspm: true
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends \
-            libfftw3-dev \
-            libxml2-dev \
-            libpng-dev \
-            libtiff5-dev \
-            libcurl4-openssl-dev \
-            libssl-dev \
-            libcairo2-dev \
-            libxt-dev \
-            libfontconfig1-dev \
-            libharfbuzz-dev \
-            libfribidi-dev \
-            libmagick++-dev \
-            libarchive-dev \
-            libudunits2-dev \
-            libgdal-dev \
-            libproj-dev \
-            gfortran
+      - name: Install Linux system dependencies
+        uses: ./.github/actions/setup-linux-deps
 
       - name: Install package dependencies (with caching)
         uses: r-lib/actions/setup-r-dependencies@v2

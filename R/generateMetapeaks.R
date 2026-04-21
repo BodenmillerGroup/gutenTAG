@@ -19,7 +19,9 @@
 #' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
 #' @param sparsity A sparsity parameter controlling the permissible distance between metapeaks. Higher sparsity values enforce greater spacing (fewer metapeaks detected); lower values allow more closely-spaced metapeaks.
 #'
-#' @return A list containing information on the location, limits and width of metapeaks
+#' @return A list containing information on the location, limits and width of
+#'   metapeaks, with a \code{$params} element carrying all pipeline parameters
+#'   propagated from upstream steps.
 #'
 #' @export generateMetapeaks
 #'
@@ -33,6 +35,12 @@
 #' generateMetapeaks(peaks, hist_smooth_factor = 1)
 
 generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed.limits = NULL, sparsity = 3) {
+
+  upstream_params <- list()
+  if (is.list(x) && !is(x, "MSImagingExperiment")) {
+    upstream_params <- if (!is.null(x$params)) x$params else list()
+    x <- x$peaks
+  }
 
   .valid.generateMetapeaks(x, threshold, fixed.limits, sparsity)
 
@@ -55,6 +63,16 @@ generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed
 
   # metapeak segmentation
   metapeaks <- estimateMetapeaks(count_df = count_df, smooth_count_df = smooth_counts, seed_mz = seed_mz, detection_threshold = detection_threshold, fixed.limits = fixed.limits)
+
+  metapeaks[["params"]] <- c(
+    upstream_params,
+    list(
+      threshold          = threshold,
+      hist_smooth_factor = hist_smooth_factor,
+      fixed.limits       = fixed.limits,
+      sparsity           = sparsity
+    )
+  )
 
   return(metapeaks)
 }

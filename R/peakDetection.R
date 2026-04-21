@@ -12,7 +12,9 @@
 #'   Linux/macOS or \code{BiocParallel::SnowParam(n)} on Windows for
 #'   multi-core processing.
 #'
-#' @return An MSImagingExperiment object containing a list of detected peaks
+#' @return A list with elements \code{$peaks} (the Cardinal MSImagingExperiment
+#'   object) and \code{$params} (a named list recording \code{snr} and
+#'   \code{win} for downstream propagation).
 #'
 #' @export
 #'
@@ -33,6 +35,6 @@ peakDetection <- function(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam(
   picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
   list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
 
-  return(list_peaks)
+  return(list(peaks = list_peaks, params = list(snr = snr, win = win)))
 
 }

@@ -63,3 +63,43 @@ test_that("assignMetapeaks works",{
 
 
 })
+
+test_that("params element contains all pipeline parameters with correct default values", {
+
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+  result <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+
+  expect_type(result$params, "list")
+  expect_named(result$params,
+               c("snr", "win", "threshold", "hist_smooth_factor",
+                 "fixed.limits", "sparsity", "mz_threshold"))
+  expect_equal(result$params$snr, 3)
+  expect_equal(result$params$win, 50)
+  expect_equal(result$params$threshold, 0.01)
+  expect_equal(result$params$hist_smooth_factor, 1)
+  expect_null(result$params$fixed.limits)
+  expect_equal(result$params$sparsity, 3)
+  expect_equal(result$params$mz_threshold, 1)
+
+})
+
+test_that("params captures non-default mz_threshold", {
+
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+  result <- assignMetapeaks(metapeaks, pre = pre, refList = panel, mz_threshold = 2.5)
+
+  expect_equal(result$params$mz_threshold, 2.5)
+
+})
