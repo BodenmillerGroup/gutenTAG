@@ -21,7 +21,9 @@ Linux/macOS or \code{BiocParallel::SnowParam(n)} on Windows for
 multi-core processing.}
 }
 \value{
-An MSImagingExperiment object containing a list of detected peaks
+A list with elements \code{$peaks} (the Cardinal MSImagingExperiment
+  object) and \code{$params} (a named list recording \code{snr} and
+  \code{win} for downstream propagation).
 }
 \description{
 Performs peak detection using a Median Adaptive Deviation (MAD) algorithm to discern peaks from noise.

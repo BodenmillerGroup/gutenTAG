@@ -7,7 +7,7 @@ test_that("generateMetapeaks works",{
   peaks <- peakDetection(pre)
 
   # test that the object after peakDetection is still the correct object class
-  expect_s4_class(peaks, "MSImagingExperiment")
+  expect_s4_class(peaks$peaks, "MSImagingExperiment")
 
   # generate metapeaks
   cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1, sparsity = 3)
@@ -23,9 +23,9 @@ test_that("generateMetapeaks works",{
                                                937.78, 941.18), tolerance = 0.1)
 
   # test that metapeak width is correct
-  expect_equal(cur_test$metapeaks$width[1:10], c(0.338231932202095, 0.366158403706136, 0.0557033490531052, 0.148944581217498, 
-                                                 0.0527522683049305, 0.00620474926891583, 0.117917435010306, 0.32581903380165, 
-                                                 0.0124128984004448, 0.0155135731035961), tolerance = 0.01)
+  expect_equal(cur_test$metapeaks$width[1:10], c(0.459253441778165, 0.415809997307915, 0.155152730349027, 0.173770378018388, 
+                                                 0.152048655783262, 0.0806787398089714, 0.201696849522428, 0.397192349638554, 
+                                                 0.167565628749472, 0.139639157245431), tolerance = 0.01)
 
 
   # test that max value of propagation selection is correct

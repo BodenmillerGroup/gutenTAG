@@ -22,6 +22,6 @@ path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
 raw  <- readMSIData(path)
 pre  <- preProcess(raw)
 peaks <- peakDetection(pre)
-count_df <- countPeaks(peaks)
+count_df <- countPeaks(peaks$peaks)
 
 }

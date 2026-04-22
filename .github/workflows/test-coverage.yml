@@ -1,0 +1,66 @@
+name: Test Coverage
+
+on:
+  push:
+    branches:
+      - devel
+  pull_request:
+    branches:
+      - devel
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  coverage:
+    name: Code coverage (ubuntu / R devel)
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up R (Bioconductor devel)
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'devel'
+          use-public-rspm: true
+
+      - name: Install Linux system dependencies
+        uses: ./.github/actions/setup-linux-deps
+
+      - name: Install package dependencies (with caching)
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::covr
+            any::xml2
+            any::BiocManager
+
+      - name: Configure BiocManager devel and install Bioc deps
+        run: |
+          BiocManager::install(version = "devel", update = FALSE, ask = FALSE)
+          BiocManager::install(
+            c("Cardinal", "SpatialExperiment", "EBImage",
+              "ProtGenerics", "BiocParallel", "cytomapper", "matter"),
+            version = "devel",
+            update  = FALSE,
+            ask     = FALSE,
+            Ncpus   = 2L
+          )
+        shell: Rscript {0}
+
+      - name: Generate and upload coverage report
+        run: |
+          covr::codecov(
+            quiet        = FALSE,
+            clean        = TRUE,
+            install_path = file.path(Sys.getenv("RUNNER_TEMP"), "package")
+          )
+        shell: Rscript {0}
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

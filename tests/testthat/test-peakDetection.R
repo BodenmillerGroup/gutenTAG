@@ -13,14 +13,14 @@ test_that("peakDetection works",{
   cur_test <- peakDetection(raw, snr = 3)
 
   # test that the object after peakDetection is still the correct object class
-  expect_s4_class(cur_test, "MSImagingExperiment")
+  expect_s4_class(cur_test$peaks, "MSImagingExperiment")
   expect_false(Cardinal::isCentroided(pre))
 
   # test that dimensions of intensity after peakDetection are the same
-  expect_equal(dim(ProtGenerics::spectra(cur_test)), c(15800, 64))
+  expect_equal(dim(ProtGenerics::spectra(cur_test$peaks)), c(15800, 64))
 
   expect_equal(
-    ProtGenerics::spectra(cur_test)[5510, 1:10],
+    ProtGenerics::spectra(cur_test$peaks)[5510, 1:10],
     c(9.19874954223633, 9.0649995803833, 0, 0, 5.33249998092651, 
       2.2574999332428, 2.23874998092651, 3.65000009536743, 5.74625015258789, 
       8.36999988555908),
@@ -28,12 +28,12 @@ test_that("peakDetection works",{
   )
 
   # test that coords are correct
-  expect_equal(dim(Cardinal::coord(cur_test)), c(64, 2))
+  expect_equal(dim(Cardinal::coord(cur_test$peaks)), c(64, 2))
 
   # test if errors in arguments throws errors
   expect_error(peakDetection(x = "test", snr = 3, win = 50))
   expect_error(peakDetection(x = test, snr = -1, win = 50))
-  expect_error(peakDetection(x = cur_test, snr = 3, win = 50, BPPARAM = "not_a_param"))
+  expect_error(peakDetection(x = cur_test$peaks, snr = 3, win = 50, BPPARAM = "not_a_param"))
 
 
 })

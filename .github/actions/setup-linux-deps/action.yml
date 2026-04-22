@@ -1,0 +1,29 @@
+name: Install Linux system dependencies
+description: Installs apt packages required to build gutenTAG on Linux (no-op on other platforms)
+
+runs:
+  using: composite
+  steps:
+    - name: Install system dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y --no-install-recommends \
+          libfftw3-dev \
+          libxml2-dev \
+          libpng-dev \
+          libtiff5-dev \
+          libcurl4-openssl-dev \
+          libssl-dev \
+          libcairo2-dev \
+          libxt-dev \
+          libfontconfig1-dev \
+          libharfbuzz-dev \
+          libfribidi-dev \
+          libmagick++-dev \
+          libarchive-dev \
+          libudunits2-dev \
+          libgdal-dev \
+          libproj-dev \
+          gfortran

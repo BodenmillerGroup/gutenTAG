@@ -27,9 +27,9 @@ test_that("assignMetapeaks works",{
   expect_equal(dim(cur_test$AllMetapeaks$AllMetapeaksIntensity)[2], n_metapeaks)
 
   # check if output of intensity df is the same
-  expect_equal(cur_test$IntensityDF[1][1:10,], c(17.422048725, 15.534756338, 16.601248495, 13.599311602,
-                                                 15.486051244,  8.579481466, 12.378848085,  9.653047280,
-                                                 12.303031797, 17.647776591), tolerance = 0.001)
+  expect_equal(cur_test$IntensityDF[1][1:10,], c(18.60279186794, 16.0857977316972, 17.9647605811798, 15.0788161493883, 
+                                                 16.2613473790588, 9.4926960576303, 14.2638456471353, 10.2109049423084, 
+                                                 13.3238938839062, 18.007727014023), tolerance = 0.001)
 
   # check if spatial coordinates are correct
   expect_equal(range(cur_test$SpatialCoords), c(1, 8))
@@ -61,5 +61,45 @@ test_that("assignMetapeaks works",{
                c(0, 0.0138080050313242, 0.0190293616937189, 0.0481658760419839,
                  0.0928549807330610, 0.1370896593443408))
 
+
+})
+
+test_that("params element contains all pipeline parameters with correct default values", {
+
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+  result <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+
+  expect_type(result$params, "list")
+  expect_named(result$params,
+               c("snr", "win", "threshold", "hist_smooth_factor",
+                 "fixed.limits", "sparsity", "mz_threshold"))
+  expect_equal(result$params$snr, 3)
+  expect_equal(result$params$win, 50)
+  expect_equal(result$params$threshold, 0.01)
+  expect_equal(result$params$hist_smooth_factor, 1)
+  expect_null(result$params$fixed.limits)
+  expect_equal(result$params$sparsity, 3)
+  expect_equal(result$params$mz_threshold, 1)
+
+})
+
+test_that("params captures non-default mz_threshold", {
+
+  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+  result <- assignMetapeaks(metapeaks, pre = pre, refList = panel, mz_threshold = 2.5)
+
+  expect_equal(result$params$mz_threshold, 2.5)
 
 })

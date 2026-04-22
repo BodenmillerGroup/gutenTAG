@@ -55,7 +55,7 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
   targeted_mz <- x$CorrespondenceMatrix$mz_location
   targeted_metapeak_df <- metapeak_df[metapeak_df$max %in% targeted_mz, ]
 
-  p <- ggplot() +
+  p <- suppressWarnings(ggplot() +
     theme_minimal() +
     ggtitle("Metapeaks") +
     geom_line(
@@ -65,12 +65,17 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
     ) +
     geom_line(
       data = metapeaks$count_smooth_df,
-      aes(x = .data[["mz"]], y = .data[["count"]] / 8, color = "SmoothCount"),
+      aes(x = .data[["mz"]], y = .data[["count"]], color = "SmoothCount"),
       alpha = 1, linewidth = 0.5
     ) +
     geom_vline(
       data = panel,
-      aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass"),
+      if (interactive) {
+        aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass",
+            text = .data[["Name"]])
+      } else {
+        aes(xintercept = .data[["FeatureMass"]], linetype = "Feature Mass")
+      },
       color = "purple", linewidth = 1
     ) +
     geom_vline(
@@ -106,7 +111,7 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
     scale_fill_manual(
       name   = "Range Areas",
       values = c("Metapeak Range" = "grey", "Targeted Metapeak Range" = "red3")
-    )
+    ))
 
   if (!interactive) {
     return(p)
@@ -271,7 +276,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
   }
 
   if (annotated_only) {
-    p <- ggplot() +
+    p <- suppressWarnings(ggplot() +
       theme_minimal() +
       ggtitle("Mean-Variance Plot: Annotated Peaks Only") +
       geom_point(
@@ -281,9 +286,9 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
       ) +
       scale_x_log10() +
       scale_y_log10() +
-      labs(x = "Mean", y = "SD")
+      labs(x = "Mean", y = "SD"))
   } else {
-    p <- ggplot() +
+    p <- suppressWarnings(ggplot() +
       theme_minimal() +
       ggtitle("Mean-Variance Plot") +
       geom_point(
@@ -298,7 +303,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
       ) +
       scale_x_log10() +
       scale_y_log10() +
-      labs(x = "Mean", y = "SD")
+      labs(x = "Mean", y = "SD"))
   }
 
   if (!interactive) {
@@ -382,7 +387,7 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
     aes(x = log(1 + .data[["mean"]]), y = .data[["residual"]])
   }
 
-  p <- ggplot() +
+  p <- suppressWarnings(ggplot() +
     theme_minimal() +
     ggtitle(title) +
     geom_hline(yintercept = 0, color = "red", linetype = "solid") +
@@ -396,7 +401,7 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
       mapping = targeted_resid_aes,
       color = "black", fill = "red3", shape = 21, size = 3
     ) +
-    labs(x = "log(1 + mean)", y = y_label)
+    labs(x = "log(1 + mean)", y = y_label))
 
   if (!interactive) return(p)
 
@@ -725,7 +730,7 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
     geary_cond & snr_cond, "#b51837", "#18B596"
   )
 
-  p <- ggplot() +
+  p <- suppressWarnings(ggplot() +
     theme_minimal() +
     ggtitle("QC Overview: Geary's C vs SNR") +
     geom_rect(
@@ -763,7 +768,7 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
     ) +
     scale_y_log10() +
     scale_fill_identity() +
-    labs(x = "Geary's C", y = "SNR")
+    labs(x = "Geary's C", y = "SNR"))
 
   if (!interactive) {
     return(p)
