@@ -21,8 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: ubuntu-latest, r: 'devel', bioc: true }
-          - { os: macos-latest,  r: 'release',    bioc: false }
+          - { os: ubuntu-latest, r: 'release', bioc: true }
+          - { os: macos-latest,  r: 'release', bioc: false }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -56,10 +56,10 @@ jobs:
             any::rcmdcheck
             any::BiocManager
 
-      - name: Configure BiocManager devel
+      - name: Configure BiocManager
         if: matrix.config.bioc == true
         run: |
-          BiocManager::install(version = "devel", update = FALSE, ask = FALSE)
+          BiocManager::install(update = FALSE, ask = FALSE)
         shell: Rscript {0}
 
       - name: Install Bioconductor dependencies
@@ -69,7 +69,6 @@ jobs:
             c("Cardinal", "SpatialExperiment", "EBImage",
               "ProtGenerics", "BiocParallel", "cytomapper", "matter",
               "BiocStyle"),
-            version = "devel",
             update  = FALSE,
             ask     = FALSE,
             Ncpus   = 2L
