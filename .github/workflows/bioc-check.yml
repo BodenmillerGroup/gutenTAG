@@ -56,6 +56,15 @@ jobs:
             ask     = FALSE,
             Ncpus   = 2L
           )
+          missing <- c("BiocCheck", "Cardinal", "SpatialExperiment", "EBImage",
+                       "ProtGenerics", "BiocParallel", "cytomapper", "matter",
+                       "BiocStyle")[
+            !vapply(c("BiocCheck", "Cardinal", "SpatialExperiment", "EBImage",
+                      "ProtGenerics", "BiocParallel", "cytomapper", "matter",
+                      "BiocStyle"),
+                    requireNamespace, logical(1), quietly = TRUE)
+          ]
+          if (length(missing)) stop("Failed to install: ", paste(missing, collapse = ", "))
         shell: Rscript {0}
 
       - name: Build package tarball (no vignettes)
