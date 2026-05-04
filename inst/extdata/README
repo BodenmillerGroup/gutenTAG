@@ -7,10 +7,8 @@ vignette and examples.
 
 **Example_data.imzML / Example_data.ibd**
 A reduced (8 x 8 pixel, 64 pixels total) MALDI-IHC dataset acquired on a
-Bruker  rapifleX instrument from a formalin-fixed paraffin-embedded
+Bruker rapifleX instrument from a formalin-fixed paraffin-embedded
 tissue section labelled with photocleavable mass tags (PCMTs).
-The dataset was trimmed from a 16 x 16 pixel region using the script
-`reduce_example_data.R`.
 
 **ref_list.csv**
 A two-column CSV reference panel listing the expected mass tags:
