@@ -14,7 +14,7 @@
 #' @return A vector of segment labels, one per row of \code{count_df}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' labels <- segmentPeakCounts(results$metapeaks$count_smooth_df,
 #'                              seed_mz = results$metapeaks$seed_mz,

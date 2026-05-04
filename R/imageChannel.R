@@ -16,7 +16,7 @@
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' imageChannel(x = results$processed, channel = 1)
 #'

@@ -18,7 +18,7 @@ If all counts are identical, this method will print a warning, since most likely
 MSProcessedImagingExperiment object has not been processed with peak detection.
 }
 \examples{
-path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 raw  <- readMSIData(path)
 pre  <- preProcess(raw)
 peaks <- peakDetection(pre)

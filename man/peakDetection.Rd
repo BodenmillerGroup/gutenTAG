@@ -29,7 +29,7 @@ A list with elements \code{$peaks} (the Cardinal MSImagingExperiment
 Performs peak detection using a Median Adaptive Deviation (MAD) algorithm to discern peaks from noise.
 }
 \examples{
-path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

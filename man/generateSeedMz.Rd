@@ -23,7 +23,7 @@ A vector of seeds in terms of m/z values
 Generate seeds for the metapeak algorithm
 }
 \examples{
-rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 seeds <- generateSeedMz(results$metapeaks$count_df)
 

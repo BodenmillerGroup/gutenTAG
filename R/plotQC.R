@@ -33,7 +33,7 @@ NULL
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotMetapeaks(x = results$processed, metapeaks = results$metapeaks,
 #'               panel = results$panel)
@@ -185,7 +185,7 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotIntensityDistribution(x = results$processed)
 #' @export
@@ -239,7 +239,7 @@ plotIntensityDistribution <- function(x) {
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotMeanVariance(x = results$processed)
 #' @export
@@ -343,7 +343,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE) {
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotMeanVarianceResiduals(x = results$processed)
 #' @export
@@ -429,7 +429,7 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_geary <- computeGearysC(results$processed, update_correspondence = TRUE,
 #'                                   verbose = FALSE)
@@ -472,7 +472,7 @@ plotGearysC <- function(x) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSNR(x = processed_snr)
@@ -524,7 +524,7 @@ plotSNR <- function(x, snr_threshold = NULL) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSNRHistogram(x = processed_snr, channel = 1)
@@ -586,7 +586,7 @@ plotSNRHistogram <- function(x, channel) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSpatialSNR(x = processed_snr, channel = 1)
@@ -644,7 +644,7 @@ plotSpatialSNR <- function(x, channel) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotMeanVsSNR(x = processed_snr)
@@ -697,7 +697,7 @@ plotMeanVsSNR <- function(x) {
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
 #' processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)
@@ -790,7 +790,7 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotTICHistogram(x = results$processed)
 #' @export
@@ -837,7 +837,7 @@ plotTICHistogram <- function(x) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotTICSpatial(x = results$processed)
 #' @export

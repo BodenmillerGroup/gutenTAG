@@ -7,7 +7,7 @@
 #' @return A data frame with the same mz values and the smoothed counts.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' smooth_df <- smoothPeakCounts(results$metapeaks$count_df, smooth_factor = 3)
 #'

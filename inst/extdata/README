@@ -7,7 +7,7 @@ vignette and examples.
 
 **Example_data.imzML / Example_data.ibd**
 A reduced (8 x 8 pixel, 64 pixels total) MALDI-IHC dataset acquired on a
-Bruker timsTOF fleX instrument from a formalin-fixed paraffin-embedded
+Bruker  rapifleX instrument from a formalin-fixed paraffin-embedded
 tissue section labelled with photocleavable mass tags (PCMTs).
 The dataset was trimmed from a 16 x 16 pixel region using the script
 `reduce_example_data.R`.
@@ -38,7 +38,3 @@ or from within R:
 Runs the full gutenTAG pipeline on `Example_data.imzML` and saves the
 result to `Example_processed.Rdata`. Also prints diagnostic values used
 to update the test suite.
-
-**reduce_example_data.R**
-Reads a 16 x 16 pixel imzML file and writes out the top-left 8 x 8
-subset to `Example_data.imzML` / `Example_data.ibd`.

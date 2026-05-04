@@ -8,7 +8,7 @@
 #' @return data frame with mz and count columns
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 #' raw  <- readMSIData(path)
 #' pre  <- preProcess(raw)
 #' peaks <- peakDetection(pre)

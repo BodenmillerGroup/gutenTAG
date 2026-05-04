@@ -37,7 +37,7 @@ A \code{ggplot} object, or a \code{plotly} object when
   \pkg{ggrepel}.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
 processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)

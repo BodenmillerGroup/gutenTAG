@@ -1,7 +1,7 @@
 test_that("peakDetection works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
   raw <- Cardinal::readMSIData(path)
   pre <- preProcess(raw)
 

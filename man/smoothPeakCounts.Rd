@@ -22,7 +22,7 @@ The Gaussian filter is scaled to the average step size of the mz values.
 The function assumes that the mz values are (roughly) evenly spaced.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 smooth_df <- smoothPeakCounts(results$metapeaks$count_df, smooth_factor = 3)
 

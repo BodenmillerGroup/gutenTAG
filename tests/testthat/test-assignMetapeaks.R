@@ -1,7 +1,7 @@
 test_that("assignMetapeaks works",{
 
   # get input data
-  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
@@ -66,7 +66,7 @@ test_that("assignMetapeaks works",{
 
 test_that("params element contains all pipeline parameters with correct default values", {
 
-  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)
@@ -91,7 +91,7 @@ test_that("params element contains all pipeline parameters with correct default 
 
 test_that("params captures non-default mz_threshold", {
 
-  path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
   panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
   panel <- readPanel(path = panel_path)
   raw <- readMSIData(path)

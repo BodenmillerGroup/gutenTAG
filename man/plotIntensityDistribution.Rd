@@ -17,7 +17,7 @@ Violin and boxplot showing the distribution of intensity values
   per marker, ordered by descending mean intensity.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotIntensityDistribution(x = results$processed)
 }

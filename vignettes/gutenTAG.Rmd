@@ -161,7 +161,7 @@ The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
 
 ```{r read in data}
-imzML_path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+imzML_path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 rawFile <- Cardinal::readMSIData(imzML_path)
 ```
 
