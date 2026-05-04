@@ -14,7 +14,6 @@
 #' peaks <- peakDetection(pre)
 #' count_df <- countPeaks(peaks$peaks)
 #'
-#' @importFrom Cardinal mz peakData
 #' @importFrom matter as.list
 #' @export countPeaks
 countPeaks <- function(mse_detected) {

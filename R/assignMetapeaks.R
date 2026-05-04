@@ -24,7 +24,7 @@
 #' }
 #'
 #'
-#' @importFrom Cardinal mz
+#' @importFrom Cardinal mz featureData
 #' @importFrom matter colSums rowSums
 #' @importFrom dplyr relocate
 #' @importFrom stats cor na.omit
