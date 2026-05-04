@@ -12,7 +12,7 @@
 #' @returns A pre-processed MSImagingExperiment object.
 #'
 #' @rawNamespace import(Cardinal, except = peaks)
-#' @import BiocParallel
+#' @importClassesFrom BiocParallel BiocParallelParam
 #'
 #' @export
 #' @examples

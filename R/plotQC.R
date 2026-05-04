@@ -524,12 +524,10 @@ plotSNR <- function(x, snr_threshold = NULL) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' \donttest{
-#'   rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-#'   load(rdata_path)
-#'   processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
-#'   plotSNRHistogram(x = processed_snr, channel = 1)
-#' }
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+#' plotSNRHistogram(x = processed_snr, channel = 1)
 #' @export
 plotSNRHistogram <- function(x, channel) {
 
@@ -588,12 +586,10 @@ plotSNRHistogram <- function(x, channel) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' \donttest{
-#'   rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-#'   load(rdata_path)
-#'   processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
-#'   plotSpatialSNR(x = processed_snr, channel = 1)
-#' }
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+#' plotSpatialSNR(x = processed_snr, channel = 1)
 #' @export
 plotSpatialSNR <- function(x, channel) {
 
@@ -648,12 +644,10 @@ plotSpatialSNR <- function(x, channel) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' \donttest{
-#'   rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-#'   load(rdata_path)
-#'   processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
-#'   plotMeanVsSNR(x = processed_snr)
-#' }
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+#' plotMeanVsSNR(x = processed_snr)
 #' @export
 plotMeanVsSNR <- function(x) {
 
@@ -703,13 +697,11 @@ plotMeanVsSNR <- function(x) {
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' \donttest{
-#'   rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-#'   load(rdata_path)
-#'   processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
-#'   processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)
-#'   plotQCOverview(x = processed_qc)
-#' }
+#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
+#' processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)
+#' plotQCOverview(x = processed_qc)
 #' @export
 plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
                            interactive = FALSE) {

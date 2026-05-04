@@ -69,24 +69,6 @@ NULL
 }
 
 
-# which_min_ignore_zero function ####
-# returns which.min ignoring 0 values
-.which_min_ignore_zero <- function(x) {
-
-  if (sum(x) == 0) {
-    y <- NA
-  }
-  else {
-
-    x[x == 0] <- NA
-    y <- which.min(x)
-
-  }
-
-  return(y)
-
-}
-
 
 # KNN spatial weight matrix ####
 # Build a symmetric sparse n x n weight matrix of squared L2 distances to k nearest
@@ -142,9 +124,9 @@ NULL
 # utility function for making matrix from flattened dataframe
 .curateMatrix <- function(dataframe, channel, coords){
 
-  Matrix_image = matrix(0, ncol = max(coords$y), nrow=max(coords$x)) # initialise matrix of correct shape
-  x = dataframe[,channel] # isolate single channel
-  Matrix_image[as.matrix(coords)] = x # input channel values into matrix
+  Matrix_image <- matrix(0, ncol = max(coords$y), nrow = max(coords$x))
+  x <- dataframe[, channel]
+  Matrix_image[as.matrix(coords)] <- x
   return(Matrix_image)
 
 }
@@ -196,7 +178,7 @@ NULL
       ]
 
       if (length(correct_shifted_mzs) == 0) {
-        warning(paste0("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak."))
+        warning("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak.", call. = FALSE)
         correct_shifted_mzs <- cur_pairing$mz_location
       }
 

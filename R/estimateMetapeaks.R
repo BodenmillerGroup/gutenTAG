@@ -28,9 +28,6 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
   ## validity checks
   .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
-  # 1. Gaussian smoothing over counts
-  #count_smooth_df <- smoothPeakCounts(count_df)
-
   # 1. Segment the count_df histogram using the seed_mz values.
   propagation_selection <- segmentPeakCounts(smooth_count_df, seed_mz, detection_threshold = detection_threshold)
 
@@ -70,10 +67,8 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
   }
 
 
-  # width of each peak
-  # TODO is this still needed: (rescale peak width so it is on the m/z scale)
+  # width of each peak (rescaled to the m/z scale)
   metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) * .mzScalingFactor(count_df)
-  #metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1])
 
   metapeaks <- list(center = metapeak_center,
                     max = metapeak_max,

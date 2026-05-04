@@ -190,8 +190,6 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # note: zero-variance channels will produce Inf/-Inf (sd_intensity == 0); handle upstream
   corrected_sd_model <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
   residuals <- corrected_sd_model$residuals
-  # correspondence$corrected_sd <- residuals + sd_intensity / sd_intensity  # former (incorrect) definition
-  # correspondence$corrected_sd <- corrected_sd_model$residuals              # original raw residuals
   correspondence$corrected_sd <- residuals / sd_intensity
 
   # store metapeak width in correspondence matrix
@@ -272,9 +270,6 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 .summariseSpectra <- function(pre){
 
   # compute summary spectra
-  #meanSpec <- apply(iData(pre), MARGIN = 1, FUN = mean)
-  #skyline <- apply(iData(pre), MARGIN = 1, FUN = max) ## skyline spectrum is the maximum intensity of any data point in all spectra of the region
-
   summarised_spectra <- Cardinal::summarizeFeatures(pre, stat=c(skyline = "max", mean = "mean"))
   summarised_spec <- data.frame(featureData(summarised_spectra))
 

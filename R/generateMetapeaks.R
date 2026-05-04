@@ -47,7 +47,6 @@ generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed
   # get counts of pixels in which peak is detected
   count_df <- countPeaks(x)
 
-  # old method: detection_threshold <- unname(dim(x)["Pixels"]) * threshold no longer works because dim(x) is unlabeled
   detection_threshold <- length(Cardinal::pixels(x)) * threshold
 
   # smooth counts
