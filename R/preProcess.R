@@ -13,6 +13,7 @@
 #'
 #' @rawNamespace import(Cardinal, except = peaks)
 #' @importClassesFrom BiocParallel BiocParallelParam
+#' @importFrom Cardinal spectra
 #'
 #' @export
 #' @examples
