@@ -13,7 +13,7 @@
 #' @export computeSNR
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -50,7 +50,7 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
 
 # Helper function for updating correspondence matrix
 .updateCorrespondence <- function(x, sample_snrs) {
-  snrs <- sapply(sample_snrs, function(y) y$SNR)
+  snrs <- vapply(sample_snrs, function(y) y$SNR, FUN.VALUE = numeric(1))
   x$CorrespondenceMatrix$snr <- snrs
   x$SNR <- sample_snrs
   return(x)
@@ -112,13 +112,8 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
             model = FLXMRglm(family = "gaussian"),
             control = list(iter.max = 500, tol = 1e-6))
   }, error = function(e) {
-    message("Error in flexmix fitting: ", e)
-    return(NULL)
+    stop("flexmix model failed to converge: ", conditionMessage(e), call. = FALSE)
   })
-
-  if (is.null(fit)) {
-    stop("The model failed to converge.")
-  }
 
   clusters <- flexmix::clusters(fit)
   cluster_means <- tapply(nonzero_channel, clusters, mean)

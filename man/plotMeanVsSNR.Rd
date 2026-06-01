@@ -17,10 +17,8 @@ Scatter plot of per-marker mean intensity vs signal-to-noise
   ratio (SNR).
 }
 \examples{
-\donttest{
-  rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-  load(rdata_path)
-  processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
-  plotMeanVsSNR(x = processed_snr)
-}
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+plotMeanVsSNR(x = processed_snr)
 }

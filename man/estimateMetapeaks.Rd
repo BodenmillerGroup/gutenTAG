@@ -33,7 +33,7 @@ segments the histogram using seed_point m/z values, and then calculates metapeak
 The parameters include the center, maximum, delimitation, and width of each metapeak. The width is rescaled to the m/z scale.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 mp <- estimateMetapeaks(results$metapeaks$count_df,
                         results$metapeaks$count_smooth_df,

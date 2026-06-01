@@ -26,7 +26,7 @@ readPanel <- function(path){
   # sanity check: columns are correctly named
   if (is.numeric(panel$Name)){
 
-    colnames(panel) = c("FeatureMass","Name")
+    colnames(panel) <- c("FeatureMass","Name")
 
   }
 

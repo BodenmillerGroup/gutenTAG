@@ -19,10 +19,8 @@ Spatial scatter plot (x/y pixel coordinates) coloured by signal
   vs noise classification from \code{computeSNR} for a single channel.
 }
 \examples{
-\donttest{
-  rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
-  load(rdata_path)
-  processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
-  plotSpatialSNR(x = processed_snr, channel = 1)
-}
+rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+load(rdata_path)
+processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
+plotSpatialSNR(x = processed_snr, channel = 1)
 }

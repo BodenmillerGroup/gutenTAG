@@ -35,13 +35,24 @@ editor_options:
     wrap: 72
 ---
 
-```{r, echo=FALSE, results="hide"}
+```{r setup-opts, echo=FALSE, results="hide"}
 knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
 #library(BiocStyle)
 ```
 
 ```{r library, echo=FALSE}
 library(gutenTAG)
+```
+
+# Installation
+
+`gutenTAG` can be installed from Bioconductor using `BiocManager`:
+
+```{r install, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("gutenTAG")
 ```
 
 # Introduction
@@ -77,7 +88,7 @@ the emergence of myriad different approaches to achieve
 highly-multiplexed targeted proteomic imaging. These can be broadly
 characterised into cyclic immunofluorescence optical approaches, such as
 CyCIF [@Lin2018], and one-step mass tag methods such as IMC
-[@Giesen2014]. However, the high-plexities achieved by methods in
+[@Giesen2014]. However, the high multiplexity achieved by methods in
 spatial transcriptomics has eluded the field of spatial proteomics so
 far.
 
@@ -92,7 +103,7 @@ introduction of Photocleavable Mass Tags (PCMTs) [@ambergen], which
 enable targeted tagging of proteins of interest via specific antibodies.
 This technique of applying PCMT-tagged antibodies with MALDI-imaging has
 been termed MALDI-IHC. The use of peptide tags as the mass reporter
-system of choice lifts the lid on the existing plexity ceiling in
+system of choice lifts the lid on the existing multiplexity ceiling in
 current one-shot imaging proteomic technologies, as it is no longer
 capped by the abundance of heavy metals as in IMC.
 
@@ -101,7 +112,7 @@ capped by the abundance of heavy metals as in IMC.
 MALDI-IHC data shows some persistent features which must be taken into
 consideration for analysis. Firstly, it is quite large. Depending
 on the size of the tissue in question and the pixel size chosen for
-acquisition, it is not uncommon to see files in excess of 50GB. This will only increase as the field pushes for smaller pixel sizes and larger acquisition areas. This makes running even computationally efficient tasks quite a burden. MALDI-imaging data processing is hampered by a few acquisitional features, resulting in mass tag signal not always being in its expected location. Mass shift, where there is a systematic shift of a peak from it's expected location, can vary from sample to sample, as well as vary within the same sample (can be due to height effects in the tissue, laser defocusing, etc.). A further feature of MALDI-imaging data is the presence of isotopic peaks, which split the signal locally across the spectrum. These are the primary features of MALDI-imaging data which can be accounted for computationally with `gutenTAG`.
+acquisition, it is not uncommon to see files in excess of 50GB. This will only increase as the field pushes for smaller pixel sizes and larger acquisition areas. This makes running even computationally efficient tasks quite a burden. MALDI-imaging data processing is hampered by a few acquisition features, resulting in mass tag signal not always being in its expected location. Mass shift, where there is a systematic shift of a peak from it's expected location, can vary from sample to sample, as well as vary within the same sample (can be due to height effects in the tissue, laser defocusing, etc.). A further feature of MALDI-imaging data is the presence of isotopic peaks, which split the signal locally across the spectrum. These are the primary features of MALDI-imaging data which can be accounted for computationally with `gutenTAG`.
 
 ## gutenTAG overview
 
@@ -134,7 +145,7 @@ many communities who may be familiar with different frameworks.
 The `gutenTAG` package exports functions and example data to perform the
 following analyses:
 
-1.  [Read in raw datadata](#read-in-data)
+1.  [Read in raw data](#read-in-data)
 2.  [Perform data pre-processing](#preprocessing)
 3.  [Data processing](#processing)
 4.  [Visualisation](#visualisation) of processed targeted images
@@ -150,7 +161,7 @@ The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
 
 ```{r read in data}
-imzML_path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+imzML_path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 rawFile <- Cardinal::readMSIData(imzML_path)
 ```
 
@@ -373,7 +384,7 @@ plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
 
 Additionally, the images can be visualised using the `cytoviewer` R
 Shiny app developed by Meyer et al 2023 [@Meyer2023]. `cytoviewer`
-allows interactive visualistion of multi-channel images, supporting
+allows interactive visualisation of multi-channel images, supporting
 visualisation of up to 6 channels. It should be noted that the
 cell-level functionality of `cytomapper` and `cytoviewer` are not
 applicable for our data, since single-cell resolution is not yet

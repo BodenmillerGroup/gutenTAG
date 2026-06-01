@@ -1,14 +1,16 @@
 Package: gutenTAG
 Type: Package
 Title: gutenTAG: MALDI-IHC Data Processing and Quality Control
-Version: 0.99.14
+Version: 0.99.15
 Authors@R: c(
-    person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre")),
+    person("John", "Abbey", email = "john.abbey@uzh.ch", role = c("aut", "cre"),
+           comment = c(ORCID = "0009-0001-4485-3748")),
     person("Pierre", "Bost", role = "aut"),
     person("Leonardo", "Schwarz", role = "aut")
   )
 Description: gutenTAG is an R package for the data processing and quality control of targeted MALDI mass spectrometry imaging (MALDI-MSI) data. It builds on [Cardinal](https://bioconductor.org/packages/Cardinal/), a Bioconductor framework for MSI data, and extends it with targeted workflows specific to MALDI-imaging experiments.The core processing approach uses a novel metapeak construction strategy to account for mass shift and isotopic peaks in the spectra. Downstream, the package provides image-level and spatial quality control statistics, and supports conversion to standard Bioconductor formats such as `SpatialExperiment`, `CytoImageList`, and `AnnData` — enabling dimensionality reduction, clustering, and visualisation using the broader Bioconductor ecosystem. Image visualisation is supported through [cytomapper](https://bioconductor.org/packages/cytomapper/) and [cytoviewer](https://bioconductor.org/packages/cytoviewer/), a Shiny-based interactive viewer for CytoImageList objects that enables interactive exploration of multichannel images.
 Depends:
+  R (>= 4.3.0),
   Cardinal (>= 3.6.2)
 Imports:
   ggplot2,
@@ -43,6 +45,7 @@ Suggests:
     plotly,
     sessioninfo,
     quarto
-biocViews: ImagingMassSpectrometry, Spatial, Proteomics
+biocViews: ImagingMassSpectrometry, Spatial, Proteomics, MassSpectrometry,
+    Normalization, QualityControl, PeakDetection, MultiChannel, Clustering
 VignetteBuilder: knitr
 Config/testthat/edition: 3

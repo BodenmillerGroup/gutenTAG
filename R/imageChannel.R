@@ -16,7 +16,7 @@
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' imageChannel(x = results$processed, channel = 1)
 #'
@@ -46,7 +46,7 @@ imageChannel <- function(x, coords = NULL, channel = 1,
   # channel resolution — accept name or index
   if (is.character(channel)) {
     channel_idx <- which(colnames(df) == channel)
-    if (length(channel_idx) == 0) stop(paste0("Channel '", channel, "' not found in the data."))
+    if (length(channel_idx) == 0) stop("Channel '", channel, "' not found in the data.", call. = FALSE)
   } else {
     channel_idx <- channel
   }

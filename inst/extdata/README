@@ -1,0 +1,38 @@
+## gutenTAG example data
+
+This directory contains a small MALDI-MSI dataset used by the package
+vignette and examples.
+
+### Files
+
+**Example_data.imzML / Example_data.ibd**
+A reduced (8 x 8 pixel, 64 pixels total) MALDI-IHC dataset acquired on a
+Bruker rapifleX instrument from a formalin-fixed paraffin-embedded
+tissue section labelled with photocleavable mass tags (PCMTs).
+
+**ref_list.csv**
+A two-column CSV reference panel listing the expected mass tags:
+`FeatureMass` (nominal m/z) and `Name` (marker label).
+This panel is passed to `readPanel()` at the start of the pipeline.
+
+**Example_processed.Rdata**
+Pre-computed output of `assignMetapeaks()` stored as an R object named
+`results` with three elements:
+- `results$processed`  — output of `assignMetapeaks()`
+- `results$metapeaks`  — output of `generateMetapeaks()`
+- `results$panel`      — the panel data frame from `readPanel()`
+
+To regenerate this file from the raw data, run:
+
+    Rscript inst/extdata/regenerate_processed.R
+
+or from within R:
+
+    source(system.file("extdata/regenerate_processed.R", package = "gutenTAG"))
+
+### Utility scripts (not called during package build)
+
+**regenerate_processed.R**
+Runs the full gutenTAG pipeline on `Example_data.imzML` and saves the
+result to `Example_processed.Rdata`. Also prints diagnostic values used
+to update the test suite.

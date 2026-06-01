@@ -18,7 +18,7 @@ A CytoImageList object
 asCytoImageList
 }
 \examples{
-path <- system.file("extdata/Example_data.imzML", package = "gutenTAG")
+path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)
