@@ -145,9 +145,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   colnames(final_intensity) <- paste0(as.character(round(metapeaks$max, 2)), " m/z")
 
   # Annotated metapeaks only
-  final_intensity_targeted <- final_intensity[, !is.na(correspondence$marker)]
+  final_intensity_targeted <- as.data.frame(final_intensity[, !is.na(correspondence$marker)])
   colnames(final_intensity_targeted) <- correspondence$marker[!is.na(correspondence$marker)]
-  final_intensity_targeted <- as.data.frame(final_intensity_targeted)
 
   # add zero columns for markers that aren't assigned metapeaks
   final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
