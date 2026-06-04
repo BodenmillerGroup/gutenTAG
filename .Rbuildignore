@@ -5,5 +5,5 @@
 ^\.Rproj\.user$
 ^\.claude$
 ^inst/qc_report_files
-^inst/.*\.html$
-^vignettes/.*\.html$
+^inst/qc_report\.html$
+^vignettes/gutenTAG\.html$
