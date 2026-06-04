@@ -4,10 +4,20 @@
 \alias{plotTICHistogram}
 \title{Plot TIC Histogram with Otsu Thresholding}
 \usage{
-plotTICHistogram(x)
+plotTICHistogram(x, histogram = list(), vline = list(), palette = NULL)
 }
 \arguments{
 \item{x}{List output of \code{assignMetapeaks}.}
+
+\item{histogram}{Named list of fixed aesthetics (e.g. \code{bins},
+\code{color}, \code{alpha}) for the \code{geom_histogram} layer. Fill is
+mapped to the signal/noise group and is set via \code{palette}.}
+
+\item{vline}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linetype}, \code{linewidth}) for the Otsu-threshold line.}
+
+\item{palette}{Named character vector overriding the group fill colours,
+e.g. \code{c(Signal = "navy", Noise = "grey80")}.}
 }
 \value{
 A \code{ggplot} object.
@@ -21,4 +31,5 @@ Histogram of per-pixel total ion count (TIC) on a log10 scale,
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotTICHistogram(x = results$processed)
+plotTICHistogram(x = results$processed, palette = c(Signal = "navy"))
 }

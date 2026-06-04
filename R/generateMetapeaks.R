@@ -66,10 +66,11 @@ generateMetapeaks <- function(x, threshold = 0.01, hist_smooth_factor = 1, fixed
   metapeaks[["params"]] <- c(
     upstream_params,
     list(
-      threshold          = threshold,
-      hist_smooth_factor = hist_smooth_factor,
-      fixed.limits       = fixed.limits,
-      sparsity           = sparsity
+      threshold           = threshold,
+      detection_threshold = detection_threshold,
+      hist_smooth_factor  = hist_smooth_factor,
+      fixed.limits        = fixed.limits,
+      sparsity            = sparsity
     )
   )
 

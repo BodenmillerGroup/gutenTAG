@@ -4,10 +4,38 @@
 \alias{plotMeanVsSNR}
 \title{Plot Mean Intensity vs SNR}
 \usage{
-plotMeanVsSNR(x)
+plotMeanVsSNR(
+  x,
+  points = list(),
+  regression = list(),
+  show_stats = TRUE,
+  stats = list()
+)
 }
 \arguments{
 \item{x}{List output of \code{computeSNR(..., update_correspondence = TRUE)}.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{fill},
+\code{color}, \code{alpha}, \code{shape}) for the \code{geom_point} layer,
+overriding its defaults.}
+
+\item{regression}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linewidth}, \code{linetype}, \code{se}) for the regression line,
+passed to \code{ggplot2::geom_smooth}. The smoothing method defaults to
+\code{"lm"}; override it with \code{regression = list(method = ...)}.
+Available methods are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs
+\pkg{mgcv}), \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"},
+or any model function with a \code{predict} method. The statistics
+annotation (see \code{show_stats}) refits this same method and reports it.}
+
+\item{show_stats}{Logical; if \code{TRUE} (default), annotate the top-left
+corner with the fitted model's method, \eqn{R^2} (fraction of variance
+explained), and slope (shown only when the model is linear in the
+predictor).}
+
+\item{stats}{Named list of fixed aesthetics (e.g. \code{size}, \code{color},
+\code{fill}, \code{hjust}, \code{vjust}) for the statistics annotation
+label, drawn as a white box with a black outline by default.}
 }
 \value{
 A \code{ggplot} object.
@@ -21,4 +49,6 @@ rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", packag
 load(rdata_path)
 processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 plotMeanVsSNR(x = processed_snr)
+plotMeanVsSNR(x = processed_snr, points = list(size = 6, fill = "darkorange"))
+plotMeanVsSNR(x = processed_snr, regression = list(method = "loess"))
 }

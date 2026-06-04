@@ -8,7 +8,13 @@ plotQCOverview(
   x,
   geary_threshold = 0.7,
   snr_threshold = 3,
-  interactive = FALSE
+  interactive = FALSE,
+  points = list(),
+  rect = list(),
+  hline = list(),
+  vline = list(),
+  labels = list(),
+  palette = NULL
 )
 }
 \arguments{
@@ -25,6 +31,24 @@ Default \code{3}.}
 
 \item{interactive}{Logical; if \code{TRUE} returns a \code{plotly} object.
 Requires the \pkg{plotly} package. Default \code{FALSE}.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{shape})
+for the \code{geom_point} layer. Point fill encodes the quality zone and is
+set via \code{palette}.}
+
+\item{rect}{Named list of fixed aesthetics (e.g. \code{fill}, \code{alpha})
+for the shaded low-quality zone rectangle.}
+
+\item{hline, vline}{Named lists of fixed aesthetics (e.g. \code{color},
+\code{linetype}) for the SNR (horizontal) and Geary's C (vertical)
+threshold lines.}
+
+\item{labels}{Named list of fixed aesthetics passed to
+\code{ggrepel::geom_label_repel} for the marker labels.}
+
+\item{palette}{Named character vector overriding the point zone colours,
+with names \code{"low_quality"} and \code{"pass"}, e.g.
+\code{c(low_quality = "firebrick")}.}
 }
 \value{
 A \code{ggplot} object, or a \code{plotly} object when
@@ -42,4 +66,5 @@ load(rdata_path)
 processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
 processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)
 plotQCOverview(x = processed_qc)
+plotQCOverview(x = processed_qc, points = list(size = 5))
 }

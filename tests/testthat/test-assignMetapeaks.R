@@ -77,8 +77,9 @@ test_that("params element contains all pipeline parameters with correct default 
 
   expect_type(result$params, "list")
   expect_named(result$params,
-               c("snr", "win", "threshold", "hist_smooth_factor",
-                 "fixed.limits", "sparsity", "mz_threshold"))
+               c("snr", "win", "threshold", "detection_threshold",
+                 "hist_smooth_factor", "fixed.limits", "sparsity",
+                 "mz_threshold"))
   expect_equal(result$params$snr, 3)
   expect_equal(result$params$win, 50)
   expect_equal(result$params$threshold, 0.01)

@@ -4,3 +4,6 @@
 ^Meta$
 ^\.Rproj\.user$
 ^\.claude$
+^inst/qc_report_files
+^inst/.*\.html$
+^vignettes/.*\.html$

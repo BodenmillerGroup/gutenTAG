@@ -4,7 +4,14 @@
 \alias{plotMeanVarianceResiduals}
 \title{Plot Mean-Variance Residuals}
 \usage{
-plotMeanVarianceResiduals(x, standardised = FALSE, interactive = FALSE)
+plotMeanVarianceResiduals(
+  x,
+  standardised = FALSE,
+  interactive = FALSE,
+  points = list(),
+  unannotated_points = list(),
+  line = list()
+)
 }
 \arguments{
 \item{x}{List output of \code{\link{assignMetapeaks}}.}
@@ -15,6 +22,16 @@ Default \code{FALSE}.}
 
 \item{interactive}{Logical; if \code{TRUE} returns a \code{plotly} object.
 Requires the \pkg{plotly} package. Default \code{FALSE}.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{fill},
+\code{color}, \code{alpha}, \code{shape}) for the highlighted/targeted
+points layer, overriding its defaults.}
+
+\item{unannotated_points}{Named list of fixed aesthetics for the grey
+unannotated (untargeted) points layer.}
+
+\item{line}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linetype}, \code{linewidth}) for the zero-reference line.}
 }
 \value{
 A \code{ggplot} object, or a \code{plotly} object when
@@ -32,4 +49,7 @@ Scatter plot of residuals from a linear fit of
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotMeanVarianceResiduals(x = results$processed)
+plotMeanVarianceResiduals(x = results$processed,
+                          points = list(size = 5, fill = "darkorange"),
+                          line = list(color = "blue", linetype = "dashed"))
 }

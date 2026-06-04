@@ -4,10 +4,17 @@
 \alias{plotTICSpatial}
 \title{Plot Spatial TIC Signal/Noise Classification}
 \usage{
-plotTICSpatial(x)
+plotTICSpatial(x, points = list(), palette = NULL)
 }
 \arguments{
 \item{x}{List output of \code{assignMetapeaks}.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{shape},
+\code{alpha}) for the \code{geom_point} layer. Point colour is mapped to the
+signal/noise group and is set via \code{palette}.}
+
+\item{palette}{Named character vector overriding the group colours,
+e.g. \code{c(Signal = "navy", Noise = "grey80")}.}
 }
 \value{
 A \code{ggplot} object.
@@ -20,4 +27,5 @@ Spatial scatter plot coloured by TIC-based signal/noise
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotTICSpatial(x = results$processed)
+plotTICSpatial(x = results$processed, points = list(size = 4))
 }

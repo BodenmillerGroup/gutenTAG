@@ -12,6 +12,14 @@ test_that("generateMetapeaks works",{
   # generate metapeaks
   cur_test <- generateMetapeaks(peaks, hist_smooth_factor = 1, sparsity = 3)
 
+  # the absolute detection_threshold (pixel-count) is stored in params and
+  # equals n_pixels * the relative threshold (peaks is unwrapped to peaks$peaks
+  # inside generateMetapeaks)
+  expect_true("detection_threshold" %in% names(cur_test$params))
+  expect_gt(cur_test$params$detection_threshold, 0)
+  expect_equal(cur_test$params$detection_threshold,
+               length(Cardinal::pixels(peaks$peaks)) * cur_test$params$threshold)
+
   # test that metapeak center is correct
   expect_equal(cur_test$metapeaks$center[1:10], c(903.09, 906.31, 913.88, 917.16,
                                                   920.11, 923.15, 926.09, 932.97,
