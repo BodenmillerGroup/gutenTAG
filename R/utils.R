@@ -138,4 +138,3 @@ NULL
 
 # NOTE: removeDuplicates() was moved to its own file R/removeDuplicates.R and
 # exported. Its private helper .choose_closest remains above.
-
