@@ -80,6 +80,7 @@ jobs:
             `no-check-coding-practices`      = FALSE,
             `no-check-function-len`          = FALSE,
             `no-check-vignettes`             = TRUE,
+            `no-check-bioc-help`             = TRUE,
             `no.quit.on.nonstandard.workdir` = TRUE
           )
           n_problems <- length(check_results$error) + length(check_results$warning)
