@@ -14,6 +14,7 @@ Depends:
   Cardinal (>= 3.6.2)
 Imports:
   ggplot2,
+  ggbeeswarm,
   ProtGenerics,
   dplyr,
   stats,
@@ -44,7 +45,9 @@ Suggests:
     testthat (>= 3.0.0),
     plotly,
     sessioninfo,
-    quarto
+    quarto,
+    mgcv,
+    MASS
 biocViews: ImagingMassSpectrometry, Spatial, Proteomics, MassSpectrometry,
     Normalization, QualityControl, PeakDetection, MultiChannel, Clustering
 VignetteBuilder: knitr

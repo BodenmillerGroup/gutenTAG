@@ -4,12 +4,19 @@
 \alias{plotSpatialSNR}
 \title{Plot Spatial Distribution of Signal and Noise for a Single Channel}
 \usage{
-plotSpatialSNR(x, channel)
+plotSpatialSNR(x, channel, points = list(), palette = NULL)
 }
 \arguments{
 \item{x}{List output of \code{computeSNR(..., update_correspondence = TRUE)}.}
 
 \item{channel}{Integer index or character name of the channel to plot.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{shape},
+\code{alpha}) for the \code{geom_point} layer. Note that point colour is
+mapped to the signal/noise cluster and is set via \code{palette}.}
+
+\item{palette}{Named character vector overriding the cluster colours,
+e.g. \code{c(Signal = "purple", Noise = "grey80")}.}
 }
 \value{
 A \code{ggplot} object.
@@ -23,4 +30,5 @@ rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", packag
 load(rdata_path)
 processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 plotSpatialSNR(x = processed_snr, channel = 1)
+plotSpatialSNR(x = processed_snr, channel = 1, points = list(size = 4))
 }

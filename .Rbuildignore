@@ -4,3 +4,6 @@
 ^Meta$
 ^\.Rproj\.user$
 ^\.claude$
+^inst/qc_report_files
+^inst/qc_report\.html$
+^vignettes/gutenTAG\.html$

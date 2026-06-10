@@ -4,11 +4,18 @@
 \alias{plotGearysC}
 \title{Plot Geary's C Score per Marker}
 \usage{
-plotGearysC(x)
+plotGearysC(x, bar = list(), line = list())
 }
 \arguments{
 \item{x}{List output of \code{computeGearysC(..., update_correspondence = TRUE)}.
 \code{x$CorrespondenceMatrix} must contain a \code{GearysC} column.}
+
+\item{bar}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
+\code{linewidth}, \code{alpha}) for the \code{geom_bar} layer, overriding
+its defaults.}
+
+\item{line}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linetype}, \code{linewidth}) for the mean-score reference line.}
 }
 \value{
 A \code{ggplot} object.
@@ -23,4 +30,6 @@ load(rdata_path)
 processed_geary <- computeGearysC(results$processed, update_correspondence = TRUE,
                                   verbose = FALSE)
 plotGearysC(x = processed_geary)
+plotGearysC(x = processed_geary, bar = list(fill = "steelblue"),
+            line = list(color = "black"))
 }

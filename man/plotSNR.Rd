@@ -4,13 +4,24 @@
 \alias{plotSNR}
 \title{Plot Signal-to-Noise Ratio per Marker}
 \usage{
-plotSNR(x, snr_threshold = NULL)
+plotSNR(x, snr_threshold = NULL, bar = list(), line = list(), palette = NULL)
 }
 \arguments{
 \item{x}{List output of \code{computeSNR(..., update_correspondence = TRUE)}.}
 
 \item{snr_threshold}{Numeric; threshold for fill colour. If \code{NULL}
 (default), uses the 10th percentile of SNR values.}
+
+\item{bar}{Named list of fixed aesthetics (e.g. \code{color}, \code{width},
+\code{alpha}) for the \code{geom_bar} layer. Note that bar \code{fill} is
+mapped to the threshold and is controlled via \code{palette}.}
+
+\item{line}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linetype}, \code{linewidth}) for the threshold reference line.}
+
+\item{palette}{Named character vector overriding the above/below-threshold
+fill colours, e.g. \code{c("TRUE" = "firebrick", "FALSE" = "seagreen")}
+(\code{"TRUE"} = below threshold).}
 }
 \value{
 A \code{ggplot} object.
@@ -24,4 +35,5 @@ rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", packag
 load(rdata_path)
 processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 plotSNR(x = processed_snr)
+plotSNR(x = processed_snr, palette = c("TRUE" = "firebrick"))
 }

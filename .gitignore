@@ -25,3 +25,8 @@ CLAUDE.md
 COMPLETED.md
 TODO.md
 .claude/commands/
+
+# R CMD build / check artifacts
+*.Rcheck/
+*.tar.gz
+gutenTAG.BiocCheck/

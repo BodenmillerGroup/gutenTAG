@@ -4,7 +4,16 @@
 \alias{plotMeanVariance}
 \title{Plot Mean-Variance Relationship}
 \usage{
-plotMeanVariance(x, annotated_only = FALSE, interactive = FALSE)
+plotMeanVariance(
+  x,
+  annotated_only = FALSE,
+  interactive = FALSE,
+  points = list(),
+  unannotated_points = list(),
+  regression = list(),
+  show_stats = TRUE,
+  stats = list()
+)
 }
 \arguments{
 \item{x}{List output of \code{assignMetapeaks}.}
@@ -14,6 +23,36 @@ Default \code{FALSE}.}
 
 \item{interactive}{Logical; if \code{TRUE} returns a \code{plotly} object.
 Requires the \pkg{plotly} package. Default \code{FALSE}.}
+
+\item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{fill},
+\code{color}, \code{alpha}, \code{shape}) for the highlighted/targeted
+points layer, overriding its defaults.}
+
+\item{unannotated_points}{Named list of fixed aesthetics for the grey
+unannotated (untargeted) points layer (only drawn when
+\code{annotated_only = FALSE}).}
+
+\item{regression}{Named list of fixed aesthetics (e.g. \code{color},
+\code{linewidth}, \code{linetype}, \code{se}) for the regression line,
+passed to \code{ggplot2::geom_smooth}. The line is fitted over the
+unannotated points, or over the targeted points when
+\code{annotated_only = TRUE}. The smoothing method defaults to \code{"lm"};
+override it with \code{regression = list(method = ...)}. Available methods
+are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs \pkg{mgcv}),
+\code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"} (picks
+\code{"loess"} or \code{"gam"} by sample size), or any model function with a
+\code{predict} method. The statistics annotation (see \code{show_stats})
+refits this same method and reports it, so the box always describes the
+visible curve.}
+
+\item{show_stats}{Logical; if \code{TRUE} (default), annotate the top-left
+corner with the fitted model's method, \eqn{R^2} (fraction of variance
+explained), and slope (shown only when the model is linear in the
+predictor), computed over the same points the line is fitted to.}
+
+\item{stats}{Named list of fixed aesthetics (e.g. \code{size}, \code{color},
+\code{fill}, \code{hjust}, \code{vjust}) for the statistics annotation
+label, drawn as a white box with a black outline by default.}
 }
 \value{
 A \code{ggplot} object, or a \code{plotly} object when
@@ -28,4 +67,7 @@ Log-log scatter of mean vs standard deviation for all
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotMeanVariance(x = results$processed)
+plotMeanVariance(x = results$processed, points = list(size = 5, fill = "darkorange"))
+plotMeanVariance(x = results$processed, regression = list(color = "blue", se = TRUE))
+plotMeanVariance(x = results$processed, show_stats = FALSE)
 }

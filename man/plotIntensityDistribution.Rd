@@ -4,10 +4,16 @@
 \alias{plotIntensityDistribution}
 \title{Plot Intensity Distribution per Marker}
 \usage{
-plotIntensityDistribution(x)
+plotIntensityDistribution(x, violin = list(), boxplot = list())
 }
 \arguments{
 \item{x}{List output of \code{assignMetapeaks}.}
+
+\item{violin}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
+\code{alpha}) for the \code{geom_violin} layer, overriding its defaults.}
+
+\item{boxplot}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
+\code{width}) for the \code{geom_boxplot} layer, overriding its defaults.}
 }
 \value{
 A \code{ggplot} object.
@@ -20,4 +26,5 @@ Violin and boxplot showing the distribution of intensity values
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotIntensityDistribution(x = results$processed)
+plotIntensityDistribution(x = results$processed, violin = list(fill = "skyblue"))
 }
