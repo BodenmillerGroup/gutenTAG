@@ -11,6 +11,7 @@
 #'   \code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"}, \code{"cividis"},
 #'   etc. Default \code{"viridis"}.
 #' @param na_colour Colour used for NA pixels. Default \code{"black"}.
+#' @param base_size Base font size in points, passed to \code{ggplot2::theme_void()}. Default \code{12}.
 #' @param ... Additional arguments passed to \code{ggplot2::theme()}.
 #'
 #' @return A \code{ggplot} object.
@@ -29,10 +30,11 @@ imageChannel <- function(x, coords = NULL, channel = 1,
                          quantile_threshold = 0.99,
                          palette = "viridis",
                          na_colour = "black",
+                         base_size = 12,
                          ...) {
 
   # validity checks
-  .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour)
+  .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour, base_size)
 
   # input handling — accept assignMetapeaks list or plain df/matrix
   if (is.data.frame(x) || is.matrix(x)) {
@@ -66,7 +68,7 @@ imageChannel <- function(x, coords = NULL, channel = 1,
     coord_equal() +
     scale_fill_viridis_c(option = palette, na.value = na_colour) +
     ggtitle(channel_name) +
-    theme_void(base_size = 12) +
+    theme_void(base_size = base_size) +
     theme(...)
 
   return(p)

@@ -104,3 +104,40 @@ test_that("params captures non-default mz_threshold", {
   expect_equal(result$params$mz_threshold, 2.5)
 
 })
+
+test_that("assignMetapeaks: single-metapeak path yields an n_pixels x 1 matrix", {
+
+  # Regression guard for .generateFinalIntensityDF's sparse-matmul path. With
+  # exactly one metapeak, S is a 1 x n_mz indicator and t(S %*% spectra(pre))
+  # must come back as an n_pixels x 1 MATRIX rather than collapsing to a bare
+  # numeric vector.
+
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+
+  # Reduce to a single metapeak by subsetting the metapeaks fields. center/max/
+  # width are numeric vectors (take element 1); limits is a matrix so it must be
+  # kept 2D via drop = FALSE so it stays a 1x2 matrix (limits[k, ] indexing in
+  # .generateFinalIntensityDF requires a matrix).
+  single <- metapeaks
+  single$metapeaks$center <- metapeaks$metapeaks$center[1]
+  single$metapeaks$max    <- metapeaks$metapeaks$max[1]
+  single$metapeaks$width  <- metapeaks$metapeaks$width[1]
+  single$metapeaks$limits <- metapeaks$metapeaks$limits[1, , drop = FALSE]
+  # keep propagation_selection consistent: a single metapeak label
+  single$propagation_selection <- 1L
+
+  cur <- assignMetapeaks(single, pre = pre, refList = panel)
+
+  # the untargeted (AllMetapeaks) matrix is what guards the cbind path
+  allmp <- cur$AllMetapeaks$AllMetapeaksIntensity
+  expect_true(is.matrix(allmp))            # did NOT collapse to a vector
+  expect_equal(ncol(allmp), 1L)            # exactly one metapeak column
+  expect_equal(nrow(allmp), 64L)           # n_pixels for the example data
+
+})

@@ -1,3 +1,24 @@
+# gutenTAG 0.99.16
+
+* `estimateMetapeaks()` now computes its per-metapeak parameters as a single
+  vectorised grouped reduction instead of a per-metapeak loop. Output is
+  unchanged.
+* `assignMetapeaks()` now builds the untargeted intensity table with a single
+  indicator-matrix multiply, replacing the per-metapeak `colSums` loop. Output
+  is unchanged (to floating-point tolerance). Note: this is a code-clarity
+  change, not a speed-up — the spectra image is still materialised during the
+  multiply, so the memory/runtime ceiling on very large datasets is unchanged
+  and remains an open optimisation target.
+* `assignMetapeaks()` now computes the summary spectra (per-feature max and
+  mean) and the per-pixel total signal in a single chunked pass over the spectra
+  matrix, replacing three separate full traversals (the two `summarizeFeatures`
+  stats plus a standalone `colSums`). Output is bit-identical; on a real ~14k
+  pixel dataset this cut combined `generateMetapeaks` + `assignMetapeaks` runtime
+  by ~33% (the summary step itself ~3x faster), with bounded memory (only one
+  column block is held dense at a time).
+* `imageChannel()` gained a `base_size` argument to adjust the plot's base font
+  size (passed to `ggplot2::theme_void()`).
+
 # gutenTAG 0.99.15
 
 * Initial Bioconductor submission.

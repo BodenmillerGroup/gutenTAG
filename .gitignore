@@ -30,3 +30,12 @@ TODO.md
 *.Rcheck/
 *.tar.gz
 gutenTAG.BiocCheck/
+
+# Agent / multi-agent team scratch (never committed)
+.claude/
+# Runtime benchmark artefacts — kept out of the package entirely
+benchmarks/
+*benchmark*.png
+*benchmark*.pdf
+*benchmark*.rds
+baseline.rds

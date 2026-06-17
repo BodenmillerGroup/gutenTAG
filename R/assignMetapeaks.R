@@ -26,6 +26,7 @@
 #'
 #' @importFrom Cardinal mz featureData
 #' @importFrom matter colSums rowSums
+#' @importFrom Matrix sparseMatrix t
 #' @importFrom dplyr relocate
 #' @importFrom stats cor na.omit
 #' @export
@@ -53,8 +54,13 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
   # 2. generate the final intensity dataframe
   final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence, refList = refList)
+  # Single chunked pass over the spectra matrix: per-feature skyline (max) and
+  # mean, plus per-pixel total signal (colSums). Replaces three separate full
+  # passes (summarizeFeatures' max and mean stats + a standalone colSums) with
+  # one read, shared by steps 3 and the summary spectra below.
+  spec_summary <- .spectraColSummary(pre)
   # 3. add elements to correspondence matrix
-  final_correspondence_matrix <- .finaliseCorrespondence(x, pre, refList, prev_output = final_intensity_dataframe)
+  final_correspondence_matrix <- .finaliseCorrespondence(x, pre, refList, prev_output = final_intensity_dataframe, total_signal = spec_summary$total_signal)
   # 4. create filtered dataframe
   final_filtered <- .filterTIC(x, prev_output = final_correspondence_matrix)
 
@@ -68,8 +74,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   Intensity <- Intensity[, Correspondence$marker]
   final_filtered <- final_filtered[, Correspondence$marker]
 
-  # summary spectra
-  summarised_spectra <- .summariseSpectra(pre)
+  # summary spectra (built from the fused single-pass summary computed above)
+  summarised_spectra <- .summariseSpectra(pre, spec_summary)
 
   # values to return
   return(list(CorrespondenceMatrix = Correspondence,
@@ -120,26 +126,46 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 .generateFinalIntensityDF <- function(x, pre, prev_output, refList){
 
   rownames(refList) <- refList$Name
-  # extract raw intensity dataframe from pre-processed data
-  raw_intensity <- ProtGenerics::spectra(pre)
 
   # extract from prev_output
   correspondence <- prev_output$correspondence_matrix
   mz_vector <- prev_output$mz_vector
   metapeaks <- prev_output$metapeaks
 
-  # create untargeted final intensity dataframe
-  # raw_intensity is mz_bins x pixels (spectra() convention), so ncol = n_pixels
+  # raw_intensity is mz_bins x pixels (spectra() convention). Keep it as the
+  # out-of-core matter matrix — coercing to a dense base matrix would copy the
+  # whole image into RAM (and overflow matter's size calc on large images).
+  raw_intensity <- ProtGenerics::spectra(pre)
+  n_mz        <- nrow(raw_intensity)
   n_pixels    <- ncol(raw_intensity)
   n_metapeaks <- nrow(correspondence)
-  final_intensity <- matrix(0, nrow = n_pixels, ncol = n_metapeaks)
   eps <- sqrt(.Machine$double.eps)
-  for (k in seq_len(n_metapeaks)) {
-    # which mz locations are inside the peak (boolean)
-    selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps & mz_vector$mz <= metapeaks$limits[k, 2] + eps
-    # sum the intensity of the mz locations inside the peak
-    final_intensity[, k] <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
-  }
+
+  # Each metapeak sums raw intensity over the mz bins inside its limits. Build a
+  # 0/1 indicator S (n_metapeaks x n_mz) selecting those bins, so the untargeted
+  # intensity table is the matrix product S %*% raw_intensity:
+  #   final_intensity[pixel, k] = sum_{mz in peak k} raw_intensity[mz, pixel]
+  mz <- mz_vector$mz
+  idx <- lapply(seq_len(n_metapeaks), function(k) {
+    which(mz >= metapeaks$limits[k, 1] - eps & mz <= metapeaks$limits[k, 2] + eps)
+  })
+  S <- Matrix::sparseMatrix(
+    i = rep(seq_len(n_metapeaks), lengths(idx)),
+    j = unlist(idx),
+    x = 1,
+    dims = c(n_metapeaks, n_mz)
+  )
+  # NOTE: `S %*% raw_intensity` (sparse dgCMatrix %*% out-of-core matter matrix)
+  # has no matter method, so it dispatches to Matrix's (Matrix, ANY) fallback —
+  # `S %*% as.matrix(raw_intensity)` — which materialises the full mz_bins x
+  # pixels image in RAM. That is a real memory/runtime ceiling on very large
+  # images (integer-overflow warnings appear past ~2^31 elements) and remains an
+  # OPEN optimisation target. The obvious alternative — densifying S so the
+  # product hits matter's chunked `lmatmul` — was benchmarked and is markedly
+  # SLOWER here (many strided chunk reads beat by one bulk read), so we keep the
+  # densify-then-multiply path. A matter-native grouped reduction
+  # (colStats(..., groups=)) is the likely proper fix; verify by measurement.
+  final_intensity <- as.matrix(Matrix::t(S %*% raw_intensity))
 
   # get names for metapeak values
   colnames(final_intensity) <- paste0(as.character(round(metapeaks$max, 2)), " m/z")
@@ -164,10 +190,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 }
 
 # finalise the correspondence matrix
-.finaliseCorrespondence <- function(x, pre, refList, prev_output){
-
-  # extract raw intensity dataframe from pre-processed data
-  raw_intensity <- ProtGenerics::spectra(pre)
+.finaliseCorrespondence <- function(x, pre, refList, prev_output, total_signal){
 
   # extract from previous output
   final_intensity_targeted <- prev_output$final_intensity_targeted
@@ -194,8 +217,9 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # store metapeak width in correspondence matrix
   correspondence$peak_width <- metapeaks$metapeaks$width
 
-  # total signal of each peak
-  total_signal <- colSums(raw_intensity)
+  # total_signal (per-pixel TIC) is precomputed once in the fused single pass
+  # over the spectra matrix (.spectraColSummary), avoiding a redundant colSums
+  # traversal here.
 
   # correlation between each marker's intensity and total raw signal intensity
   total_signal_correlation <- drop(cor(log(final_intensity + 1), log(1 + total_signal)))
@@ -265,12 +289,47 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 }
 
 
-# calculate summary spectra
-.summariseSpectra <- function(pre){
+# Single chunked column-pass over the spectra matrix, computing in ONE read:
+#   skyline      per-feature (mz-bin) maximum over pixels
+#   mean         per-feature mean over pixels
+#   total_signal per-pixel total ion current (colSums)
+# Replaces three separate full passes over the spectra matrix
+# (Cardinal::summarizeFeatures computes its max and mean stats in one pass each,
+# plus a standalone colSums in .finaliseCorrespondence). Chunking over pixels
+# keeps every mz-bin in each block (so per-pixel colSums are exact), while
+# per-feature max/sum accumulate across blocks. Only one column-block is held
+# dense at a time, so memory is bounded and it works whether spectra() is
+# in-memory or an out-of-core matter matrix.
+.spectraColSummary <- function(pre) {
+  raw_intensity <- ProtGenerics::spectra(pre)
+  n_mz <- nrow(raw_intensity)
+  n_px <- ncol(raw_intensity)
 
-  # compute summary spectra
-  summarised_spectra <- Cardinal::summarizeFeatures(pre, stat=c(skyline = "max", mean = "mean"))
-  summarised_spec <- data.frame(featureData(summarised_spectra))
+  row_max      <- rep(-Inf, n_mz)
+  row_sum      <- numeric(n_mz)
+  total_signal <- numeric(n_px)
+
+  # ~5e7 elements per block (e.g. ~3.5k pixels at 14k mz-bins, ~0.4 GB dense)
+  block <- max(1L, as.integer(5e7 %/% max(1L, n_mz)))
+  for (s in seq.int(1L, n_px, by = block)) {
+    idx   <- s:min(s + block - 1L, n_px)
+    chunk <- as.matrix(raw_intensity[, idx, drop = FALSE])
+    row_max           <- pmax(row_max, as.numeric(matter::s_rowstats(chunk, stat = "max")))
+    row_sum           <- row_sum + rowSums(chunk)
+    total_signal[idx] <- colSums(chunk)
+  }
+
+  list(skyline = row_max, mean = row_sum / n_px, total_signal = total_signal)
+}
+
+# calculate summary spectra from the fused single-pass column summary
+.summariseSpectra <- function(pre, spec_summary){
+
+  # featureData(pre) plus per-feature skyline (max) and mean — the same columns
+  # Cardinal::summarizeFeatures(stat = c(skyline = "max", mean = "mean")) appends.
+  summarised_spec <- data.frame(featureData(pre))
+  summarised_spec$skyline <- spec_summary$skyline
+  summarised_spec$mean    <- spec_summary$mean
 
   return(summarised_spec)
 }

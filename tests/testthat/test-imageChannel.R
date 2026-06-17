@@ -64,3 +64,32 @@ test_that("imageChannel works", {
 
 
 })
+
+test_that("imageChannel: base_size argument propagates and is validated", {
+
+  path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+  panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
+  panel <- readPanel(path = panel_path)
+  raw <- readMSIData(path)
+  pre <- preProcess(raw)
+  peaks <- peakDetection(pre)
+  metapeaks <- generateMetapeaks(peaks)
+  processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
+
+  # a non-default base_size still returns a ggplot object
+  expect_s3_class(imageChannel(processed, channel = 1, base_size = 20), "gg")
+
+  # base_size propagates to the theme's base text size
+  p_default <- imageChannel(processed, channel = 1)               # default base_size = 12
+  p_large   <- imageChannel(processed, channel = 1, base_size = 20)
+  expect_equal(p_default$theme$text$size, 12)
+  expect_equal(p_large$theme$text$size, 20)
+  expect_gt(p_large$theme$text$size, p_default$theme$text$size)
+
+  # invalid base_size errors: negative, non-numeric, non-scalar
+  expect_error(imageChannel(processed, channel = 1, base_size = -5))
+  expect_error(imageChannel(processed, channel = 1, base_size = 0))
+  expect_error(imageChannel(processed, channel = 1, base_size = "big"))
+  expect_error(imageChannel(processed, channel = 1, base_size = c(10, 12)))
+
+})

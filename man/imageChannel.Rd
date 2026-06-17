@@ -11,6 +11,7 @@ imageChannel(
   quantile_threshold = 0.99,
   palette = "viridis",
   na_colour = "black",
+  base_size = 12,
   ...
 )
 }
@@ -31,6 +32,8 @@ capped to that value before plotting. Default \code{0.99}.}
 etc. Default \code{"viridis"}.}
 
 \item{na_colour}{Colour used for NA pixels. Default \code{"black"}.}
+
+\item{base_size}{Base font size in points, passed to \code{ggplot2::theme_void()}. Default \code{12}.}
 
 \item{...}{Additional arguments passed to \code{ggplot2::theme()}.}
 }

@@ -20,8 +20,6 @@
 #'                         results$metapeaks$count_smooth_df,
 #'                         seed_mz = results$metapeaks$seed_mz)
 #'
-#' @importFrom stats weighted.mean
-#' @importFrom utils head tail
 #' @export
 
 estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
@@ -36,34 +34,35 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
   if (num_metapeaks == 0) {
     stop("No metapeaks were found.")
   }
-  metapeak_center <- double(num_metapeaks)
-  metapeak_max <- double(num_metapeaks)
-  metapeak_limits <- matrix(0, nrow = num_metapeaks, ncol = 2)
+  # Each metapeak's parameters are a grouped reduction over count_df keyed by
+  # propagation_selection, so compute them in one vectorised pass rather than
+  # looping per metapeak. Group 0 holds the sub-threshold bins that
+  # segmentPeakCounts() excluded, so drop it; pinning factor levels to
+  # seq_len(num_metapeaks) keeps the output rows in metapeak order.
+  g <- as.numeric(propagation_selection)
+  keep <- g >= 1
+  gf <- factor(g[keep], levels = seq_len(num_metapeaks))
+  peak_mzs <- count_df$mz[keep]
+  peak_counts <- count_df$count[keep]
 
-  for (k in seq_len(num_metapeaks)) {
-    # Compute a mask of the indices that correspond to the segmentation k.
-    peak_mask <- as.numeric(propagation_selection) == k
-    peak_mzs <- count_df$mz[peak_mask]
-    peak_counts <- count_df$count[peak_mask]
+  # Weighted mean m/z per metapeak: sum(mz * count) / sum(count).
+  metapeak_center <- as.numeric(tapply(peak_mzs * peak_counts, gf, sum) /
+                                  tapply(peak_counts, gf, sum))
 
-    # Compute weighted mean using peak counts.
-    metapeak_center[k] <- weighted.mean(x = peak_mzs, w = peak_counts)
+  # m/z at the maximum count within each metapeak (first max, as which.max).
+  metapeak_max <- as.numeric(tapply(seq_along(peak_counts), gf, function(i) {
+    peak_mzs[i][which.max(peak_counts[i])]
+  }))
 
-    # Compute maximum peak location.
-    metapeak_max[k] <- peak_mzs[which.max(peak_counts)]
-
-    if (is.null(fixed.limits)){
-      # Limits are the intersection of the smoothed metapeak with the
-      # detection_threshold line. segmentPeakCounts() already excludes
-      # bins at or below threshold, so the segment's min/max mz are
-      # exactly those crossings.
-      metapeak_limits[k, ] <- c(min(peak_mzs), max(peak_mzs))
-    }else{
-      # set binning limits to be within specified fixed limit around metapeak max
-      metapeak_limits[k, 1] <- metapeak_max[k] - fixed.limits
-      metapeak_limits[k, 2] <- metapeak_max[k] + fixed.limits
-    }
-
+  if (is.null(fixed.limits)) {
+    # Limits are the segment's min/max m/z — the detection_threshold crossings,
+    # since segmentPeakCounts() already excluded bins at or below threshold.
+    metapeak_limits <- cbind(as.numeric(tapply(peak_mzs, gf, min)),
+                             as.numeric(tapply(peak_mzs, gf, max)))
+  } else {
+    # Fixed-width window centred on each metapeak max.
+    metapeak_limits <- cbind(metapeak_max - fixed.limits,
+                             metapeak_max + fixed.limits)
   }
 
 
