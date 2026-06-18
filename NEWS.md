@@ -1,3 +1,28 @@
+# gutenTAG 0.99.17
+
+* Added `plotMassShiftVsIntensity()`, a QC scatter of each targeted peak's
+  signed mass shift (`mz_location - expected_mz_location`) against its mean
+  intensity on a log10 axis, as a screen for falsely-assigned markers. Points
+  whose absolute shift exceeds `shift_threshold` (defaulting to `2 * sd` of the
+  shifts) are flagged in a contrasting colour and labelled with their marker
+  name via `ggrepel`. Customisable via `points`, `labels`, `shift_threshold`,
+  `show_labels` and `palette`.
+* `plotIntensityDistribution()` gained a `transformation` argument
+  (`"none"`, `"log"`, `"z-scaled"`) for viewing per-marker intensity
+  distributions on the raw scale, the log10 scale (with a `+1` pseudocount so
+  zero-intensity pixels are handled), or as the z-score of the log10 intensity
+  pooled across all markers. Marker order on the x-axis is fixed by raw mean
+  intensity so the three views are directly comparable.
+* `computeGearysC()` now scales to large images. Its internal spatial-weight
+  matrix builder was rewritten to construct the rook (`k = 4`) adjacency
+  directly from the integer pixel lattice in O(n) time and memory, instead of
+  materialising a dense n x n pairwise-distance matrix that overflowed R's
+  vector index above ~65,000 pixels. Note a deliberate, minor behaviour change:
+  edge and hole pixels now connect only to their existing 2-3 rook neighbours
+  rather than 4 force-picked nearest points (which previously pulled in
+  diagonals at boundaries). This is the geometrically correct neighbourhood and
+  slightly shifts edge-pixel scores.
+
 # gutenTAG 0.99.15
 
 * Initial Bioconductor submission.

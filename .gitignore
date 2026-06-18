@@ -1,4 +1,6 @@
 .Rproj.user
+benchmarks/
+*benchmark*.rds
 .Rhistory
 .Ruserdata
 .Rapp.history
@@ -22,11 +24,15 @@ inst/doc
 .Rproj.user/
 *.swp
 CLAUDE.md
+AGENTS.md
 COMPLETED.md
 TODO.md
 .claude/commands/
+.claude/
 
 # R CMD build / check artifacts
 *.Rcheck/
 *.tar.gz
 gutenTAG.BiocCheck/
+
+ISSUE_gearysC_scalability.md

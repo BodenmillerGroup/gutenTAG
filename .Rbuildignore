@@ -4,6 +4,8 @@
 ^Meta$
 ^\.Rproj\.user$
 ^\.claude$
+^AGENTS\.md$
+^ISSUE_gearysC_scalability\.md$
 ^inst/qc_report_files
 ^inst/qc_report\.html$
 ^vignettes/gutenTAG\.html$

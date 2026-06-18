@@ -201,7 +201,7 @@ NULL
 }
 
 # imageChannel ####
-.valid.imageChannel <- function(x, coords, channel, quantile_threshold, palette, na_colour){
+.valid.imageChannel <- function(x, coords, channel, quantile_threshold, palette, na_colour, base_size){
 
   # break if coords is not a dataframe when x is a df/matrix
   if ((is.data.frame(x) || is.matrix(x)) && !is.data.frame(coords)) {
@@ -227,6 +227,11 @@ NULL
   # break if na_colour is not a character string
   if (!is.character(na_colour) || length(na_colour) != 1) {
     stop("'na_colour' should be a single character string.")
+  }
+
+  # break if base_size is not a single positive numeric
+  if (!is.numeric(base_size) || length(base_size) != 1 || base_size <= 0) {
+    stop("'base_size' should be a single positive numeric.")
   }
 
 }

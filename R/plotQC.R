@@ -286,10 +286,22 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
 
 #' Plot Intensity Distribution per Marker
 #'
-#' @description Violin and boxplot showing the distribution of intensity values
-#'   per marker, ordered by descending mean intensity.
+#' @description Violin and boxplot showing the distribution of per-pixel
+#'   intensity values per marker, ordered by descending mean intensity. The
+#'   per-pixel values can optionally be transformed via \code{transformation}:
+#'   \code{"none"} plots the raw intensities; \code{"log"} plots
+#'   \code{log10(intensity + 1)} (a pseudocount of 1 keeps the many zero-intensity
+#'   pixels finite, matching the package's \code{log(1 + x)} convention);
+#'   \code{"z-scaled"} plots the z-score of the log10 intensity pooled across all
+#'   pixels and markers, so distributions remain comparable. The marker order on
+#'   the x-axis is always set by the raw mean intensity, so it is identical across
+#'   transformations.
 #'
 #' @param x List output of \code{assignMetapeaks}.
+#' @param transformation Character; the per-pixel intensity transformation to
+#'   plot. One of \code{"none"} (default, raw intensity), \code{"log"}
+#'   (\code{log10(intensity + 1)}), or \code{"z-scaled"} (z-score of the log10
+#'   intensity pooled across all pixels and markers).
 #' @param violin Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
 #'   \code{alpha}) for the \code{geom_violin} layer, overriding its defaults.
 #' @param boxplot Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
@@ -301,13 +313,30 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
 #' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' plotIntensityDistribution(x = results$processed)
+#' plotIntensityDistribution(x = results$processed, transformation = "log")
 #' plotIntensityDistribution(x = results$processed, violin = list(fill = "skyblue"))
 #' @export
-plotIntensityDistribution <- function(x, violin = list(), boxplot = list()) {
+plotIntensityDistribution <- function(x,
+                                      transformation = c("none", "log",
+                                                         "z-scaled"),
+                                      violin = list(), boxplot = list()) {
+
+  transformation <- match.arg(transformation)
 
   df <- x$IntensityDF
   df_long <- utils::stack(df)
   colnames(df_long) <- c("intensity", "marker")
+
+  if (transformation == "none") {
+    df_long$value <- df_long$intensity
+    y_lab <- "Intensity per pixel"
+  } else if (transformation == "log") {
+    df_long$value <- log10(df_long$intensity + 1)   # +1 pseudocount: pixels include zeros
+    y_lab <- "Intensity per pixel (log10)"
+  } else {  # "z-scaled": z-score of log10 intensity pooled across all pixels/markers
+    df_long$value <- as.numeric(scale(log10(df_long$intensity + 1)))
+    y_lab <- "Intensity per pixel (log10 z-score)"
+  }
 
   violin_layer <- .qc_layer(
     geom_violin,
@@ -321,13 +350,13 @@ plotIntensityDistribution <- function(x, violin = list(), boxplot = list()) {
   )
 
   ggplot(df_long, aes(x = reorder(.data[["marker"]], -.data[["intensity"]]),
-                      y = .data[["intensity"]])) +
+                      y = .data[["value"]])) +
     violin_layer +
     boxplot_layer +
     theme_minimal() +
     labs(
       x     = "",
-      y     = "Intensity per pixel",
+      y     = y_lab,
       title = "Mean Marker Intensities"
     ) +
     theme(
@@ -1350,4 +1379,140 @@ plotMassShift <- function(x, type = c("distribution", "spectrum"),
       )
 
   }
+}
+
+
+# ── 12b. plotMassShiftVsIntensity ─────────────────────────────────────────────
+
+#' Plot Mass Shift Against Marker Mean Intensity
+#'
+#' @description Scatter of each targeted peak's mass shift
+#'   (\code{mz_location - expected_mz_location}, signed so the direction of the
+#'   deviation is preserved) against its mean intensity, on a log10 intensity
+#'   axis. The combination is a useful screen for falsely-assigned markers: a
+#'   peak that was matched to the wrong feature typically shows a large mass
+#'   shift, and low-intensity markers with large shifts are the most suspect.
+#'   Points are coloured by the direction of the shift (above or below the zero
+#'   line), and markers whose absolute shift exceeds \code{shift_threshold} are
+#'   (when \pkg{ggrepel} is available) labelled with their marker name. A grey
+#'   reference line is drawn at zero shift.
+#'
+#' @param x List output of \code{\link{assignMetapeaks}}. Its
+#'   \code{CorrespondenceMatrix} must contain \code{mz_location},
+#'   \code{expected_mz_location}, \code{mean} and \code{marker} columns.
+#' @param points Named list of fixed aesthetics (e.g. \code{size}, \code{shape},
+#'   \code{color}, \code{alpha}) for the points layer, overriding its defaults.
+#'   The point fill is mapped to the shift direction (above/below zero) and is
+#'   set via \code{palette}, so supplying \code{fill} here has no effect.
+#' @param labels Named list of fixed aesthetics for the \pkg{ggrepel} marker
+#'   labels drawn on the flagged points (only when \code{show_labels = TRUE} and
+#'   \pkg{ggrepel} is installed).
+#' @param shift_threshold Numeric; the absolute mass shift above which a point is
+#'   flagged as a possible false assignment. Defaults to \code{NULL}, in which
+#'   case a data-driven cut-off of \code{2 * sd(diff)} is used.
+#' @param show_labels Logical; if \code{TRUE} (default), label the flagged points
+#'   with their marker name (requires \pkg{ggrepel}).
+#' @param palette Named character vector overriding the point fill colours by
+#'   shift direction, e.g. \code{c(above = "orange", below = "navy")}. Names must
+#'   be \code{"above"} (positive shift, default red \code{"#b51837"}) and
+#'   \code{"below"} (negative shift, default blue \code{"#3B9AB5"}).
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @examples
+#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' load(rdata_path)
+#' plotMassShiftVsIntensity(x = results$processed)
+#' plotMassShiftVsIntensity(x = results$processed, shift_threshold = 0.5)
+#' plotMassShiftVsIntensity(x = results$processed, points = list(size = 5))
+#' @export
+plotMassShiftVsIntensity <- function(x, points = list(), labels = list(),
+                                     shift_threshold = NULL, show_labels = TRUE,
+                                     palette = NULL) {
+
+  cm <- x$CorrespondenceMatrix
+  required <- c("mz_location", "expected_mz_location", "mean", "marker")
+  if (is.null(cm) || !all(required %in% colnames(cm))) {
+    stop("`x` must be the output of assignMetapeaks: its CorrespondenceMatrix ",
+         "needs columns ", paste(required, collapse = ", "), ".", call. = FALSE)
+  }
+
+  df <- cm[!is.na(cm$mz_location) & !is.na(cm$expected_mz_location), ]
+
+  n_nonpos <- sum(df$mean <= 0, na.rm = TRUE) + sum(is.na(df$mean))
+  if (n_nonpos > 0) {
+    warning(n_nonpos, " marker(s) with non-positive or missing mean intensity ",
+            "dropped (intensity axis is log10).", call. = FALSE)
+  }
+  df <- df[!is.na(df$mean) & df$mean > 0, ]
+
+  df$diff <- df$mz_location - df$expected_mz_location   # Picked - Expected (m/z)
+
+  if (is.null(shift_threshold)) {
+    shift_threshold <- 2 * sd(df$diff)
+  }
+
+  # colour points by the direction of the shift (above / below the zero line):
+  # below (negative shift) defaults to blue, above (positive shift) to red.
+  fill_values <- .qc_palette(
+    c("below" = "#3B9AB5", "above" = "#b51837"), palette
+  )
+  df$side       <- ifelse(df$diff >= 0, "above", "below")
+  df$fill_color <- fill_values[df$side]
+
+  # large-shift markers are still labelled as possible false assignments
+  df$flagged <- abs(df$diff) > shift_threshold
+
+  line_layer <- .qc_layer(
+    geom_vline, list(color = "grey60", linewidth = 0.6),
+    list(), fixed = list(xintercept = 0)
+  )
+  # `fill` is reserved for the shift-direction mapping (set via `palette`). A
+  # fixed `fill` in `points` would silently override that mapping, so drop it
+  # and tell the user to use `palette` instead.
+  if ("fill" %in% names(points)) {
+    warning("`fill` in `points` is ignored: point fill encodes shift direction. ",
+            "Use `palette = c(above = ..., below = ...)` to set the colours.",
+            call. = FALSE)
+    points <- points[setdiff(names(points), "fill")]
+  }
+  points_layer <- .qc_layer(
+    geom_point,
+    list(shape = 21, size = 3, color = "black", alpha = 0.8), points,
+    fixed = list(mapping = aes(fill = .data[["fill_color"]]))
+  )
+
+  p <- ggplot(df, aes(x = .data[["diff"]], y = .data[["mean"]])) +
+    line_layer +
+    points_layer +
+    scale_y_log10() +
+    scale_fill_identity() +
+    theme_minimal() +
+    labs(
+      x     = "Picked - Expected (m/z)",
+      y     = "Mean intensity (log10)",
+      title = "Mass Shift vs Intensity"
+    ) +
+    # slightly portrait: the mass-shift x-range is narrow relative to the
+    # log10 intensity y-range, so a >1 aspect ratio reads better than landscape
+    theme(aspect.ratio = 1.2)
+
+  if (show_labels && requireNamespace("ggrepel", quietly = TRUE)) {
+    flagged_df <- df[df$flagged, ]
+    label_layer <- .qc_layer(
+      ggrepel::geom_label_repel,
+      list(color = "black", fill = "white", box.padding = 0.2,
+           point.padding = 0.2, max.overlaps = Inf, segment.color = "black",
+           size = 2, fontface = "bold", label.size = 0.2),
+      labels,
+      fixed = list(
+        data    = flagged_df,
+        mapping = aes(x = .data[["diff"]], y = .data[["mean"]],
+                      label = .data[["marker"]])
+      )
+    )
+    p <- p + label_layer
+  }
+
+  p
 }

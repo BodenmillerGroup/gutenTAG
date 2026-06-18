@@ -86,8 +86,17 @@ plotMassShift(x = processed, type = "distribution",
 ```{r mass_shift_spectrum, out.width="100%", warning=FALSE, message=FALSE}
 plotMassShift(x = processed, type = "spectrum",
               mean_point = list(color = "black", fill = "black", alpha = 1, shape = 22, size = 8),
-              line = list(linetype = "dashed", color = "black"), 
+              line = list(linetype = "dashed", color = "black"),
               points = list(color = "black", fill = "orange", alpha = 0.9, size = 5))
+```
+
+## Vs Intensity
+
+Plotting the mass shift against each marker's mean intensity helps flag falsely-assigned markers: a correctly-assigned peak should sit near zero shift regardless of intensity, so markers with a large shift (highlighted and labelled) are worth scrutinising — especially at low intensity, where weak peaks are most likely to be mis-picked.
+
+```{r mass_shift_vs_intensity, out.width="100%", warning=FALSE, message=FALSE}
+plotMassShiftVsIntensity(x = processed,
+                         points = list(size = 6, color = "black"), palette = c("below" = "blue", "above" = "red"))
 ```
 :::
 
@@ -103,14 +112,33 @@ These measures can be helpful in determining which features should be kept or re
 
 ### Mean Marker Signal
 
-As a simple first step, let's look at the mean signal strength from different markers.
+As a simple first step, let's look at the mean signal strength from different markers. The raw view shows intensity per pixel; the log view (log10 of intensity, with a +1 pseudocount so zero-intensity pixels are handled) compresses the dynamic range; the z-scaled view standardises the log intensities across all markers so their relative levels are directly comparable.
 
-```{r mean_intensity_violin, eval=TRUE, warning=FALSE, message=FALSE}
+::: {.panel-tabset group="meanmarkersignal"}
+## Raw
 
-plotIntensityDistribution(x = processed, boxplot = list(fill = "orange", alpha = 0.6),
+```{r mean_intensity_raw, eval=TRUE, warning=FALSE, message=FALSE}
+plotIntensityDistribution(x = processed, transformation = "none",
+                          boxplot = list(fill = "orange", alpha = 0.6),
                           violin = list(fill = "orange", alpha = 0.6))
-
 ```
+
+## Log
+
+```{r mean_intensity_log, eval=TRUE, warning=FALSE, message=FALSE}
+plotIntensityDistribution(x = processed, transformation = "log",
+                          boxplot = list(fill = "orange", alpha = 0.6),
+                          violin = list(fill = "orange", alpha = 0.6))
+```
+
+## Z-scaled
+
+```{r mean_intensity_zscaled, eval=TRUE, warning=FALSE, message=FALSE}
+plotIntensityDistribution(x = processed, transformation = "z-scaled",
+                          boxplot = list(fill = "orange", alpha = 0.6),
+                          violin = list(fill = "orange", alpha = 0.6))
+```
+:::
 
 ### Mean-Variance relationship
 
@@ -166,7 +194,6 @@ In all Geary's C score is a handy statistic to show how spatially structured the
 
 processed_geary <- computeGearysC(processed, update_correspondence = TRUE)
 
-plotGearysC(x = processed_geary)
 plotGearysC(x = processed_geary, bar = list(fill = "orange", color = "black"), line = list(color = "black", linewidth = 1))
 
 ```

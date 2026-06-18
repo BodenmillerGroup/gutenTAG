@@ -70,29 +70,55 @@ NULL
 
 
 
-# KNN spatial weight matrix ####
-# Build a symmetric sparse n x n weight matrix of squared L2 distances to k nearest
-# neighbours. Symmetric: if j is a KNN of i OR i is a KNN of j, both [i,j] and [j,i]
-# are set — matching the output of N2R::Knn(indexType = "L2").
+# Rook-adjacency spatial weight matrix ####
+# MALDI pixels sit on a regular integer lattice, so the k = 4 "rook" neighbourhood
+# of a pixel at (x, y) is simply its up/down/left/right grid neighbours:
+# (x+1, y), (x-1, y), (x, y+1), (x, y-1). We build the symmetric sparse adjacency
+# DIRECTLY from the integer coordinates in O(n) time and memory — never forming a
+# pairwise distance matrix. The old implementation materialised a dense n x n
+# distance matrix via as.matrix(dist(coords)), which overflows R's 32-bit vector
+# index at n >= 65,536 pixels (and OOMs well before that on real samples).
+#
+# Edges carry UNIT weights (value 1). Geary's C is invariant to global scaling of
+# the weight matrix, so on a uniform-spacing grid unit weights are equivalent to
+# the squared-distance weights the old code used — but exact and simpler.
+#
+# Edge/hole behaviour (intentional change): a pixel on a tissue edge or beside a
+# hole is connected ONLY to the rook neighbours that actually exist (2 at a corner,
+# 3 along an edge). The old force-k-nearest code always picked 4 neighbours, pulling
+# in diagonal pixels at boundaries; the rook graph is the geometrically correct
+# neighbourhood and slightly shifts edge-pixel Geary's C scores.
+#
+# `k` is retained for signature compatibility; k = 4 denotes the rook case.
 .knn_weight_matrix <- function(coords, k) {
-  n  <- nrow(coords)
-  d2 <- as.matrix(dist(coords))^2
-  diag(d2) <- Inf  # exclude self
+  n <- nrow(coords)
+  xs <- coords[, 1]
+  ys <- coords[, 2]
 
-  # asymmetric KNN adjacency: knn_adj[i,j] = TRUE if j is among k nearest of i
-  knn_adj <- matrix(FALSE, n, n)
-  for (i in seq_len(n)) {
-    knn_adj[i, order(d2[i, ])[seq_len(k)]] <- TRUE
+  # integer hash key per pixel: x + y * stride, with stride large enough that no
+  # two distinct (x, y) collide. match() on these keys maps a coordinate back to
+  # its pixel index.
+  stride <- max(xs) + 1
+  keys <- xs + ys * stride
+
+  # the four rook offsets; build edges by matching each shifted coordinate back to
+  # an existing pixel. Non-NA matches are the rook neighbours that actually exist.
+  offsets <- list(c(1, 0), c(-1, 0), c(0, 1), c(0, -1))
+
+  from <- integer(0)
+  to   <- integer(0)
+  for (off in offsets) {
+    neigh_keys <- (xs + off[1]) + (ys + off[2]) * stride
+    j <- match(neigh_keys, keys)
+    hit <- which(!is.na(j))
+    from <- c(from, hit)
+    to   <- c(to, j[hit])
   }
 
-  # symmetrize: include (i,j) if j is KNN of i OR i is KNN of j
-  knn_sym <- knn_adj | t(knn_adj)
-
-  # restore diagonal to 0 for value lookup
-  diag(d2) <- 0
-
-  idx <- which(knn_sym, arr.ind = TRUE)
-  Matrix::sparseMatrix(i = idx[, 1], j = idx[, 2], x = d2[idx], dims = c(n, n))
+  # The four-offset scan already yields each undirected edge in both directions
+  # (the +1 scan from pixel i produces (i, i+1); the -1 scan from i+1 produces
+  # (i+1, i)), so the assembled matrix is symmetric with a zero diagonal.
+  Matrix::sparseMatrix(i = from, j = to, x = rep(1, length(from)), dims = c(n, n))
 }
 
 

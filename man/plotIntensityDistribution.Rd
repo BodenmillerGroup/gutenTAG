@@ -4,10 +4,20 @@
 \alias{plotIntensityDistribution}
 \title{Plot Intensity Distribution per Marker}
 \usage{
-plotIntensityDistribution(x, violin = list(), boxplot = list())
+plotIntensityDistribution(
+  x,
+  transformation = c("none", "log", "z-scaled"),
+  violin = list(),
+  boxplot = list()
+)
 }
 \arguments{
 \item{x}{List output of \code{assignMetapeaks}.}
+
+\item{transformation}{Character; the per-pixel intensity transformation to
+plot. One of \code{"none"} (default, raw intensity), \code{"log"}
+(\code{log10(intensity + 1)}), or \code{"z-scaled"} (z-score of the log10
+intensity pooled across all pixels and markers).}
 
 \item{violin}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
 \code{alpha}) for the \code{geom_violin} layer, overriding its defaults.}
@@ -19,12 +29,21 @@ plotIntensityDistribution(x, violin = list(), boxplot = list())
 A \code{ggplot} object.
 }
 \description{
-Violin and boxplot showing the distribution of intensity values
-  per marker, ordered by descending mean intensity.
+Violin and boxplot showing the distribution of per-pixel
+  intensity values per marker, ordered by descending mean intensity. The
+  per-pixel values can optionally be transformed via \code{transformation}:
+  \code{"none"} plots the raw intensities; \code{"log"} plots
+  \code{log10(intensity + 1)} (a pseudocount of 1 keeps the many zero-intensity
+  pixels finite, matching the package's \code{log(1 + x)} convention);
+  \code{"z-scaled"} plots the z-score of the log10 intensity pooled across all
+  pixels and markers, so distributions remain comparable. The marker order on
+  the x-axis is always set by the raw mean intensity, so it is identical across
+  transformations.
 }
 \examples{
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 plotIntensityDistribution(x = results$processed)
+plotIntensityDistribution(x = results$processed, transformation = "log")
 plotIntensityDistribution(x = results$processed, violin = list(fill = "skyblue"))
 }
