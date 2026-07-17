@@ -10,7 +10,7 @@ asAnnData(x)
 \item{x}{the output from `gutenTAG` function `assignMetapeaks()`}
 }
 \value{
-an object of class AnnData
+a Python \code{anndata.AnnData} object (a \pkg{reticulate} reference)
 }
 \description{
 Title asAnnData

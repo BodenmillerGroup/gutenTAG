@@ -2,8 +2,8 @@
 ^\.Rproj\.user$
 ^doc$
 ^Meta$
-^\.Rproj\.user$
 ^\.claude$
+^\.github$
 ^inst/qc_report_files
 ^inst/qc_report\.html$
 ^vignettes/gutenTAG\.html$

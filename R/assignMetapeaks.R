@@ -217,7 +217,7 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # convert character to numeric before sorting
   final_correspondence_matrix$expected_mz_location <- as.numeric(final_correspondence_matrix$expected_mz_location)
   # sort by expected mass
-  final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, expected_mz_location)
+  final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, .data[["expected_mz_location"]])
 
   return(list(
     final_correspondence = final_correspondence_matrix,
