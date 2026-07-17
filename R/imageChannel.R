@@ -61,7 +61,7 @@ imageChannel <- function(x, coords = NULL, channel = 1,
   plot_df <- data.frame(x = coords$x, y = coords$y, intensity = intensity)
 
   # build ggplot
-  p <- ggplot(plot_df, aes(x = x, y = y, fill = intensity)) +
+  p <- ggplot(plot_df, aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["intensity"]])) +
     geom_raster() +
     coord_equal() +
     scale_fill_viridis_c(option = palette, na.value = na_colour) +

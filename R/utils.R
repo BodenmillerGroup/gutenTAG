@@ -1,4 +1,4 @@
-#' @importFrom stats var
+#' @importFrom stats var dist
 NULL
 
 #############################  Helper functions ###################################
