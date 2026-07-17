@@ -25,6 +25,11 @@ CLAUDE.md
 COMPLETED.md
 TODO.md
 .claude/commands/
+AGENTS.md
+.claude/
+benchmarks/
+
+ISSUE_gearysC_scalability.md
 
 # R CMD build / check artifacts
 *.Rcheck/
