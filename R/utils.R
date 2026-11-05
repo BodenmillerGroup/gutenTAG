@@ -100,9 +100,9 @@ NULL
 ## x is logTIC
 ## number_bins is the number of histogram bins
 ## safe_var returns 0 for partitions with fewer than 2 elements to avoid NA from var() on length-0 or length-1 vectors
-.otsu_thresholding = function(x, number_bins = 100) {
+.otsu_thresholding <- function(x, number_bins = 100) {
 
-  list_bin = quantile(x,base::seq(from = 0, to = 1, length.out = number_bins))
+  list_bin <- quantile(x, base::seq(from = 0, to = 1, length.out = number_bins))
   intravariance_vector <- numeric(number_bins)
 
   for (k in seq_len(number_bins)) {
