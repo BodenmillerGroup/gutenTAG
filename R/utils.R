@@ -20,33 +20,11 @@ NULL
   # 3. clean marker names
   panel$OriginalName <- panel$Name   # record pre-clean names
 
-  for(a in seq_along(panel$Name)){
-
-    if (grepl("+", panel$Name[a], fixed=TRUE)){
-      new_string <- gsub(" ", "", panel$Name[a])
-      panel$Name[a] <- new_string
-
-    }
-    else{
-
-      # split strings with spaces into list with individual strings as elements
-      new_string <- gsub(" ", "", panel$Name[a])
-      # replace dashes with dots
-      new_string <- gsub("-", ".", new_string, fixed = TRUE)
-      # replace names in peakAnnotation
-      panel$Name[a] <- new_string
-
-    }
-
-    # remove slashes
-    if (grepl("/", panel$Name[a], fixed=TRUE)){
-
-      new_string <- gsub("/", "", panel$Name[a])
-      panel$Name[a] <- new_string
-
-    }
-
-  }
+  # remove spaces and slashes; replace dashes with dots unless the name contains "+"
+  has_plus <- grepl("+", panel$Name, fixed = TRUE)
+  panel$Name <- gsub(" ", "", panel$Name, fixed = TRUE)
+  panel$Name[!has_plus] <- gsub("-", ".", panel$Name[!has_plus], fixed = TRUE)
+  panel$Name <- gsub("/", "", panel$Name, fixed = TRUE)
 
   # 4. rearrange column order so Name is first column
   panel <- relocate(panel, c("Name", "OriginalName"), .before = "FeatureMass")
@@ -80,10 +58,9 @@ NULL
   diag(d2) <- Inf  # exclude self
 
   # asymmetric KNN adjacency: knn_adj[i,j] = TRUE if j is among k nearest of i
+  nn <- vapply(seq_len(n), function(i) order(d2[i, ])[seq_len(k)], integer(k))
   knn_adj <- matrix(FALSE, n, n)
-  for (i in seq_len(n)) {
-    knn_adj[i, order(d2[i, ])[seq_len(k)]] <- TRUE
-  }
+  knn_adj[cbind(rep(seq_len(n), each = k), as.vector(nn))] <- TRUE
 
   # symmetrize: include (i,j) if j is KNN of i OR i is KNN of j
   knn_sym <- knn_adj | t(knn_adj)
@@ -103,21 +80,14 @@ NULL
 .otsu_thresholding <- function(x, number_bins = 100) {
 
   list_bin <- quantile(x, base::seq(from = 0, to = 1, length.out = number_bins))
-  intravariance_vector <- numeric(number_bins)
+  safe_var <- function(v) if (length(v) < 2) 0 else var(v)
 
-  for (k in seq_len(number_bins)) {
+  intravariance_vector <- vapply(list_bin, function(threshold_temp) {
+    length(x[x < threshold_temp]) * safe_var(x[x < threshold_temp]) +
+      length(x[x > threshold_temp]) * safe_var(x[x > threshold_temp])
+  }, numeric(1))
 
-    threshold_temp <- list_bin[k]
-    safe_var <- function(v) if (length(v) < 2) 0 else var(v)
-    s <- length(x[x < threshold_temp]) * safe_var(x[x < threshold_temp]) +
-         length(x[x > threshold_temp]) * safe_var(x[x > threshold_temp])
-    intravariance_vector[k] <- s
-
-  }
-
-  selected_values <- list_bin[which.min(intravariance_vector)]
-
-  return(selected_values)
+  return(list_bin[which.min(intravariance_vector)])
 }
 
 

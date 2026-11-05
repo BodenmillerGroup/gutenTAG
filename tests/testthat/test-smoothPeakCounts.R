@@ -1,5 +1,4 @@
-# TODO revisit
-# TODO this tests the current behavior, but it would make sense to use non-circular convolution
+# smoothPeakCounts uses circular convolution, so counts wrap around the ends of the m/z range
 test_that("smoothPeakCounts works when odd", {
   count_df <- data.frame(
     mz = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
