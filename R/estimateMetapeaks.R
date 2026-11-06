@@ -1,20 +1,32 @@
 #' Metapeak Estimation
 #'
-#' This function estimates metapeaks from a given count data frame and seed points.
-#' It first applies Gaussian smoothing over the counts, removes values below a certain threshold,
-#' segments the histogram using seed_point m/z values, and then calculates metapeak parameters.
-#' The parameters include the center, maximum, delimitation, and width of each metapeak. The width is rescaled to the m/z scale.
+#' This function estimates metapeaks from a given count data frame and seed
+#' points.
+#' It first applies Gaussian smoothing over the counts, removes values below a
+#' certain threshold,
+#' segments the histogram using seed_point m/z values, and then calculates
+#' metapeak parameters.
+#' The parameters include the center, maximum, delimitation, and width of each
+#' metapeak. The width is rescaled to the m/z scale.
 #'
 #' @param count_df A data frame containing count data.
 #' @param smooth_count_df A dataframe containing smooth count data.
-#' @param seed_mz A numeric vector specifying the seed m/z values for segmentation.
-#' @param detection_threshold A numeric value specifying the threshold for counts, as an integer number of counts.
-#' @param fixed.limits A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.
+#' @param seed_mz A numeric vector specifying the seed m/z values for
+#'   segmentation.
+#' @param detection_threshold A numeric value specifying the threshold for
+#'   counts, as an integer number of counts.
+#' @param fixed.limits A tolerance parameter for setting the metapeak limits to
+#'   be a fixed value centered around the metapeak max. The total width of the
+#'   metapeak will be twice the value of this parameter.
 #'
-#' @return A list containing the center, maximum, delimitation, and width of each metapeak.
+#' @return A list containing the center, maximum, delimitation, and width of
+#'   each metapeak.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' mp <- estimateMetapeaks(results$metapeaks$count_df,
 #'     results$metapeaks$count_smooth_df,
@@ -25,12 +37,22 @@
 #' @importFrom utils head tail
 #' @export
 
-estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
+estimateMetapeaks <- function(
+    count_df,
+    smooth_count_df,
+    seed_mz,
+    detection_threshold = 0,
+    fixed.limits = NULL
+) {
     ## validity checks
     .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
     # 1. Segment the count_df histogram using the seed_mz values.
-    propagation_selection <- segmentPeakCounts(smooth_count_df, seed_mz, detection_threshold = detection_threshold)
+    propagation_selection <- segmentPeakCounts(
+        smooth_count_df,
+        seed_mz,
+        detection_threshold = detection_threshold
+    )
 
     # 2. Get metapeak parameters
     num_metapeaks <- max(propagation_selection)
@@ -52,9 +74,9 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
     metapeak_center <- peak_stats[1, ]
     metapeak_max <- peak_stats[2, ]
 
-    # Limits are the intersection of the smoothed metapeak with the detection_threshold
-    # line (segmentPeakCounts() already excludes bins at or below threshold), or a
-    # fixed window around the metapeak max.
+    # Limits are the intersection of the smoothed metapeak with the
+    # detection_threshold line (segmentPeakCounts() already excludes bins at or
+    # below threshold), or a fixed window around the metapeak max.
     metapeak_limits <- if (is.null(fixed.limits)) {
         cbind(peak_stats[3, ], peak_stats[4, ])
     } else {
@@ -63,7 +85,8 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
 
 
     # width of each peak (rescaled to the m/z scale)
-    metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) * .mzScalingFactor(count_df)
+    metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) *
+        .mzScalingFactor(count_df)
 
     metapeaks <- list(
         center = metapeak_center,

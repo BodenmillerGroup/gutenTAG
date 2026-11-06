@@ -19,7 +19,8 @@
 #'   \item{SpatialCoords}{Data frame of spatial pixel coordinates.}
 #'   \item{SummarySpectra}{Data frame of summary spectra (mean and skyline).}
 #'   \item{AllMetapeaks}{List with \code{AllMetapeaksIntensity} and
-#'     \code{AllMetapeaksCorrespondence} containing all detected metapeaks (targeted and untargeted).}
+#'     \code{AllMetapeaksCorrespondence} containing all detected metapeaks
+#'     (targeted and untargeted).}
 #'   \item{FilteredDF}{TIC-filtered intensity data frame.}
 #' }
 #'
@@ -31,7 +32,10 @@
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -48,11 +52,26 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     coords <- .translate_coordinates(coords)
 
     # 1. generate the initial correspondence matrix
-    initial_correspondence <- .generateCorrespondence(x = x, pre = pre, refList = refList, mz_threshold = mz_threshold)
+    initial_correspondence <- .generateCorrespondence(
+        x = x,
+        pre = pre,
+        refList = refList,
+        mz_threshold = mz_threshold
+    )
     # 2. generate the final intensity dataframe
-    final_intensity_dataframe <- .generateFinalIntensityDF(x, pre, prev_output = initial_correspondence, refList = refList)
+    final_intensity_dataframe <- .generateFinalIntensityDF(
+        x,
+        pre,
+        prev_output = initial_correspondence,
+        refList = refList
+    )
     # 3. add elements to correspondence matrix
-    final_correspondence_matrix <- .finaliseCorrespondence(x, pre, refList, prev_output = final_intensity_dataframe)
+    final_correspondence_matrix <- .finaliseCorrespondence(
+        x,
+        pre,
+        refList,
+        prev_output = final_intensity_dataframe
+    )
     # 4. create filtered dataframe
     final_filtered <- .filterTIC(x, prev_output = final_correspondence_matrix)
 
@@ -60,7 +79,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     Correspondence <- final_correspondence_matrix$final_correspondence
     Intensity <- final_intensity_dataframe$final_intensity_targeted
     AllMetapeaksIntensity <- final_intensity_dataframe$final_intensity
-    AllMetapeaksCorrespondence <- final_correspondence_matrix$untargeted_correspondence
+    AllMetapeaksCorrespondence <-
+        final_correspondence_matrix$untargeted_correspondence
 
     # order dataframe columns by mz order
     Intensity <- Intensity[, Correspondence$marker]
@@ -87,14 +107,20 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 ### Hidden functions ###
 
 # function for generating the correspondence matrix
-.generateCorrespondence <- function(x, pre, refList, mz_threshold = mz_threshold) {
+.generateCorrespondence <- function(
+    x,
+    pre,
+    refList,
+    mz_threshold = mz_threshold
+) {
     # extract metepeaks and propagation_selection from x
     mpeaks <- x$metapeaks
 
     # get m/z vector
     mz_vector <- as.data.frame(mz(pre))
 
-    # Map metapeaks to panel. for each metapeak find nearest reference mass within threshold
+    # Map metapeaks to panel. for each metapeak find nearest reference mass
+    # within threshold
     dist_matrix <- abs(outer(mpeaks$max, refList$FeatureMass, "-"))
     min_dist <- apply(dist_matrix, 1, min)
     mapping_meta_cleaned <- apply(dist_matrix, 1, which.min)
@@ -108,7 +134,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     # get NA cols
     was_na <- is.na(correspondence_matrix$marker)
     # rename duplicates
-    correspondence_matrix$marker <- make.unique(correspondence_matrix$marker, sep = ".duplicate.")
+    correspondence_matrix$marker <- make.unique(
+        correspondence_matrix$marker,
+        sep = ".duplicate."
+    )
     correspondence_matrix$marker[was_na] <- NA
 
     return(list(
@@ -129,24 +158,34 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     metapeaks <- prev_output$metapeaks
 
     # create untargeted final intensity dataframe
-    # raw_intensity is mz_bins x pixels (spectra() convention), so ncol = n_pixels
+    # raw_intensity is mz_bins x pixels (spectra() convention), so ncol =
+    # n_pixels
     n_pixels <- ncol(raw_intensity)
     n_metapeaks <- nrow(correspondence)
     eps <- sqrt(.Machine$double.eps)
     final_intensity <- matrix(vapply(seq_len(n_metapeaks), function(k) {
-        selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps & mz_vector$mz <= metapeaks$limits[k, 2] + eps
+        selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps &
+            mz_vector$mz <= metapeaks$limits[k, 2] + eps
         colSums(raw_intensity[selected_mz_location, , drop = FALSE])
     }, numeric(n_pixels)), nrow = n_pixels, ncol = n_metapeaks)
 
     # get names for metapeak values
-    colnames(final_intensity) <- paste0(as.character(round(metapeaks$max, 2)), " m/z")
+    colnames(final_intensity) <- paste0(
+        as.character(round(metapeaks$max, 2)),
+        " m/z"
+    )
 
     # Annotated metapeaks only
-    final_intensity_targeted <- as.data.frame(final_intensity[, !is.na(correspondence$marker)])
-    colnames(final_intensity_targeted) <- correspondence$marker[!is.na(correspondence$marker)]
+    final_intensity_targeted <- as.data.frame(
+        final_intensity[, !is.na(correspondence$marker)]
+    )
+    colnames(final_intensity_targeted) <-
+        correspondence$marker[!is.na(correspondence$marker)]
 
     # add zero columns for markers that aren't assigned metapeaks
-    final_intensity_targeted[setdiff(refList$Name, colnames(final_intensity_targeted))] <- 0
+    final_intensity_targeted[
+        setdiff(refList$Name, colnames(final_intensity_targeted))
+    ] <- 0
     final_intensity_targeted <- final_intensity_targeted[
         order(match(colnames(final_intensity_targeted), correspondence$marker))
     ]
@@ -178,10 +217,13 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     correspondence$mean <- mean_intensity
     correspondence$sd <- sd_intensity
 
-    # corrected_sd: residuals from mean-variance regression, normalised by sd_intensity
-    # this gives a dimensionless score comparable across markers, capturing deviation from
+    # corrected_sd: residuals from mean-variance regression, normalised by
+    # sd_intensity
+    # this gives a dimensionless score comparable across markers, capturing
+    # deviation from
     # the expected mean-variance trend independent of absolute variability
-    # note: zero-variance channels will produce Inf/-Inf (sd_intensity == 0); handle upstream
+    # note: zero-variance channels will produce Inf/-Inf (sd_intensity == 0);
+    # handle upstream
     corrected_sd_model <- lm(log(1 + sd_intensity) ~ log(1 + mean_intensity))
     residuals <- corrected_sd_model$residuals
     correspondence$corrected_sd <- residuals / sd_intensity
@@ -193,26 +235,45 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     total_signal <- colSums(raw_intensity)
 
     # correlation between each marker's intensity and total raw signal intensity
-    total_signal_correlation <- drop(cor(log(final_intensity + 1), log(1 + total_signal)))
+    total_signal_correlation <- drop(
+        cor(log(final_intensity + 1), log(1 + total_signal))
+    )
     correspondence$total_signal_correlation <- total_signal_correlation^2
 
     # Remove all un-annotated peaks from correspondence matrix
     correspondence_matrix_targeted <- na.omit(correspondence)
-    correspondence_matrix_targeted <- relocate(correspondence_matrix_targeted, "marker")
+    correspondence_matrix_targeted <- relocate(
+        correspondence_matrix_targeted,
+        "marker"
+    )
 
-    # add unobserved markers to the final correspondence matrix so that nrow correspondence matrix = ncol IntensityDF
+    # add unobserved markers to the final correspondence matrix so that nrow
+    # correspondence matrix = ncol IntensityDF
 
     # get markers that didn't form metapeaks
-    names_to_add <- refList$Name[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
-    mass_to_add <- refList$FeatureMass[which(!refList$Name %in% correspondence_matrix_targeted$marker)]
+    names_to_add <- refList$Name[
+        which(!refList$Name %in% correspondence_matrix_targeted$marker)
+    ]
+    mass_to_add <- refList$FeatureMass[
+        which(!refList$Name %in% correspondence_matrix_targeted$marker)
+    ]
 
     final_correspondence_matrix <- correspondence_matrix_targeted
-    new_row_indices <- seq_along(names_to_add) + nrow(final_correspondence_matrix)
-    final_correspondence_matrix[new_row_indices, c("marker", "expected_mz_location")] <- cbind(names_to_add, mass_to_add)
+    new_row_indices <- seq_along(names_to_add) +
+        nrow(final_correspondence_matrix)
+    final_correspondence_matrix[
+        new_row_indices,
+        c("marker", "expected_mz_location")
+    ] <- cbind(names_to_add, mass_to_add)
     # convert character to numeric before sorting
-    final_correspondence_matrix$expected_mz_location <- as.numeric(final_correspondence_matrix$expected_mz_location)
+    final_correspondence_matrix$expected_mz_location <- as.numeric(
+        final_correspondence_matrix$expected_mz_location
+    )
     # sort by expected mass
-    final_correspondence_matrix <- dplyr::arrange(final_correspondence_matrix, .data[["expected_mz_location"]])
+    final_correspondence_matrix <- dplyr::arrange(
+        final_correspondence_matrix,
+        .data[["expected_mz_location"]]
+    )
 
     return(list(
         final_correspondence = final_correspondence_matrix,
@@ -245,7 +306,8 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
     # which pixels pass filtering
     indices <- which(tic %in% tic_filtered)
 
-    # set all pixels that do not pass the TIC filter to NA across all channels at once
+    # set all pixels that do not pass the TIC filter to NA across all channels
+    # at once
     final_filtered <- as.matrix(final_intensity_targeted)
     final_filtered[-indices, ] <- NA
 
@@ -260,7 +322,10 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
 # calculate summary spectra
 .summariseSpectra <- function(pre) {
     # compute summary spectra
-    summarised_spectra <- Cardinal::summarizeFeatures(pre, stat = c(skyline = "max", mean = "mean"))
+    summarised_spectra <- Cardinal::summarizeFeatures(
+        pre,
+        stat = c(skyline = "max", mean = "mean")
+    )
     summarised_spec <- data.frame(featureData(summarised_spectra))
 
     return(summarised_spec)

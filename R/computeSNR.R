@@ -1,11 +1,14 @@
 #' Compute SNR for each channel using Mixture Model (GMM).
 
 #' @param x Output from assignMetapeaks
-#' @param update_correspondence Should the SNR score be added to the Correspondence Matrix (bool)
-#' @param package Indicate whether GMM modelling should be performed using mclust or flexmix package
+#' @param update_correspondence Should the SNR score be added to the
+#'   Correspondence Matrix (bool)
+#' @param package Indicate whether GMM modelling should be performed using
+#'   mclust or flexmix package
 #' @param q Quantile value for clipping extreme outliers (default is 1)
 #'
-#' @return a list containing lists with SNR and clustering information for each channel
+#' @return a list containing lists with SNR and clustering information for
+#'   each channel
 #' @importFrom mclust Mclust
 #' @importFrom mclust mclustBIC
 #' @importFrom flexmix flexmix
@@ -13,7 +16,10 @@
 #' @export computeSNR
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -21,7 +27,12 @@
 #' peaks <- peakDetection(pre)
 #' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
-computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q = 1) {
+computeSNR <- function(
+    x,
+    package = "mclust",
+    update_correspondence = FALSE,
+    q = 1
+) {
     # Extract data & reorder dataframe by mz order to match correspondence
     df <- x$IntensityDF[, x$CorrespondenceMatrix$marker]
 
@@ -69,9 +80,17 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
 
     if (package == "mclust") {
         # "E" for equal variance
-        fit <- mclust::Mclust(log_channel, G = 2, modelNames = "E", verbose = FALSE)
+        fit <- mclust::Mclust(
+            log_channel,
+            G = 2,
+            modelNames = "E",
+            verbose = FALSE
+        )
         if (is.null(fit)) {
-            stop("The model failed to converge. Try different data or check your input.")
+            stop(
+                "The model failed to converge. ",
+                "Try different data or check your input."
+            )
         }
         clusters <- fit$classification
     } else {
@@ -84,7 +103,11 @@ computeSNR <- function(x, package = "mclust", update_correspondence = FALSE, q =
                 )
             },
             error = function(e) {
-                stop("flexmix model failed to converge: ", conditionMessage(e), call. = FALSE)
+                stop(
+                    "flexmix model failed to converge: ",
+                    conditionMessage(e),
+                    call. = FALSE
+                )
             }
         )
         clusters <- flexmix::clusters(fit)

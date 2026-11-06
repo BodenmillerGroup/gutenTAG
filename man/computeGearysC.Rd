@@ -15,8 +15,9 @@ minimum \code{IntensityDF} (pixels x markers intensity matrix),
 \item{verbose}{logical. If \code{TRUE}, passes verbose output through to the
 internal \code{Knn} nearest-neighbour call. Default \code{FALSE}.}
 
-\item{update_correspondence}{logical. If \code{TRUE}, appends a \code{GearysC}
-column to \code{x$CorrespondenceMatrix} and returns the full updated list.
+\item{update_correspondence}{logical. If \code{TRUE}, appends a
+\code{GearysC} column to \code{x$CorrespondenceMatrix} and returns the
+full updated list.
 If \code{FALSE} (default), returns a numeric vector of Geary's C scores,
 one per marker channel.}
 }
@@ -35,7 +36,10 @@ of 1 indicates no spatial structure. Channels with zero variance (e.g.
 all-zero after failed peak detection) or all-NA pixels return \code{NA}.
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

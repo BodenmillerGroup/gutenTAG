@@ -1,14 +1,20 @@
 #' Image one channel
 #'
 #' @param x Output from \code{assignMetapeaks}, or a plain intensity data.frame
-#'   (rows: pixels, cols: features). If a plain data.frame, \code{coords} must also be provided.
-#' @param coords A spatial coordinates data.frame with columns \code{x} and \code{y}.
+#'   (rows: pixels, cols: features). If a plain data.frame, \code{coords} must
+#'   also be provided.
+#' @param coords A spatial coordinates data.frame with columns \code{x} and
+#'   \code{y}.
 #'   Required when \code{x} is a data.frame or matrix.
-#' @param channel Character name or integer index of the channel to display. Default \code{1}.
-#' @param quantile_threshold Numeric in [0, 1]. Pixel intensities above this quantile are
+#' @param channel Character name or integer index of the channel to display.
+#'   Default \code{1}.
+#' @param quantile_threshold Numeric in [0, 1]. Pixel intensities above this
+#'   quantile are
 #'   capped to that value before plotting. Default \code{0.99}.
-#' @param palette Viridis palette option passed to \code{scale_fill_viridis_c}. One of
-#'   \code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"}, \code{"cividis"},
+#' @param palette Viridis palette option passed to
+#'   \code{scale_fill_viridis_c}. One of
+#'   \code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"},
+#'   \code{"cividis"},
 #'   etc. Default \code{"viridis"}.
 #' @param na_colour Colour used for NA pixels. Default \code{"black"}.
 #' @param ... Additional arguments passed to \code{ggplot2::theme()}.
@@ -16,7 +22,10 @@
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' imageChannel(x = results$processed, channel = 1)
 #'
@@ -31,7 +40,14 @@ imageChannel <- function(x, coords = NULL, channel = 1,
     na_colour = "black",
     ...) {
     # validity checks
-    .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour)
+    .valid.imageChannel(
+        x,
+        coords,
+        channel,
+        quantile_threshold,
+        palette,
+        na_colour
+    )
 
     # input handling — accept assignMetapeaks list or plain df/matrix
     if (is.data.frame(x) || is.matrix(x)) {
@@ -45,7 +61,12 @@ imageChannel <- function(x, coords = NULL, channel = 1,
     # channel resolution — accept name or index
     if (is.character(channel)) {
         channel_idx <- which(colnames(df) == channel)
-        if (length(channel_idx) == 0) stop("Channel '", channel, "' not found in the data.", call. = FALSE)
+        if (length(channel_idx) == 0) stop(
+            "Channel '",
+            channel,
+            "' not found in the data.",
+            call. = FALSE
+        )
     } else {
         channel_idx <- channel
     }
@@ -60,7 +81,14 @@ imageChannel <- function(x, coords = NULL, channel = 1,
     plot_df <- data.frame(x = coords$x, y = coords$y, intensity = intensity)
 
     # build ggplot
-    p <- ggplot(plot_df, aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["intensity"]])) +
+    p <- ggplot(
+        plot_df,
+        aes(
+            x = .data[["x"]],
+            y = .data[["y"]],
+            fill = .data[["intensity"]]
+        )
+    ) +
         geom_raster() +
         coord_equal() +
         scale_fill_viridis_c(option = palette, na.value = na_colour) +

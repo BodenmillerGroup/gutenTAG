@@ -17,23 +17,35 @@ estimateMetapeaks(
 
 \item{smooth_count_df}{A dataframe containing smooth count data.}
 
-\item{seed_mz}{A numeric vector specifying the seed m/z values for segmentation.}
+\item{seed_mz}{A numeric vector specifying the seed m/z values for
+segmentation.}
 
-\item{detection_threshold}{A numeric value specifying the threshold for counts, as an integer number of counts.}
+\item{detection_threshold}{A numeric value specifying the threshold for
+counts, as an integer number of counts.}
 
-\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
+\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to
+be a fixed value centered around the metapeak max. The total width of the
+metapeak will be twice the value of this parameter.}
 }
 \value{
-A list containing the center, maximum, delimitation, and width of each metapeak.
+A list containing the center, maximum, delimitation, and width of
+  each metapeak.
 }
 \description{
-This function estimates metapeaks from a given count data frame and seed points.
-It first applies Gaussian smoothing over the counts, removes values below a certain threshold,
-segments the histogram using seed_point m/z values, and then calculates metapeak parameters.
-The parameters include the center, maximum, delimitation, and width of each metapeak. The width is rescaled to the m/z scale.
+This function estimates metapeaks from a given count data frame and seed
+points.
+It first applies Gaussian smoothing over the counts, removes values below a
+certain threshold,
+segments the histogram using seed_point m/z values, and then calculates
+metapeak parameters.
+The parameters include the center, maximum, delimitation, and width of each
+metapeak. The width is rescaled to the m/z scale.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 mp <- estimateMetapeaks(results$metapeaks$count_df,
     results$metapeaks$count_smooth_df,

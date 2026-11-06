@@ -20,7 +20,12 @@
 
 readPanel <- function(path) {
     # read in .csv
-    panel <- read.delim(path, sep = ",", header = TRUE, col.names = c("Name", "FeatureMass"))
+    panel <- read.delim(
+        path,
+        sep = ",",
+        header = TRUE,
+        col.names = c("Name", "FeatureMass")
+    )
 
     # sanity check: columns are correctly named
     if (is.numeric(panel$Name)) {

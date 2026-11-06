@@ -2,8 +2,10 @@
 # All functions in this file produce quality control plots for MALDI-MSI data.
 
 #' @importFrom ggplot2 ggplot aes annotate geom_bar geom_boxplot geom_histogram
-#'   geom_hline geom_line geom_point geom_rect geom_smooth geom_violin geom_vline
-#'   scale_color_manual scale_fill_identity scale_fill_manual scale_linetype_manual
+#'   geom_hline geom_line geom_point geom_rect geom_smooth geom_violin
+#'   geom_vline
+#'   scale_color_manual scale_fill_identity scale_fill_manual
+#'   scale_linetype_manual
 #'   scale_x_log10 scale_y_log10 labs ggtitle stat_summary theme theme_minimal
 #'   theme_void element_text
 #' @importFrom ggbeeswarm geom_quasirandom
@@ -95,7 +97,8 @@ NULL
 # Signal/noise grouping of the non-zero pixels of one channel from computeSNR().
 .snr_channel <- function(x, channel) {
     values <- x$IntensityDF[, channel]
-    name <- if (is.numeric(channel)) colnames(x$IntensityDF)[channel] else channel
+    name <- if (is.numeric(channel))
+        colnames(x$IntensityDF)[channel] else channel
     nonzero <- values != 0
     clusters <- x$SNR[[name]]$clustering
     cluster_means <- tapply(values[nonzero], clusters, mean)
@@ -104,7 +107,11 @@ NULL
         nonzero = nonzero,
         values  = values[nonzero],
         snr     = x$SNR[[name]]$SNR,
-        group   = ifelse(clusters == which.min(cluster_means), "Noise", "Signal")
+        group   = ifelse(
+            clusters == which.min(cluster_means),
+            "Noise",
+            "Signal"
+        )
     )
 }
 
@@ -182,7 +189,8 @@ NULL
     ss_tot <- sum((yv - mean(yv))^2)
     r2 <- if (ss_tot > 0) 1 - sum((yv - fitted_vals)^2) / ss_tot else NA_real_
     cf <- tryCatch(stats::coef(fit), error = function(e) NULL)
-    slope <- if (!is.null(cf) && "x" %in% names(cf)) unname(cf[["x"]]) else NA_real_
+    slope <- if (!is.null(cf) && "x" %in% names(cf))
+        unname(cf[["x"]]) else NA_real_
 
     method_lbl <- if (is.function(reg_args$method)) {
         "custom"
@@ -228,7 +236,10 @@ NULL
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotMetapeaks(
 #'     x = results$processed, metapeaks = results$metapeaks,
@@ -303,14 +314,22 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
         ) +
         scale_linetype_manual(
             name   = "Vertical Lines",
-            values = c("Feature Mass" = "solid", "Max Counts" = "dashed", "Seeds" = "dashed")
+            values = c(
+                "Feature Mass" = "solid",
+                "Max Counts" = "dashed",
+                "Seeds" = "dashed"
+            )
         ) +
         scale_fill_manual(
             name   = "Range Areas",
-            values = c("Metapeak Range" = "grey", "Targeted Metapeak Range" = "red3")
+            values = c(
+                "Metapeak Range" = "grey",
+                "Targeted Metapeak Range" = "red3"
+            )
         )
 
-    # detection threshold (absolute pixel-count) reference line. Guarded so older
+    # detection threshold (absolute pixel-count) reference line. Guarded so
+    # older
     # metapeaks objects without the stored value still plot.
     if (!is.null(metapeaks$params$detection_threshold)) {
         p <- p + geom_hline(
@@ -382,16 +401,23 @@ plotMetapeaks <- function(x, metapeaks, panel, interactive = FALSE) {
 #' @param x List output of \code{assignMetapeaks}.
 #' @param violin Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
 #'   \code{alpha}) for the \code{geom_violin} layer, overriding its defaults.
-#' @param boxplot Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
+#' @param boxplot Named list of fixed aesthetics (e.g. \code{fill},
+#'   \code{color},
 #'   \code{width}) for the \code{geom_boxplot} layer, overriding its defaults.
 #'
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotIntensityDistribution(x = results$processed)
-#' plotIntensityDistribution(x = results$processed, violin = list(fill = "skyblue"))
+#' plotIntensityDistribution(
+#'     x = results$processed,
+#'     violin = list(fill = "skyblue")
+#' )
 #' @export
 plotIntensityDistribution <- function(x, violin = list(), boxplot = list()) {
     df <- x$IntensityDF
@@ -454,7 +480,8 @@ plotIntensityDistribution <- function(x, violin = list(), boxplot = list()) {
 #'   override it with \code{regression = list(method = ...)}. Available methods
 #'   are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs \pkg{mgcv}),
 #'   \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"} (picks
-#'   \code{"loess"} or \code{"gam"} by sample size), or any model function with a
+#'   \code{"loess"} or \code{"gam"} by sample size), or any model function with
+#'   a
 #'   \code{predict} method. The statistics annotation (see \code{show_stats})
 #'   refits this same method and reports it, so the box always describes the
 #'   visible curve.
@@ -470,11 +497,20 @@ plotIntensityDistribution <- function(x, violin = list(), boxplot = list()) {
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotMeanVariance(x = results$processed)
-#' plotMeanVariance(x = results$processed, points = list(size = 5, fill = "darkorange"))
-#' plotMeanVariance(x = results$processed, regression = list(color = "blue", se = TRUE))
+#' plotMeanVariance(
+#'     x = results$processed,
+#'     points = list(size = 5, fill = "darkorange")
+#' )
+#' plotMeanVariance(
+#'     x = results$processed,
+#'     regression = list(color = "blue", se = TRUE)
+#' )
 #' plotMeanVariance(x = results$processed, show_stats = FALSE)
 #' @export
 plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
@@ -497,14 +533,30 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
         Name          = rownames(data.frame(targeted_mean))
     )
 
-    targeted_mapping <- aes(x = .data[["targeted_mean"]], y = .data[["targeted_sd"]])
-    untargeted_mapping <- aes(x = .data[["untargeted_mean"]], y = .data[["untargeted_sd"]])
+    targeted_mapping <- aes(
+        x = .data[["targeted_mean"]],
+        y = .data[["targeted_sd"]]
+    )
+    untargeted_mapping <- aes(
+        x = .data[["untargeted_mean"]],
+        y = .data[["untargeted_sd"]]
+    )
 
     if (annotated_only) {
-        targeted_defaults <- list(color = "black", fill = "#3B9AB5", shape = 21, size = 4)
+        targeted_defaults <- list(
+            color = "black",
+            fill = "#3B9AB5",
+            shape = 21,
+            size = 4
+        )
         targeted_text <- aes(text = .data[["Name"]])
     } else {
-        targeted_defaults <- list(color = "black", fill = "red3", shape = 21, size = 3)
+        targeted_defaults <- list(
+            color = "black",
+            fill = "red3",
+            shape = 21,
+            size = 3
+        )
         targeted_text <- aes(text = paste0("Marker: ", .data[["Name"]]))
     }
     targeted_layer <- .qc_text(.qc_layer(
@@ -515,23 +567,37 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
     # The regression line and its stats run over the unannotated points, or the
     # targeted points when annotated_only = TRUE.
     if (annotated_only) {
-        regression_layer <- .qc_regression_layer(targeted_stats, targeted_mapping, regression)
+        regression_layer <- .qc_regression_layer(
+            targeted_stats,
+            targeted_mapping,
+            regression
+        )
         reg_x <- targeted_stats$targeted_mean
         reg_y <- targeted_stats$targeted_sd
     } else {
-        regression_layer <- .qc_regression_layer(untargeted_stats, untargeted_mapping, regression)
+        regression_layer <- .qc_regression_layer(
+            untargeted_stats,
+            untargeted_mapping,
+            regression
+        )
         reg_x <- untargeted_stats$untargeted_mean
         reg_y <- untargeted_stats$untargeted_sd
     }
 
-    # Stats annotation, anchored to the top-left of the plotted points. The fit is
-    # in log10 space (matching the log10 scales); passing the log10 coordinates to
-    # the helper also drops non-positive values automatically (log10 -> non-finite).
+    # Stats annotation, anchored to the top-left of the plotted points. The fit
+    # is
+    # in log10 space (matching the log10 scales); passing the log10 coordinates
+    # to
+    # the helper also drops non-positive values automatically (log10 ->
+    # non-finite).
     if (annotated_only) {
         x_all <- targeted_stats$targeted_mean
         y_all <- targeted_stats$targeted_sd
     } else {
-        x_all <- c(untargeted_stats$untargeted_mean, targeted_stats$targeted_mean)
+        x_all <- c(
+            untargeted_stats$untargeted_mean,
+            targeted_stats$targeted_mean
+        )
         y_all <- c(untargeted_stats$untargeted_sd, targeted_stats$targeted_sd)
     }
     x_pos <- min(x_all[x_all > 0], na.rm = TRUE)
@@ -541,12 +607,19 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
     )
 
     unannotated_layer <- if (!annotated_only) {
-        .qc_unannotated_layer(untargeted_stats, untargeted_mapping, unannotated_points)
+        .qc_unannotated_layer(
+            untargeted_stats,
+            untargeted_mapping,
+            unannotated_points
+        )
     }
 
     p <- ggplot() +
         theme_minimal() +
-        ggtitle(if (annotated_only) "Mean-Variance Plot: Annotated Peaks Only" else "Mean-Variance Plot") +
+        ggtitle(
+            if (annotated_only) "Mean-Variance Plot: Annotated Peaks Only" else
+                "Mean-Variance Plot"
+        ) +
         unannotated_layer +
         regression_layer +
         targeted_layer +
@@ -559,7 +632,7 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
 }
 
 
-# ── 4. plotMeanVarianceResiduals ───────────────────────────────────────────────
+# ── 4. plotMeanVarianceResiduals ──────────────────────────────────────────────
 
 #' Plot Mean-Variance Residuals
 #'
@@ -588,7 +661,10 @@ plotMeanVariance <- function(x, annotated_only = FALSE, interactive = FALSE,
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotMeanVarianceResiduals(x = results$processed)
 #' plotMeanVarianceResiduals(
@@ -643,7 +719,11 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
         points,
         fixed = list(data = targeted_df, mapping = resid_aes)
     ), interactive, aes(text = paste0("Marker: ", .data[["label"]])))
-    unannotated_layer <- .qc_unannotated_layer(untargeted_df, resid_aes, unannotated_points)
+    unannotated_layer <- .qc_unannotated_layer(
+        untargeted_df,
+        resid_aes,
+        unannotated_points
+    )
     line_layer <- .qc_layer(
         geom_hline, list(color = "red", linetype = "solid"),
         line,
@@ -669,7 +749,8 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
 #' @description Bar chart of Geary's C spatial autocorrelation score per marker,
 #'   sorted ascending, with a dashed horizontal line at the mean score.
 #'
-#' @param x List output of \code{computeGearysC(..., update_correspondence = TRUE)}.
+#' @param x List output of
+#'   \code{computeGearysC(..., update_correspondence = TRUE)}.
 #'   \code{x$CorrespondenceMatrix} must contain a \code{GearysC} column.
 #' @param bar Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
 #'   \code{linewidth}, \code{alpha}) for the \code{geom_bar} layer, overriding
@@ -680,7 +761,10 @@ plotMeanVarianceResiduals <- function(x, standardised = FALSE,
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' processed_geary <- computeGearysC(results$processed,
 #'     update_correspondence = TRUE,
@@ -701,7 +785,12 @@ plotGearysC <- function(x, bar = list(), line = list()) {
     # Per-layer aesthetics: defaults merged with the user-supplied lists.
     bar_layer <- .qc_layer(
         geom_bar,
-        list(stat = "identity", fill = "#b51837", color = "black", linewidth = 0.2),
+        list(
+            stat = "identity",
+            fill = "#b51837",
+            color = "black",
+            linewidth = 0.2
+        ),
         bar
     )
     line_layer <- .qc_layer(
@@ -723,7 +812,12 @@ plotGearysC <- function(x, bar = list(), line = list()) {
             y     = "Geary's C"
         ) +
         theme(
-            axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7)
+            axis.text.x = element_text(
+                angle = 90,
+                vjust = 0.5,
+                hjust = 1,
+                size = 7
+            )
         )
 }
 
@@ -750,7 +844,10 @@ plotGearysC <- function(x, bar = list(), line = list()) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSNR(x = processed_snr)
@@ -766,7 +863,10 @@ plotSNR <- function(x, snr_threshold = NULL, bar = list(), line = list(),
         snr_threshold <- quantile(plot_df$snr, 0.1)
     }
 
-    fill_values <- .qc_palette(c("FALSE" = "#18B596", "TRUE" = "#b51837"), palette)
+    fill_values <- .qc_palette(
+        c("FALSE" = "#18B596", "TRUE" = "#b51837"),
+        palette
+    )
 
     bar_layer <- .qc_layer(geom_bar, list(stat = "identity"), bar)
     line_layer <- .qc_layer(
@@ -797,7 +897,12 @@ plotSNR <- function(x, snr_threshold = NULL, bar = list(), line = list(),
         ) +
         theme_minimal() +
         theme(
-            axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1, size = 7)
+            axis.text.x = element_text(
+                angle = 90,
+                vjust = 0.5,
+                hjust = 1,
+                size = 7
+            )
         )
 }
 
@@ -821,11 +926,18 @@ plotSNR <- function(x, snr_threshold = NULL, bar = list(), line = list(),
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSNRHistogram(x = processed_snr, channel = 1)
-#' plotSNRHistogram(x = processed_snr, channel = 1, palette = c(Signal = "purple"))
+#' plotSNRHistogram(
+#'     x = processed_snr,
+#'     channel = 1,
+#'     palette = c(Signal = "purple")
+#' )
 #' @export
 plotSNRHistogram <- function(x, channel, histogram = list(), palette = NULL) {
     chan <- .snr_channel(x, channel)
@@ -843,7 +955,10 @@ plotSNRHistogram <- function(x, channel, histogram = list(), palette = NULL) {
         histogram
     )
 
-    ggplot(hist_df, aes(x = .data[["count"]], fill = .data[["cluster_color"]])) +
+    ggplot(
+        hist_df,
+        aes(x = .data[["count"]], fill = .data[["cluster_color"]])
+    ) +
         hist_layer +
         scale_fill_manual(
             values = fill_values,
@@ -852,7 +967,10 @@ plotSNRHistogram <- function(x, channel, histogram = list(), palette = NULL) {
         theme_minimal() +
         labs(
             title    = paste("Histogram of Signal and Noise:", chan$name),
-            subtitle = paste("Signal-to-Noise Ratio (SNR):", round(chan$snr, 2)),
+            subtitle = paste(
+                "Signal-to-Noise Ratio (SNR):",
+                round(chan$snr, 2)
+            ),
             x        = "Intensity",
             y        = "Count"
         )
@@ -877,7 +995,10 @@ plotSNRHistogram <- function(x, channel, histogram = list(), palette = NULL) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotSpatialSNR(x = processed_snr, channel = 1)
@@ -908,7 +1029,8 @@ plotSpatialSNR <- function(x, channel, points = list(), palette = NULL) {
 #'   passed to \code{ggplot2::geom_smooth}. The smoothing method defaults to
 #'   \code{"lm"}; override it with \code{regression = list(method = ...)}.
 #'   Available methods are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs
-#'   \pkg{mgcv}), \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"},
+#'   \pkg{mgcv}), \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}),
+#'   \code{"auto"},
 #'   or any model function with a \code{predict} method. The statistics
 #'   annotation (see \code{show_stats}) refits this same method and reports it.
 #' @param show_stats Logical; if \code{TRUE} (default), annotate the top-left
@@ -922,11 +1044,17 @@ plotSpatialSNR <- function(x, channel, points = list(), palette = NULL) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 #' plotMeanVsSNR(x = processed_snr)
-#' plotMeanVsSNR(x = processed_snr, points = list(size = 6, fill = "darkorange"))
+#' plotMeanVsSNR(
+#'     x = processed_snr,
+#'     points = list(size = 6, fill = "darkorange")
+#' )
 #' plotMeanVsSNR(x = processed_snr, regression = list(method = "loess"))
 #' @export
 plotMeanVsSNR <- function(x, points = list(), regression = list(),
@@ -941,9 +1069,16 @@ plotMeanVsSNR <- function(x, points = list(), regression = list(),
 
     snr_aes <- aes(x = .data[["targeted_mean"]], y = .data[["targeted_snr"]])
 
-    # Per-layer aesthetics: defaults merged with the user-supplied `points` list.
+    # Per-layer aesthetics: defaults merged with the user-supplied `points`
+    # list.
     point_layer <- .qc_layer(
-        geom_point, list(color = "black", fill = "#3B9AB5", shape = 21, size = 4),
+        geom_point,
+        list(
+            color = "black",
+            fill = "#3B9AB5",
+            shape = 21,
+            size = 4
+        ),
         points,
         fixed = list(data = plot_df, mapping = snr_aes)
     )
@@ -979,7 +1114,8 @@ plotMeanVsSNR <- function(x, points = list(), regression = list(),
 #'   \pkg{ggrepel}.
 #'
 #' @param x List output of \code{computeSNR(..., update_correspondence = TRUE)}
-#'   where \code{computeGearysC(..., update_correspondence = TRUE)} has also been
+#'   where \code{computeGearysC(..., update_correspondence = TRUE)} has also
+#'   been
 #'   run, so \code{CorrespondenceMatrix} contains both \code{GearysC} and
 #'   \code{snr} columns.
 #' @param geary_threshold Numeric; Geary's C cutoff for the trashcan zone.
@@ -1006,9 +1142,15 @@ plotMeanVsSNR <- function(x, points = list(), regression = list(),
 #'   \code{interactive = TRUE}.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
-#' processed_qc <- computeGearysC(results$processed, update_correspondence = TRUE)
+#' processed_qc <- computeGearysC(
+#'     results$processed,
+#'     update_correspondence = TRUE
+#' )
 #' processed_qc <- computeSNR(processed_qc, update_correspondence = TRUE)
 #' plotQCOverview(x = processed_qc)
 #' plotQCOverview(x = processed_qc, points = list(size = 5))
@@ -1033,7 +1175,9 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
     geary_cond <- plot_df$GearysC > geary_threshold
     snr_cond <- plot_df$snr < snr_threshold
     plot_df$fill_color <- ifelse(
-        geary_cond & snr_cond, zone_colors[["low_quality"]], zone_colors[["pass"]]
+        geary_cond & snr_cond,
+        zone_colors[["low_quality"]],
+        zone_colors[["pass"]]
     )
 
     rect_layer <- .qc_layer(
@@ -1114,7 +1258,10 @@ plotQCOverview <- function(x, geary_threshold = 0.7, snr_threshold = 3,
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotTICHistogram(x = results$processed)
 #' plotTICHistogram(x = results$processed, palette = c(Signal = "navy"))
@@ -1140,7 +1287,8 @@ plotTICHistogram <- function(x, histogram = list(), vline = list(),
         histogram
     )
     vline_layer <- .qc_layer(
-        geom_vline, list(linetype = "dashed", color = "grey40", linewidth = 1.2),
+        geom_vline,
+        list(linetype = "dashed", color = "grey40", linewidth = 1.2),
         vline,
         fixed = list(xintercept = threshold)
     )
@@ -1170,7 +1318,8 @@ plotTICHistogram <- function(x, histogram = list(), vline = list(),
 #'
 #' @param x List output of \code{assignMetapeaks}.
 #' @param points Named list of fixed aesthetics (e.g. \code{size}, \code{shape},
-#'   \code{alpha}) for the \code{geom_point} layer. Point colour is mapped to the
+#'   \code{alpha}) for the \code{geom_point} layer. Point colour is mapped to
+#'   the
 #'   signal/noise group and is set via \code{palette}.
 #' @param palette Named character vector overriding the group colours,
 #'   e.g. \code{c(Signal = "navy", Noise = "grey80")}.
@@ -1178,7 +1327,10 @@ plotTICHistogram <- function(x, histogram = list(), vline = list(),
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotTICSpatial(x = results$processed)
 #' plotTICSpatial(x = results$processed, points = list(size = 4))
@@ -1194,7 +1346,13 @@ plotTICSpatial <- function(x, points = list(), palette = NULL) {
 
     cluster_color <- ifelse(log10(1 + tic_nz) <= threshold, "Noise", "Signal")
 
-    .qc_spatial_plot(coords, cluster_color, points, palette, "TIC Spatial Distribution")
+    .qc_spatial_plot(
+        coords,
+        cluster_color,
+        points,
+        palette,
+        "TIC Spatial Distribution"
+    )
 }
 
 
@@ -1203,7 +1361,8 @@ plotTICSpatial <- function(x, points = list(), palette = NULL) {
 #' Plot Mass Shift Between Expected and Picked m/z
 #'
 #' @description Visualises the deviation between each targeted peak's expected
-#'   m/z (the panel feature mass) and its picked m/z (the metapeak max), computed
+#'   m/z (the panel feature mass) and its picked m/z (the metapeak max),
+#'   computed
 #'   as \code{mz_location - expected_mz_location}. Two views are available:
 #'   \code{"distribution"} draws a single-column quasirandom (beeswarm) plot of
 #'   the mass-shift distribution across all targeted peaks, with the mean marked
@@ -1214,7 +1373,8 @@ plotTICSpatial <- function(x, points = list(), palette = NULL) {
 #' @param x List output of \code{\link{assignMetapeaks}}. Its
 #'   \code{CorrespondenceMatrix} must contain \code{mz_location} and
 #'   \code{expected_mz_location} columns.
-#' @param type Character; \code{"distribution"} (default) for the beeswarm of the
+#' @param type Character; \code{"distribution"} (default) for the beeswarm of
+#'   the
 #'   mass-shift distribution, or \code{"spectrum"} for mass shift along the m/z
 #'   axis.
 #' @param points Named list of fixed aesthetics (e.g. \code{size}, \code{fill},
@@ -1229,7 +1389,10 @@ plotTICSpatial <- function(x, points = list(), palette = NULL) {
 #' @return A \code{ggplot} object.
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' plotMassShift(x = results$processed, type = "distribution")
 #' plotMassShift(x = results$processed, type = "spectrum")
@@ -1241,7 +1404,8 @@ plotMassShift <- function(x, type = c("distribution", "spectrum"),
 
     cm <- x$CorrespondenceMatrix
     df <- cm[!is.na(cm$mz_location) & !is.na(cm$expected_mz_location), ]
-    df$diff <- df$mz_location - df$expected_mz_location # Picked - Expected (m/z)
+    # Picked - Expected (m/z)
+    df$diff <- df$mz_location - df$expected_mz_location
 
     line_layer <- .qc_layer(
         geom_hline, list(color = "grey60", linewidth = 0.6),
@@ -1262,7 +1426,13 @@ plotMassShift <- function(x, type = c("distribution", "spectrum"),
         )
         mean_layer <- .qc_layer(
             stat_summary,
-            list(shape = 23, size = 4, fill = "black", color = "black", stroke = 1),
+            list(
+                shape = 23,
+                size = 4,
+                fill = "black",
+                color = "black",
+                stroke = 1
+            ),
             mean_point,
             fixed = list(fun = mean, geom = "point")
         )
@@ -1281,11 +1451,20 @@ plotMassShift <- function(x, type = c("distribution", "spectrum"),
 
         points_layer <- .qc_layer(
             geom_point,
-            list(shape = 21, size = 3, color = "black", fill = "#3B9AB5", alpha = 0.7),
+            list(
+                shape = 21,
+                size = 3,
+                color = "black",
+                fill = "#3B9AB5",
+                alpha = 0.7
+            ),
             points
         )
 
-        ggplot(df, aes(x = .data[["expected_mz_location"]], y = .data[["diff"]])) +
+        ggplot(
+            df,
+            aes(x = .data[["expected_mz_location"]], y = .data[["diff"]])
+        ) +
             points_layer +
             line_layer +
             theme_minimal() +

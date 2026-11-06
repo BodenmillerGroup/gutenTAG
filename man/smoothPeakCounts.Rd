@@ -2,7 +2,8 @@
 % Please edit documentation in R/smoothPeakCounts.R
 \name{smoothPeakCounts}
 \alias{smoothPeakCounts}
-\title{This function smoothes the peak counts histogram by convolving it with a Gaussian filter.
+\title{This function smoothes the peak counts histogram by convolving it with a
+Gaussian filter.
 The Gaussian filter is scaled to the average step size of the mz values.
 The function assumes that the mz values are (roughly) evenly spaced.}
 \usage{
@@ -11,18 +12,23 @@ smoothPeakCounts(count_df, smooth_factor)
 \arguments{
 \item{count_df}{A data frame with columns: mz, count.}
 
-\item{smooth_factor}{The standard deviation of the Gaussian filter is scaled by this factor.}
+\item{smooth_factor}{The standard deviation of the Gaussian filter is
+scaled by this factor.}
 }
 \value{
 A data frame with the same mz values and the smoothed counts.
 }
 \description{
-This function smoothes the peak counts histogram by convolving it with a Gaussian filter.
+This function smoothes the peak counts histogram by convolving it with a
+Gaussian filter.
 The Gaussian filter is scaled to the average step size of the mz values.
 The function assumes that the mz values are (roughly) evenly spaced.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 smooth_df <- smoothPeakCounts(results$metapeaks$count_df, smooth_factor = 3)
 

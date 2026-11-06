@@ -40,7 +40,8 @@ unannotated points, or over the targeted points when
 override it with \code{regression = list(method = ...)}. Available methods
 are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs \pkg{mgcv}),
 \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"} (picks
-\code{"loess"} or \code{"gam"} by sample size), or any model function with a
+\code{"loess"} or \code{"gam"} by sample size), or any model function with
+a
 \code{predict} method. The statistics annotation (see \code{show_stats})
 refits this same method and reports it, so the box always describes the
 visible curve.}
@@ -64,10 +65,19 @@ Log-log scatter of mean vs standard deviation for all
   \code{annotated_only = TRUE}, only targeted metapeaks are shown in blue.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 plotMeanVariance(x = results$processed)
-plotMeanVariance(x = results$processed, points = list(size = 5, fill = "darkorange"))
-plotMeanVariance(x = results$processed, regression = list(color = "blue", se = TRUE))
+plotMeanVariance(
+    x = results$processed,
+    points = list(size = 5, fill = "darkorange")
+)
+plotMeanVariance(
+    x = results$processed,
+    regression = list(color = "blue", se = TRUE)
+)
 plotMeanVariance(x = results$processed, show_stats = FALSE)
 }

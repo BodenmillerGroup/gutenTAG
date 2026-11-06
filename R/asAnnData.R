@@ -7,7 +7,10 @@
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -19,7 +22,8 @@
 asAnnData <- function(x) {
     if (!requireNamespace("reticulate", quietly = TRUE)) {
         stop(
-            "Package 'reticulate' is required for asAnnData(). Please install it ",
+            "Package 'reticulate' is required for asAnnData(). ",
+            "Please install it ",
             "and ensure the Python 'anndata' module is available."
         )
     }

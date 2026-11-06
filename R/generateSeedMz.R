@@ -9,7 +9,10 @@
 #' @return A vector of seeds in terms of m/z values
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' seeds <- generateSeedMz(results$metapeaks$count_df)
 #'
@@ -25,7 +28,11 @@ generateSeedMz <- function(count_df, detection_threshold = 0, sparsity = 3) {
     # find peaks
     counts <- count_df$count
     counts[counts < detection_threshold] <- 0
-    local_maxima <- base::which(splus2R::peaks(x = counts, span = span_local_maxima, strict = TRUE))
+    local_maxima <- base::which(splus2R::peaks(
+        x = counts,
+        span = span_local_maxima,
+        strict = TRUE
+    ))
 
     # return mz values
     return(count_df$mz[local_maxima])

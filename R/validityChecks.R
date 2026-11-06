@@ -12,7 +12,10 @@ NULL
 
     # break if BPPARAM is not a BiocParallelParam object
     if (!is(BPPARAM, "BiocParallelParam")) {
-        stop("'BPPARAM' should be a BiocParallelParam object (e.g. BiocParallel::SerialParam()).")
+        stop(
+            "'BPPARAM' should be a BiocParallelParam object ",
+            "(e.g. BiocParallel::SerialParam())."
+        )
     }
 }
 
@@ -44,7 +47,10 @@ NULL
 
     # break if BPPARAM is not a BiocParallelParam object
     if (!is(BPPARAM, "BiocParallelParam")) {
-        stop("'BPPARAM' should be a BiocParallelParam object (e.g. BiocParallel::MulticoreParam(4)).")
+        stop(
+            "'BPPARAM' should be a BiocParallelParam object ",
+            "(e.g. BiocParallel::MulticoreParam(4))."
+        )
     }
 }
 
@@ -79,7 +85,8 @@ NULL
         stop("fixed.limits must be a single numeric value or null")
     }
 
-    # break if sparsity parameter anything other than NULL or a positive numeric value
+    # break if sparsity parameter anything other than NULL or a positive
+    # numeric value
     if (!(is.null(sparsity) | is.numeric(sparsity))) {
         stop("sparsity must be a single numeric value.")
     }
@@ -112,11 +119,17 @@ NULL
 .valid.assignMetapeaks <- function(x, pre, refList, mz_threshold) {
     # break if input is not a list with the required fields
     if (!is(x, "list")) {
-        stop("'x' should be a list object. It must be the output of the 'generateMetapeaks' function.")
+        stop(
+            "'x' should be a list object. It must be the output of the ",
+            "'generateMetapeaks' function."
+        )
     }
 
     if (!all(c("metapeaks", "propagation_selection") %in% names(x))) {
-        stop("'x' must contain 'metapeaks' and 'propagation_selection'. It must be the output of the 'generateMetapeaks' function.")
+        stop(
+            "'x' must contain 'metapeaks' and 'propagation_selection'. ",
+            "It must be the output of the 'generateMetapeaks' function."
+        )
     }
 
     # break if mz_threshold is not a single numeric
@@ -140,7 +153,10 @@ NULL
 .valid.asCytoImageList <- function(x, name) {
     # break if input is not a list
     if (!is(x, "list")) {
-        stop("'x' should be a list object. It must explicitly be the output of the 'assignMetapeaks' function.")
+        stop(
+            "'x' should be a list object. It must explicitly be the output ",
+            "of the 'assignMetapeaks' function."
+        )
     }
 }
 
@@ -149,7 +165,10 @@ NULL
 .valid.asSpatialExperiment <- function(x) {
     # break if input is not a list
     if (!is(x, "list")) {
-        stop("'x' should be a list object. It must explicitly be the output of the 'assignMetapeaks' function.")
+        stop(
+            "'x' should be a list object. It must explicitly be the output ",
+            "of the 'assignMetapeaks' function."
+        )
     }
 }
 
@@ -158,7 +177,10 @@ NULL
 .valid.asMSImagingExperiment <- function(x) {
     # break if input is not a list
     if (!is(x, "list")) {
-        stop("'x' should be a list object. It must explicitly be the output of the 'assignMetapeaks' function.")
+        stop(
+            "'x' should be a list object. It must explicitly be the output ",
+            "of the 'assignMetapeaks' function."
+        )
     }
 }
 
@@ -167,7 +189,10 @@ NULL
     # break if x is not a list with the required fields
     required_fields <- c("IntensityDF", "SpatialCoords", "CorrespondenceMatrix")
     if (!is.list(x) || !all(required_fields %in% names(x))) {
-        stop("'x' should be a list. It should be the output of the 'assignMetapeaks' function.")
+        stop(
+            "'x' should be a list. It should be the output of the ",
+            "'assignMetapeaks' function."
+        )
     }
 
     # break if verbose is not bool
@@ -182,14 +207,24 @@ NULL
 }
 
 # imageChannel ####
-.valid.imageChannel <- function(x, coords, channel, quantile_threshold, palette, na_colour) {
+.valid.imageChannel <- function(
+    x,
+    coords,
+    channel,
+    quantile_threshold,
+    palette,
+    na_colour
+) {
     # break if coords is not a dataframe when x is a df/matrix
     if ((is.data.frame(x) || is.matrix(x)) && !is.data.frame(coords)) {
-        stop("'coords' must be a data.frame when 'x' is a data.frame or matrix.")
+        stop(
+            "'coords' must be a data.frame when 'x' is a data.frame or matrix."
+        )
     }
 
     # break if channel is not a single character or positive integer
-    if (!(is.character(channel) || is.numeric(channel)) || length(channel) != 1) {
+    if (!(is.character(channel) || is.numeric(channel)) ||
+        length(channel) != 1) {
         stop("'channel' should be a single character name or integer index.")
     }
 
@@ -201,7 +236,10 @@ NULL
 
     # break if palette is not a character string
     if (!is.character(palette) || length(palette) != 1) {
-        stop("'palette' should be a single character string (e.g. \"viridis\", \"magma\").")
+        stop(
+            "'palette' should be a single character string ",
+            "(e.g. \"viridis\", \"magma\")."
+        )
     }
 
     # break if na_colour is not a character string

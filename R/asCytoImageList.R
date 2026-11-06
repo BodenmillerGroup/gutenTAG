@@ -12,7 +12,10 @@
 #'
 #' @export
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -29,7 +32,12 @@ asCytoImageList <- function(x, name = "test") {
     dataframe <- x$IntensityDF
     coords <- x$SpatialCoords
 
-    matrix_list <- lapply(colnames(dataframe), .curateMatrix, coords = coords, dataframe = dataframe)
+    matrix_list <- lapply(
+        colnames(dataframe),
+        .curateMatrix,
+        coords = coords,
+        dataframe = dataframe
+    )
     # Create multidimensional array
     my_array <- do.call(abind, list(matrix_list, along = 3))
     # Create multichannel image from array

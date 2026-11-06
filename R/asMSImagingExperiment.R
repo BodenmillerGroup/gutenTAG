@@ -1,7 +1,9 @@
 #' Make MSImagingExperiment object
 #'
 #' @param x The output from 'assignMetapeaks' function
-#' @param remove.na Removes NA values from the experiment. NA values are generated when a marker in the panel is not assigned a metapeak. The default is FALSE.
+#' @param remove.na Removes NA values from the experiment. NA values are
+#'   generated when a marker in the panel is not assigned a metapeak. The
+#'   default is FALSE.
 #'
 #' @return An object of the class MSImagingExperiment from Cardinal.
 #'
@@ -9,7 +11,10 @@
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -27,7 +32,8 @@ asMSImagingExperiment <- function(x, remove.na = FALSE) {
     run <- factor(rep("run0", nrow(coord)))
     pdata <- PositionDataFrame(run = run, coord = coord)
 
-    # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
+    # ordered vector of mass locations. metapeak mz stored as mz, expected mz
+    # stored as expected_mz
     fdata <- MassDataFrame(
         mz = sort(x$CorrespondenceMatrix$expected_mz_location),
         observed_mz = x$CorrespondenceMatrix$mz_location,
@@ -36,7 +42,8 @@ asMSImagingExperiment <- function(x, remove.na = FALSE) {
 
 
     # idata: where intensity df goes
-    idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
+    # intensity dataframe must first be a matrix, then transposed
+    idata <- t(as.matrix(x$IntensityDF))
     # get m/z order of marker names
     correct_order <- x$CorrespondenceMatrix$marker
     # reorder rows (markers) of idata according to m/z order

@@ -1,7 +1,7 @@
 #' @importFrom stats var dist
 NULL
 
-#############################  Helper functions ###################################
+#############################  Helper functions ################################
 
 # Marker panel cleaning function ####
 
@@ -19,7 +19,8 @@ NULL
     # 3. clean marker names
     panel$OriginalName <- panel$Name # record pre-clean names
 
-    # remove spaces and slashes; replace dashes with dots unless the name contains "+"
+    # remove spaces and slashes; replace dashes with dots unless the name
+    # contains "+"
     has_plus <- grepl("+", panel$Name, fixed = TRUE)
     panel$Name <- gsub(" ", "", panel$Name, fixed = TRUE)
     panel$Name[!has_plus] <- gsub("-", ".", panel$Name[!has_plus], fixed = TRUE)
@@ -43,8 +44,9 @@ NULL
 
 
 # KNN spatial weight matrix ####
-# Build a symmetric sparse n x n weight matrix of squared L2 distances to k nearest
-# neighbours. Symmetric: if j is a KNN of i OR i is a KNN of j, both [i,j] and [j,i]
+# Build a symmetric sparse n x n weight matrix of squared L2 distances to k
+# nearest neighbours. Symmetric: if j is a KNN of i OR i is a KNN of j, both
+# [i,j] and [j,i]
 # are set — matching the output of N2R::Knn(indexType = "L2").
 .knn_weight_matrix <- function(coords, k) {
     n <- nrow(coords)
@@ -63,16 +65,25 @@ NULL
     diag(d2) <- 0
 
     idx <- which(knn_sym, arr.ind = TRUE)
-    Matrix::sparseMatrix(i = idx[, 1], j = idx[, 2], x = d2[idx], dims = c(n, n))
+    Matrix::sparseMatrix(
+        i = idx[, 1],
+        j = idx[, 2],
+        x = d2[idx],
+        dims = c(n, n)
+    )
 }
 
 
 # One dimensional otsu thresholding  ####
 ## x is logTIC
 ## number_bins is the number of histogram bins
-## safe_var returns 0 for partitions with fewer than 2 elements to avoid NA from var() on length-0 or length-1 vectors
+## safe_var returns 0 for partitions with fewer than 2 elements to avoid NA
+## from var() on length-0 or length-1 vectors
 .otsu_thresholding <- function(x, number_bins = 100) {
-    list_bin <- quantile(x, base::seq(from = 0, to = 1, length.out = number_bins))
+    list_bin <- quantile(
+        x,
+        base::seq(from = 0, to = 1, length.out = number_bins)
+    )
     safe_var <- function(v) if (length(v) < 2) 0 else var(v)
 
     intravariance_vector <- vapply(list_bin, function(threshold_temp) {
@@ -92,7 +103,8 @@ NULL
     return(Matrix_image)
 }
 
-# helper: return the candidate mz with the smallest absolute distance to expected_mz
+# helper: return the candidate mz with the smallest absolute distance to
+# expected_mz
 .choose_closest <- function(cand_mz, expected_mz) {
     cand_mz[which.min(abs(cand_mz - expected_mz))]
 }

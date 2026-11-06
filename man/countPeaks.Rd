@@ -2,23 +2,30 @@
 % Please edit documentation in R/countPeaks.R
 \name{countPeaks}
 \alias{countPeaks}
-\title{Returns a sorted data.frame with a column "mz" and a column "count" indicating
+\title{Returns a sorted data.frame with a column "mz" and a column "count"
+indicating
 the number of detected peaks at each mz value.}
 \usage{
 countPeaks(mse_detected)
 }
 \arguments{
-\item{mse_detected}{A MSProcessedImagingExperiment object with peak detection applied to it.}
+\item{mse_detected}{A MSProcessedImagingExperiment object with peak
+detection applied to it.}
 }
 \value{
 data frame with mz and count columns
 }
 \description{
-If all counts are identical, this method will print a warning, since most likely the provided
-MSProcessedImagingExperiment object has not been processed with peak detection.
+If all counts are identical, this method will print a warning, since most
+likely the provided
+MSProcessedImagingExperiment object has not been processed with peak
+detection.
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 raw <- readMSIData(path)
 pre <- preProcess(raw)
 peaks <- peakDetection(pre)
