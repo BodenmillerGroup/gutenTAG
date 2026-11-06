@@ -132,14 +132,11 @@ assignMetapeaks <- function(x, pre, refList, mz_threshold = 1) {
   # raw_intensity is mz_bins x pixels (spectra() convention), so ncol = n_pixels
   n_pixels    <- ncol(raw_intensity)
   n_metapeaks <- nrow(correspondence)
-  final_intensity <- matrix(0, nrow = n_pixels, ncol = n_metapeaks)
   eps <- sqrt(.Machine$double.eps)
-  for (k in seq_len(n_metapeaks)) {
-    # which mz locations are inside the peak (boolean)
+  final_intensity <- matrix(vapply(seq_len(n_metapeaks), function(k) {
     selected_mz_location <- mz_vector$mz >= metapeaks$limits[k, 1] - eps & mz_vector$mz <= metapeaks$limits[k, 2] + eps
-    # sum the intensity of the mz locations inside the peak
-    final_intensity[, k] <- colSums(raw_intensity[selected_mz_location, , drop = FALSE])
-  }
+    colSums(raw_intensity[selected_mz_location, , drop = FALSE])
+  }, numeric(n_pixels)), nrow = n_pixels, ncol = n_metapeaks)
 
   # get names for metapeak values
   colnames(final_intensity) <- paste0(as.character(round(metapeaks$max, 2)), " m/z")

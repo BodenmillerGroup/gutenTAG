@@ -36,34 +36,26 @@ estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_thre
   if (num_metapeaks == 0) {
     stop("No metapeaks were found.")
   }
-  metapeak_center <- double(num_metapeaks)
-  metapeak_max <- double(num_metapeaks)
-  metapeak_limits <- matrix(0, nrow = num_metapeaks, ncol = 2)
-
-  for (k in seq_len(num_metapeaks)) {
-    # Compute a mask of the indices that correspond to the segmentation k.
+  # per segment: weighted-mean centre, max-count location, min and max mz
+  peak_stats <- vapply(seq_len(num_metapeaks), function(k) {
     peak_mask <- as.numeric(propagation_selection) == k
     peak_mzs <- count_df$mz[peak_mask]
     peak_counts <- count_df$count[peak_mask]
+    c(weighted.mean(x = peak_mzs, w = peak_counts),
+      peak_mzs[which.max(peak_counts)],
+      min(peak_mzs), max(peak_mzs))
+  }, numeric(4))
 
-    # Compute weighted mean using peak counts.
-    metapeak_center[k] <- weighted.mean(x = peak_mzs, w = peak_counts)
+  metapeak_center <- peak_stats[1, ]
+  metapeak_max <- peak_stats[2, ]
 
-    # Compute maximum peak location.
-    metapeak_max[k] <- peak_mzs[which.max(peak_counts)]
-
-    if (is.null(fixed.limits)){
-      # Limits are the intersection of the smoothed metapeak with the
-      # detection_threshold line. segmentPeakCounts() already excludes
-      # bins at or below threshold, so the segment's min/max mz are
-      # exactly those crossings.
-      metapeak_limits[k, ] <- c(min(peak_mzs), max(peak_mzs))
-    }else{
-      # set binning limits to be within specified fixed limit around metapeak max
-      metapeak_limits[k, 1] <- metapeak_max[k] - fixed.limits
-      metapeak_limits[k, 2] <- metapeak_max[k] + fixed.limits
-    }
-
+  # Limits are the intersection of the smoothed metapeak with the detection_threshold
+  # line (segmentPeakCounts() already excludes bins at or below threshold), or a
+  # fixed window around the metapeak max.
+  metapeak_limits <- if (is.null(fixed.limits)) {
+    cbind(peak_stats[3, ], peak_stats[4, ])
+  } else {
+    cbind(metapeak_max - fixed.limits, metapeak_max + fixed.limits)
   }
 
 

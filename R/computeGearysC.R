@@ -53,33 +53,24 @@ computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
   # create spatial weight matrix (adjacency matrix on spatial coordinates for rooks case, k = 4)
   spatial_weight_matrix <- .knn_weight_matrix(as.matrix(coords), k = 4)
 
-  geary_vector <- numeric(ncol(df))
-  for (i in seq_len(ncol(df))){
+  W <- sum(spatial_weight_matrix)
+  geary_vector <- vapply(seq_len(ncol(df)), function(i) {
 
     X <- matrix(df[, i], ncol = 1)
-    X_squared <- X^2
 
-    product_temp_1 <- 2 * sum(spatial_weight_matrix %*% X_squared)
+    product_temp_1 <- 2 * sum(spatial_weight_matrix %*% X^2)
     product_temp_2 <- 2 * t(X) %*% spatial_weight_matrix %*% X
 
-    # define params for Geary C computation
     N <- length(X)
-    W <- sum(spatial_weight_matrix)
     # na.rm = TRUE so that pixel-level NAs (e.g. tissue edge pixels) are silently
-    # dropped rather than propagating NA into Var_X. This is a deliberate choice —
-    # revisit if a warning or error on NA-containing channels is preferred.
+    # dropped rather than propagating NA into Var_X.
     Var_X <- var(X, na.rm = TRUE) * N
 
-    # compute Geary's C score — assign NA for zero-variance channels
-    if (is.na(Var_X) || Var_X == 0) {
-      gearys_C <- NA_real_
-    } else {
-      gearys_C <- as.numeric((N - 1) * (product_temp_1 - product_temp_2) / (2 * Var_X * W))
-    }
+    # NA for zero-variance channels
+    if (is.na(Var_X) || Var_X == 0) return(NA_real_)
+    as.numeric((N - 1) * (product_temp_1 - product_temp_2) / (2 * Var_X * W))
 
-    geary_vector[i] <- gearys_C
-
-  }
+  }, numeric(1))
 
   # optional argument to control if Geary's C column is added to Correspondence matrix
   if (update_correspondence) {

@@ -40,43 +40,30 @@ removeDuplicates <- function(x, shift){
   dup_tags <- unique(cur_correspondence$expected_mz_location)[which(table(cur_correspondence$expected_mz_location) > 1)]
   dup_correspondence <- cur_correspondence[which(cur_correspondence$expected_mz_location %in% dup_tags), ]
 
-  # loop through all duplicates and choose the correct peak for each
+  # choose the correct peak for each duplicated expected mz
   duplicate_expected_mzs <- unique(dup_correspondence$expected_mz_location)
-  correct_peaks <- numeric(length(duplicate_expected_mzs))
 
+  correct_peaks <- vapply(duplicate_expected_mzs, function(i) {
 
-  for(i in duplicate_expected_mzs){
-
-    idx <- which(duplicate_expected_mzs == i)
-
-    # extract cur pairing
     cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
     if (shift == "closest") {
-
-      correct_peak <- .choose_closest(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
-
-    } else {
-
-      compare_fn <- if (shift == "right") `>` else `<`
-      select_fn  <- if (shift == "right") min else max
-
-      correct_shifted_mzs <- cur_pairing$mz_location[
-        compare_fn(cur_pairing$mz_location, unique(cur_pairing$expected_mz_location))
-      ]
-
-      if (length(correct_shifted_mzs) == 0) {
-        warning("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak.", call. = FALSE)
-        correct_shifted_mzs <- cur_pairing$mz_location
-      }
-
-      correct_peak <- select_fn(correct_shifted_mzs)
-
+      return(.choose_closest(cur_pairing$mz_location, i))
     }
 
-    correct_peaks[idx] <- correct_peak
+    compare_fn <- if (shift == "right") `>` else `<`
+    select_fn  <- if (shift == "right") min else max
 
-  }
+    correct_shifted_mzs <- cur_pairing$mz_location[compare_fn(cur_pairing$mz_location, i)]
+
+    if (length(correct_shifted_mzs) == 0) {
+      warning("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak.", call. = FALSE)
+      correct_shifted_mzs <- cur_pairing$mz_location
+    }
+
+    select_fn(correct_shifted_mzs)
+
+  }, numeric(1))
 
   # remove all columns in original df that are NOT in the keep list
 
@@ -92,20 +79,8 @@ removeDuplicates <- function(x, shift){
   # correspondence matrix of only the peaks to keep
   updated_correspondence <- cur_correspondence[keep_idx, ]
 
-  # get the marker names only
-  ## initialse binary vector (TRUE/FALSE if marker name is duplicate)
-  bin_vector <- logical(ncol(cur_df))
-  for (i in seq_len(ncol(cur_df))){
-
-    ## identify markers with duplicate in the name
-    needle <- "duplicate"
-    haystack <- colnames(cur_df)[i]
-    ## find needle in haystack
-    cur_val <- grepl(needle, haystack, fixed = TRUE)
-    ## add to binary vector
-    bin_vector[i] <- cur_val
-
-  }
+  # flag marker names containing "duplicate"
+  bin_vector <- grepl("duplicate", colnames(cur_df), fixed = TRUE)
 
   # update marker names in new correspondence matrix
   updated_correspondence$marker <- colnames(cur_df)[!bin_vector]

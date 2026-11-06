@@ -1,3 +1,15 @@
+# gutenTAG 0.99.19
+
+* Addressed Bioconductor review: R (>= 4.6.0), `for` loops replaced with
+  `vapply`/vectorised code, `suppressWarnings()` removed from QC plots, and
+  duplicated SNR and plotting code factored into shared helpers.
+* `asAnnData()` now builds the AnnData object via `reticulate`, fixing an
+  error with Python `anndata >= 0.11`; the `anndata` R package is no longer
+  required.
+* Cleared R CMD check and BiocCheck NOTEs: DESCRIPTION Title/Description
+  wording, added `URL` and `BugReports` fields, and `<-` assignment
+  throughout.
+
 # gutenTAG 0.99.15
 
 * Initial Bioconductor submission.
