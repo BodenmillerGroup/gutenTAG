@@ -1,3 +1,8 @@
+# gutenTAG 0.99.20
+
+* Reformatted R code, tests and vignettes to Bioconductor style (4-space
+  indentation, lines of 80 characters or fewer). No functional changes.
+
 # gutenTAG 0.99.19
 
 * Addressed Bioconductor review: R (>= 4.6.0), `for` loops replaced with

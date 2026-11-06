@@ -9,24 +9,31 @@
 #' @return A vector of seeds in terms of m/z values
 #'
 #' @examples
-#' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+#' rdata_path <- system.file(
+#'     "extdata/Example_data/Example_processed.Rdata",
+#'     package = "gutenTAG"
+#' )
 #' load(rdata_path)
 #' seeds <- generateSeedMz(results$metapeaks$count_df)
 #'
 #' @export
 generateSeedMz <- function(count_df, detection_threshold = 0, sparsity = 3) {
+    if (!is.numeric(sparsity) || length(sparsity) != 1 || sparsity <= 0) {
+        stop("'sparsity' must be a single positive number.")
+    }
 
-  if (!is.numeric(sparsity) || length(sparsity) != 1 || sparsity <= 0)
-    stop("'sparsity' must be a single positive number.")
+    # constraint for how far apart metapeaks should be
+    span_local_maxima <- sparsity / .mzScalingFactor(count_df)
 
-  # constraint for how far apart metapeaks should be
-  span_local_maxima <- sparsity / .mzScalingFactor(count_df)
+    # find peaks
+    counts <- count_df$count
+    counts[counts < detection_threshold] <- 0
+    local_maxima <- base::which(splus2R::peaks(
+        x = counts,
+        span = span_local_maxima,
+        strict = TRUE
+    ))
 
-  # find peaks
-  counts <- count_df$count
-  counts[counts < detection_threshold] <- 0
-  local_maxima <- base::which(splus2R::peaks(x = counts, span = span_local_maxima, strict = TRUE))
-
-  # return mz values
-  return(count_df$mz[local_maxima])
+    # return mz values
+    return(count_df$mz[local_maxima])
 }

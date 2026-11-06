@@ -9,7 +9,9 @@ asMSImagingExperiment(x, remove.na = FALSE)
 \arguments{
 \item{x}{The output from 'assignMetapeaks' function}
 
-\item{remove.na}{Removes NA values from the experiment. NA values are generated when a marker in the panel is not assigned a metapeak. The default is FALSE.}
+\item{remove.na}{Removes NA values from the experiment. NA values are
+generated when a marker in the panel is not assigned a metapeak. The
+default is FALSE.}
 }
 \value{
 An object of the class MSImagingExperiment from Cardinal.
@@ -18,7 +20,10 @@ An object of the class MSImagingExperiment from Cardinal.
 Make MSImagingExperiment object
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

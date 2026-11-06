@@ -18,22 +18,24 @@
 #' @export
 
 
-readPanel <- function(path){
+readPanel <- function(path) {
+    # read in .csv
+    panel <- read.delim(
+        path,
+        sep = ",",
+        header = TRUE,
+        col.names = c("Name", "FeatureMass")
+    )
 
-  # read in .csv
-  panel <- read.delim(path, sep = ",", header = TRUE, col.names = c("Name", "FeatureMass"))
+    # sanity check: columns are correctly named
+    if (is.numeric(panel$Name)) {
+        colnames(panel) <- c("FeatureMass", "Name")
+    }
 
-  # sanity check: columns are correctly named
-  if (is.numeric(panel$Name)){
+    # arrange feature mass in increasing order
+    panel <- dplyr::arrange(panel, panel$FeatureMass)
 
-    colnames(panel) <- c("FeatureMass","Name")
+    panel <- .cleanPanel(panel)
 
-  }
-
-  # arrange feature mass in increasing order
-  panel <- dplyr::arrange(panel, panel$FeatureMass)
-
-  panel <- .cleanPanel(panel)
-
-  return(panel)
+    return(panel)
 }

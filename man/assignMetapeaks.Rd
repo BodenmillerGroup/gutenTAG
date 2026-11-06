@@ -30,7 +30,8 @@ A list with the following elements:
   \item{SpatialCoords}{Data frame of spatial pixel coordinates.}
   \item{SummarySpectra}{Data frame of summary spectra (mean and skyline).}
   \item{AllMetapeaks}{List with \code{AllMetapeaksIntensity} and
-    \code{AllMetapeaksCorrespondence} containing all detected metapeaks (targeted and untargeted).}
+    \code{AllMetapeaksCorrespondence} containing all detected metapeaks
+    (targeted and untargeted).}
   \item{FilteredDF}{TIC-filtered intensity data frame.}
 }
 }
@@ -38,7 +39,10 @@ A list with the following elements:
 Obtain Intensity dataframe of targeted peaks
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

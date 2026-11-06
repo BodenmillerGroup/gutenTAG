@@ -11,7 +11,8 @@ segmentPeakCounts(count_df, seed_mz, detection_threshold)
 
 \item{seed_mz}{A seed mass-to-charge ratio (mz).}
 
-\item{detection_threshold}{The minimum number of counts to be considered a peak.}
+\item{detection_threshold}{The minimum number of counts to be considered a
+peak.}
 }
 \value{
 A vector of segment labels, one per row of \code{count_df}.
@@ -26,10 +27,14 @@ A watershed based segmentation is used.
 A vector of class labels is returned, where each label corresponds to a peak.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 labels <- segmentPeakCounts(results$metapeaks$count_smooth_df,
-                             seed_mz = results$metapeaks$seed_mz,
-                             detection_threshold = 0)
+    seed_mz = results$metapeaks$seed_mz,
+    detection_threshold = 0
+)
 
 }

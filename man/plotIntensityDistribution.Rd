@@ -12,7 +12,8 @@ plotIntensityDistribution(x, violin = list(), boxplot = list())
 \item{violin}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
 \code{alpha}) for the \code{geom_violin} layer, overriding its defaults.}
 
-\item{boxplot}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
+\item{boxplot}{Named list of fixed aesthetics (e.g. \code{fill},
+\code{color},
 \code{width}) for the \code{geom_boxplot} layer, overriding its defaults.}
 }
 \value{
@@ -23,8 +24,14 @@ Violin and boxplot showing the distribution of intensity values
   per marker, ordered by descending mean intensity.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 plotIntensityDistribution(x = results$processed)
-plotIntensityDistribution(x = results$processed, violin = list(fill = "skyblue"))
+plotIntensityDistribution(
+    x = results$processed,
+    violin = list(fill = "skyblue")
+)
 }

@@ -24,7 +24,8 @@ overriding its defaults.}
 passed to \code{ggplot2::geom_smooth}. The smoothing method defaults to
 \code{"lm"}; override it with \code{regression = list(method = ...)}.
 Available methods are \code{"lm"}, \code{"glm"}, \code{"gam"} (needs
-\pkg{mgcv}), \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}), \code{"auto"},
+\pkg{mgcv}), \code{"loess"}, \code{"rlm"} (needs \pkg{MASS}),
+\code{"auto"},
 or any model function with a \code{predict} method. The statistics
 annotation (see \code{show_stats}) refits this same method and reports it.}
 
@@ -45,10 +46,16 @@ Scatter plot of per-marker mean intensity vs signal-to-noise
   ratio (SNR).
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 processed_snr <- computeSNR(results$processed, update_correspondence = TRUE)
 plotMeanVsSNR(x = processed_snr)
-plotMeanVsSNR(x = processed_snr, points = list(size = 6, fill = "darkorange"))
+plotMeanVsSNR(
+    x = processed_snr,
+    points = list(size = 6, fill = "darkorange")
+)
 plotMeanVsSNR(x = processed_snr, regression = list(method = "loess"))
 }

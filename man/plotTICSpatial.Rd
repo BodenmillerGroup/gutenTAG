@@ -10,7 +10,8 @@ plotTICSpatial(x, points = list(), palette = NULL)
 \item{x}{List output of \code{assignMetapeaks}.}
 
 \item{points}{Named list of fixed aesthetics (e.g. \code{size}, \code{shape},
-\code{alpha}) for the \code{geom_point} layer. Point colour is mapped to the
+\code{alpha}) for the \code{geom_point} layer. Point colour is mapped to
+the
 signal/noise group and is set via \code{palette}.}
 
 \item{palette}{Named character vector overriding the group colours,
@@ -24,7 +25,10 @@ Spatial scatter plot coloured by TIC-based signal/noise
   classification using Otsu thresholding.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 plotTICSpatial(x = results$processed)
 plotTICSpatial(x = results$processed, points = list(size = 4))

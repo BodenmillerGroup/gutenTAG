@@ -13,15 +13,21 @@ generateMetapeaks(
 )
 }
 \arguments{
-\item{x}{A Cardinal MSImagingExperiment object after peak detection is performed.}
+\item{x}{A Cardinal MSImagingExperiment object after peak detection is
+performed.}
 
 \item{threshold}{A threshold for peak detection.}
 
-\item{hist_smooth_factor}{An optional factor for smoothing the histogram of peak counts differently (default: 1.0).}
+\item{hist_smooth_factor}{An optional factor for smoothing the histogram of
+peak counts differently (default: 1.0).}
 
-\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to be a fixed value centered around the metapeak max. The total width of the metapeak will be twice the value of this parameter.}
+\item{fixed.limits}{A tolerance parameter for setting the metapeak limits to
+be a fixed value centered around the metapeak max. The total width of the
+metapeak will be twice the value of this parameter.}
 
-\item{sparsity}{A sparsity parameter controlling the permissible distance between metapeaks. Higher sparsity values enforce greater spacing (fewer metapeaks detected); lower values allow more closely-spaced metapeaks.}
+\item{sparsity}{A sparsity parameter controlling the permissible distance
+between metapeaks. Higher sparsity values enforce greater spacing (fewer
+metapeaks detected); lower values allow more closely-spaced metapeaks.}
 }
 \value{
 A list containing information on the location, limits and width of
@@ -29,7 +35,8 @@ A list containing information on the location, limits and width of
   propagated from upstream steps.
 }
 \description{
-We define a metapeak as a single peak that represents a cluster of peaks that correspond to the same molecular species.
+We define a metapeak as a single peak that represents a cluster of peaks that
+correspond to the same molecular species.
 }
 \details{
 Generation of metapeaks can be described in the following manner:
@@ -39,12 +46,17 @@ Generation of metapeaks can be described in the following manner:
   \item Frequencies of each detected peak are counted for each pixel.
   \item Gaussian smoothing is performed over these frequencies.
   \item Clustering (using Watershed algorithm) is performed to segment peaks.
-  \item Peaks that are present in <1\% (default value of tunable threshold parameter) of pixels are filtered out as part of watershed segmentation boundary.
+  \item Peaks that are present in <1\% (default value of tunable threshold
+    parameter) of pixels are filtered out as part of watershed segmentation
+    boundary.
 
 }
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

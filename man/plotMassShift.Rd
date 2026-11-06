@@ -17,7 +17,8 @@ plotMassShift(
 \code{CorrespondenceMatrix} must contain \code{mz_location} and
 \code{expected_mz_location} columns.}
 
-\item{type}{Character; \code{"distribution"} (default) for the beeswarm of the
+\item{type}{Character; \code{"distribution"} (default) for the beeswarm of
+the
 mass-shift distribution, or \code{"spectrum"} for mass shift along the m/z
 axis.}
 
@@ -37,7 +38,8 @@ A \code{ggplot} object.
 }
 \description{
 Visualises the deviation between each targeted peak's expected
-  m/z (the panel feature mass) and its picked m/z (the metapeak max), computed
+  m/z (the panel feature mass) and its picked m/z (the metapeak max),
+  computed
   as \code{mz_location - expected_mz_location}. Two views are available:
   \code{"distribution"} draws a single-column quasirandom (beeswarm) plot of
   the mass-shift distribution across all targeted peaks, with the mean marked
@@ -46,7 +48,10 @@ Visualises the deviation between each targeted peak's expected
   grey reference line is drawn at zero shift.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 plotMassShift(x = results$processed, type = "distribution")
 plotMassShift(x = results$processed, type = "spectrum")

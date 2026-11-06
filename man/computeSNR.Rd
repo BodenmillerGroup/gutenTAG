@@ -9,20 +9,26 @@ computeSNR(x, package = "mclust", update_correspondence = FALSE, q = 1)
 \arguments{
 \item{x}{Output from assignMetapeaks}
 
-\item{package}{Indicate whether GMM modelling should be performed using mclust or flexmix package}
+\item{package}{Indicate whether GMM modelling should be performed using
+mclust or flexmix package}
 
-\item{update_correspondence}{Should the SNR score be added to the Correspondence Matrix (bool)}
+\item{update_correspondence}{Should the SNR score be added to the
+Correspondence Matrix (bool)}
 
 \item{q}{Quantile value for clipping extreme outliers (default is 1)}
 }
 \value{
-a list containing lists with SNR and clustering information for each channel
+a list containing lists with SNR and clustering information for
+  each channel
 }
 \description{
 Compute SNR for each channel using Mixture Model (GMM).
 }
 \examples{
-path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 panel <- readPanel(path = panel_path)
 raw <- readMSIData(path)

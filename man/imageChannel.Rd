@@ -16,18 +16,24 @@ imageChannel(
 }
 \arguments{
 \item{x}{Output from \code{assignMetapeaks}, or a plain intensity data.frame
-(rows: pixels, cols: features). If a plain data.frame, \code{coords} must also be provided.}
+(rows: pixels, cols: features). If a plain data.frame, \code{coords} must
+also be provided.}
 
-\item{coords}{A spatial coordinates data.frame with columns \code{x} and \code{y}.
+\item{coords}{A spatial coordinates data.frame with columns \code{x} and
+\code{y}.
 Required when \code{x} is a data.frame or matrix.}
 
-\item{channel}{Character name or integer index of the channel to display. Default \code{1}.}
+\item{channel}{Character name or integer index of the channel to display.
+Default \code{1}.}
 
-\item{quantile_threshold}{Numeric in [0, 1]. Pixel intensities above this quantile are
+\item{quantile_threshold}{Numeric in [0, 1]. Pixel intensities above this
+quantile are
 capped to that value before plotting. Default \code{0.99}.}
 
-\item{palette}{Viridis palette option passed to \code{scale_fill_viridis_c}. One of
-\code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"}, \code{"cividis"},
+\item{palette}{Viridis palette option passed to
+\code{scale_fill_viridis_c}. One of
+\code{"viridis"}, \code{"magma"}, \code{"plasma"}, \code{"inferno"},
+\code{"cividis"},
 etc. Default \code{"viridis"}.}
 
 \item{na_colour}{Colour used for NA pixels. Default \code{"black"}.}
@@ -41,7 +47,10 @@ A \code{ggplot} object.
 Image one channel
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 imageChannel(x = results$processed, channel = 1)
 

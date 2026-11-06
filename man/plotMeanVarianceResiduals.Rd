@@ -46,10 +46,15 @@ Scatter plot of residuals from a linear fit of
   from the mean-variance trend.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
 plotMeanVarianceResiduals(x = results$processed)
-plotMeanVarianceResiduals(x = results$processed,
-                          points = list(size = 5, fill = "darkorange"),
-                          line = list(color = "blue", linetype = "dashed"))
+plotMeanVarianceResiduals(
+    x = results$processed,
+    points = list(size = 5, fill = "darkorange"),
+    line = list(color = "blue", linetype = "dashed")
+)
 }

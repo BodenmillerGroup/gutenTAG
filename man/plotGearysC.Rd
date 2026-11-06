@@ -7,7 +7,8 @@
 plotGearysC(x, bar = list(), line = list())
 }
 \arguments{
-\item{x}{List output of \code{computeGearysC(..., update_correspondence = TRUE)}.
+\item{x}{List output of
+\code{computeGearysC(..., update_correspondence = TRUE)}.
 \code{x$CorrespondenceMatrix} must contain a \code{GearysC} column.}
 
 \item{bar}{Named list of fixed aesthetics (e.g. \code{fill}, \code{color},
@@ -25,11 +26,18 @@ Bar chart of Geary's C spatial autocorrelation score per marker,
   sorted ascending, with a dashed horizontal line at the mean score.
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
-processed_geary <- computeGearysC(results$processed, update_correspondence = TRUE,
-                                  verbose = FALSE)
+processed_geary <- computeGearysC(results$processed,
+    update_correspondence = TRUE,
+    verbose = FALSE
+)
 plotGearysC(x = processed_geary)
-plotGearysC(x = processed_geary, bar = list(fill = "steelblue"),
-            line = list(color = "black"))
+plotGearysC(
+    x = processed_geary, bar = list(fill = "steelblue"),
+    line = list(color = "black")
+)
 }

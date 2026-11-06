@@ -36,8 +36,13 @@ editor_options:
 ---
 
 ```{r setup-opts, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
-#library(BiocStyle)
+knitr::opts_chunk$set(
+    error = FALSE,
+    warning = FALSE,
+    message = FALSE,
+    crop = NULL
+)
+# library(BiocStyle)
 ```
 
 ```{r library, echo=FALSE}
@@ -49,8 +54,9 @@ library(gutenTAG)
 `gutenTAG` can be installed from Bioconductor using `BiocManager`:
 
 ```{r install, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
+}
 
 BiocManager::install("gutenTAG")
 ```
@@ -112,7 +118,17 @@ capped by the abundance of heavy metals as in IMC.
 MALDI-IHC data shows some persistent features which must be taken into
 consideration for analysis. Firstly, it is quite large. Depending
 on the size of the tissue in question and the pixel size chosen for
-acquisition, it is not uncommon to see files in excess of 50GB. This will only increase as the field pushes for smaller pixel sizes and larger acquisition areas. This makes running even computationally efficient tasks quite a burden. MALDI-imaging data processing is hampered by a few acquisition features, resulting in mass tag signal not always being in its expected location. Mass shift, where there is a systematic shift of a peak from it's expected location, can vary from sample to sample, as well as vary within the same sample (can be due to height effects in the tissue, laser defocusing, etc.). A further feature of MALDI-imaging data is the presence of isotopic peaks, which split the signal locally across the spectrum. These are the primary features of MALDI-imaging data which can be accounted for computationally with `gutenTAG`.
+acquisition, it is not uncommon to see files in excess of 50GB. This will only
+increase as the field pushes for smaller pixel sizes and larger acquisition
+areas. This makes running even computationally efficient tasks quite a burden.
+MALDI-imaging data processing is hampered by a few acquisition features,
+resulting in mass tag signal not always being in its expected location. Mass
+shift, where there is a systematic shift of a peak from it's expected location,
+can vary from sample to sample, as well as vary within the same sample (can be
+due to height effects in the tissue, laser defocusing, etc.). A further feature
+of MALDI-imaging data is the presence of isotopic peaks, which split the signal
+locally across the spectrum. These are the primary features of MALDI-imaging
+data which can be accounted for computationally with `gutenTAG`.
 
 ## gutenTAG overview
 
@@ -161,7 +177,10 @@ The raw imaging data can be read into R using the `readMSIData` function
 from Cardinal.
 
 ```{r read in data}
-imzML_path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+imzML_path <- system.file(
+    "extdata/Example_data/Example_data.imzML",
+    package = "gutenTAG"
+)
 rawFile <- Cardinal::readMSIData(imzML_path)
 ```
 
@@ -218,7 +237,6 @@ pre <- rawFile |>
     Cardinal::smooth(method = "gaussian") |>
     reduceBaseline(method = "locmin") |>
     process(BPPARAM = BiocParallel::bpparam())
-
 ```
 
 ## Processing {#processing}
@@ -261,7 +279,12 @@ peaks. Many of the metapeaks generated will be formed by signal that is
 from untargeted peaks.
 
 ```{r Metapeak generation}
-metapeaks <- generateMetapeaks(detected, hist_smooth_factor = 1, fixed.limits = 0.5, sparsity = 1)
+metapeaks <- generateMetapeaks(
+    detected,
+    hist_smooth_factor = 1,
+    fixed.limits = 0.5,
+    sparsity = 1
+)
 ```
 
 ### Assigning metapeaks {#metapeak-assignment}
@@ -283,7 +306,12 @@ for assignment to a reference peak during `assignMetapeaks`. These
 parameters can be adjusted to improve results.
 
 ```{r Generate final output}
-processed <- assignMetapeaks(metapeaks, refList = panel, pre = pre, mz_threshold = 1)
+processed <- assignMetapeaks(
+    metapeaks,
+    refList = panel,
+    pre = pre,
+    mz_threshold = 1
+)
 ```
 
 ## Parallelisation {#parallelisation}
@@ -313,7 +341,7 @@ After registering, all subsequent calls to `preProcess` and `peakDetection`
 will use the registered backend automatically:
 
 ```{r parallelisation-registered-call, eval=FALSE}
-pre      <- preProcess(rawFile)
+pre <- preProcess(rawFile)
 detected <- peakDetection(pre, snr = 3)
 ```
 
@@ -323,17 +351,21 @@ You can also pass a backend directly to override the registered default for a
 single call:
 
 ```{r parallelisation-per-call, eval=FALSE}
-pre      <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
-detected <- peakDetection(pre, snr = 3, BPPARAM = BiocParallel::SnowParam(workers = 4))
+pre <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
+detected <- peakDetection(
+    pre,
+    snr = 3,
+    BPPARAM = BiocParallel::SnowParam(workers = 4)
+)
 ```
 
 ### Choosing the right backend
 
-| Platform       | Recommended backend          | Notes                              |
-|----------------|------------------------------|------------------------------------|
-| Linux / macOS  | `MulticoreParam(n)`          | Fork-based, minimal overhead       |
-| Windows        | `SnowParam(n)`               | Socket-based, works on all systems |
-| Any (serial)   | `SerialParam()`              | Default; no parallelisation        |
+| Platform      | Recommended backend | Notes                              |
+|---------------|---------------------|------------------------------------|
+| Linux / macOS | `MulticoreParam(n)` | Fork-based, minimal overhead       |
+| Windows       | `SnowParam(n)`      | Socket-based, works on all systems |
+| Any (serial)  | `SerialParam()`     | Default; no parallelisation        |
 
 `SnowParam` also works on Linux/macOS and is the safest choice if you are
 writing code intended to run on multiple platforms.
@@ -355,29 +387,31 @@ first be coerced to a `CytoImageList` object using the `asCytoImageList`
 function from this package.
 
 ```{r coerce to CytoImageList object}
-
 library(cytomapper)
 cil <- asCytoImageList(processed)
-
 ```
 
 Now the channels can be visualised using the `plotPixels` function.
 Single channel and multichannel imaging is supported using this format.
 
 ```{r single channel imaging}
-cytomapper::plotPixels(image = cil, 
-                       colour_by = "HLA.ABC", 
-                       scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-                       interpolate = FALSE, 
-                       image_title = list(margin = c(1, 1)))
+cytomapper::plotPixels(
+    image = cil,
+    colour_by = "HLA.ABC",
+    scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+    interpolate = FALSE,
+    image_title = list(margin = c(1, 1))
+)
 ```
 
 ```{r multi-channel imaging}
-plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
-           legend = list(colour_by.title.cex = 0.7), 
-           scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-           image_title = list(margin = c(1, 1)),
-           interpolate = FALSE)
+plotPixels(cil,
+    colour_by = c("HLA.ABC", "CD98", "beta.actin"),
+    legend = list(colour_by.title.cex = 0.7),
+    scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+    image_title = list(margin = c(1, 1)),
+    interpolate = FALSE
+)
 ```
 
 ### Cytoviewer
@@ -414,13 +448,25 @@ These functions are written to be called on the output of the
 
 ## Quality Control {#qc}
 
-`gutenTAG` provides many quality control functions. These can be useful for assessing data quality, filtering low performance peaks and assessing the overall quality of gutenTAG's segmentation. A full QC report can be found in `inst/qc_report.Rmd`.
+`gutenTAG` provides many quality control functions. These can be useful for
+assessing data quality, filtering low performance peaks and assessing the
+overall quality of gutenTAG's segmentation. A full QC report can be found in
+`inst/qc_report.Rmd`.
 
 # Contributions
 
 [John Abbey](https://github.com/JohnAbbey98) wrote the package.
-[Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak generation step for data processing and was instrumental in
-developing the initial architecture of the pipeline. [Leonardo Schwarz](https://github.com/leoschwarz) contributed enormously to the package codebase. Thank you to [Nils Eling](https://github.com/nilseling) and [Lasse Meyer](https://github.com/lassedochreden) for assisting in the development of the package, as well as helping with integrating the package with `cytomapper` and `cytoviewer`. We also thank [Christian Panse](https://github.com/cpanse) and [Witold Wolski](https://github.com/wolski) of the Functional Genomics Center Zurich (FGCZ) for all of their support.
+[Pierre Bost](https://github.com/PierreBSC) conceptualised the metapeak
+generation step for data processing and was instrumental in developing the
+initial architecture of the pipeline.
+[Leonardo Schwarz](https://github.com/leoschwarz) contributed enormously to
+the package codebase. Thank you to [Nils Eling](https://github.com/nilseling)
+and [Lasse Meyer](https://github.com/lassedochreden) for assisting in the
+development of the package, as well as helping with integrating the package
+with `cytomapper` and `cytoviewer`. We also thank
+[Christian Panse](https://github.com/cpanse) and
+[Witold Wolski](https://github.com/wolski) of the Functional Genomics Center
+Zurich (FGCZ) for all of their support.
 
 # Session info {.unnumbered}
 

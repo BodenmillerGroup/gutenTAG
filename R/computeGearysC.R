@@ -12,8 +12,9 @@
 #'   \code{CorrespondenceMatrix}.
 #' @param verbose logical. If \code{TRUE}, passes verbose output through to the
 #'   internal \code{Knn} nearest-neighbour call. Default \code{FALSE}.
-#' @param update_correspondence logical. If \code{TRUE}, appends a \code{GearysC}
-#'   column to \code{x$CorrespondenceMatrix} and returns the full updated list.
+#' @param update_correspondence logical. If \code{TRUE}, appends a
+#'   \code{GearysC} column to \code{x$CorrespondenceMatrix} and returns the
+#'   full updated list.
 #'   If \code{FALSE} (default), returns a numeric vector of Geary's C scores,
 #'   one per marker channel.
 #'
@@ -24,7 +25,10 @@
 #'   \code{x$CorrespondenceMatrix}.
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
@@ -40,50 +44,48 @@
 #' @export computeGearysC
 #'
 
-computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE){
+computeGearysC <- function(x, verbose = FALSE, update_correspondence = FALSE) {
+    # validity checks
+    .valid.computeGearysC(x, verbose, update_correspondence)
 
-  # validity checks
-  .valid.computeGearysC(x, verbose, update_correspondence)
+    # extract intensity data.
+    df <- x$IntensityDF
+    correspondence <- x$CorrespondenceMatrix
+    coords <- x$SpatialCoords
 
-  # extract intensity data.
-  df <- x$IntensityDF
-  correspondence <- x$CorrespondenceMatrix
-  coords <- x$SpatialCoords
+    # create spatial weight matrix (adjacency matrix on spatial coordinates for
+    # rooks case, k = 4)
+    spatial_weight_matrix <- .knn_weight_matrix(as.matrix(coords), k = 4)
 
-  # create spatial weight matrix (adjacency matrix on spatial coordinates for rooks case, k = 4)
-  spatial_weight_matrix <- .knn_weight_matrix(as.matrix(coords), k = 4)
+    W <- sum(spatial_weight_matrix)
+    geary_vector <- vapply(seq_len(ncol(df)), function(i) {
+        X <- matrix(df[, i], ncol = 1)
 
-  W <- sum(spatial_weight_matrix)
-  geary_vector <- vapply(seq_len(ncol(df)), function(i) {
+        product_temp_1 <- 2 * sum(spatial_weight_matrix %*% X^2)
+        product_temp_2 <- 2 * t(X) %*% spatial_weight_matrix %*% X
 
-    X <- matrix(df[, i], ncol = 1)
+        N <- length(X)
+        # na.rm = TRUE so that pixel-level NAs (e.g. tissue edge pixels) are
+        # silently dropped rather than propagating NA into Var_X.
+        Var_X <- var(X, na.rm = TRUE) * N
 
-    product_temp_1 <- 2 * sum(spatial_weight_matrix %*% X^2)
-    product_temp_2 <- 2 * t(X) %*% spatial_weight_matrix %*% X
+        # NA for zero-variance channels
+        if (is.na(Var_X) || Var_X == 0) {
+            return(NA_real_)
+        }
+        as.numeric(
+            (N - 1) * (product_temp_1 - product_temp_2) / (2 * Var_X * W)
+        )
+    }, numeric(1))
 
-    N <- length(X)
-    # na.rm = TRUE so that pixel-level NAs (e.g. tissue edge pixels) are silently
-    # dropped rather than propagating NA into Var_X.
-    Var_X <- var(X, na.rm = TRUE) * N
+    # optional argument to control if Geary's C column is added to
+    # Correspondence matrix
+    if (update_correspondence) {
+        correspondence$GearysC <- geary_vector
+        x$CorrespondenceMatrix <- correspondence
 
-    # NA for zero-variance channels
-    if (is.na(Var_X) || Var_X == 0) return(NA_real_)
-    as.numeric((N - 1) * (product_temp_1 - product_temp_2) / (2 * Var_X * W))
-
-  }, numeric(1))
-
-  # optional argument to control if Geary's C column is added to Correspondence matrix
-  if (update_correspondence) {
-
-    correspondence$GearysC <- geary_vector
-    x$CorrespondenceMatrix <- correspondence
-
-    return(x)
-
-  }else{
-    return(geary_vector)
-  }
-
-
-
+        return(x)
+    } else {
+        return(geary_vector)
+    }
 }

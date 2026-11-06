@@ -29,8 +29,13 @@ Dual-axis plot showing the peak count histogram (line), smoothed
   (interactive mode only, via \pkg{plotly}).
 }
 \examples{
-rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
+rdata_path <- system.file(
+    "extdata/Example_data/Example_processed.Rdata",
+    package = "gutenTAG"
+)
 load(rdata_path)
-plotMetapeaks(x = results$processed, metapeaks = results$metapeaks,
-              panel = results$panel)
+plotMetapeaks(
+    x = results$processed, metapeaks = results$metapeaks,
+    panel = results$panel
+)
 }

@@ -1,6 +1,7 @@
 #' Peak Detection
 #'
-#' Performs peak detection using a Median Adaptive Deviation (MAD) algorithm to discern peaks from noise.
+#' Performs peak detection using a Median Adaptive Deviation (MAD) algorithm
+#' to discern peaks from noise.
 #'
 #' @param x A pre-processing MSImagingExperiment object
 #' @param snr Signal to noise ratio for peak picking.
@@ -19,22 +20,27 @@
 #' @export
 #'
 #' @examples
-#' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
+#' path <- system.file(
+#'     "extdata/Example_data/Example_data.imzML",
+#'     package = "gutenTAG"
+#' )
 #' panel_path <- system.file("extdata/ref_list.csv", package = "gutenTAG")
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw)
 #' peakDetection(pre)
+peakDetection <- function(
+    x,
+    snr = 3,
+    win = 50,
+    BPPARAM = BiocParallel::bpparam()
+) {
+    # validity checks for peakDetection
+    .valid.peakDetection(x, snr, win, BPPARAM)
 
-peakDetection <- function(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam()){
+    # peak detection
+    picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
+    list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
 
-  # validity checks for peakDetection
-  .valid.peakDetection(x, snr, win, BPPARAM)
-
-  # peak detection
-  picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
-  list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
-
-  return(list(peaks = list_peaks, params = list(snr = snr, win = win)))
-
+    return(list(peaks = list_peaks, params = list(snr = snr, win = win)))
 }
