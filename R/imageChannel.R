@@ -26,49 +26,47 @@
 #'
 
 imageChannel <- function(x, coords = NULL, channel = 1,
-                         quantile_threshold = 0.99,
-                         palette = "viridis",
-                         na_colour = "black",
-                         ...) {
+    quantile_threshold = 0.99,
+    palette = "viridis",
+    na_colour = "black",
+    ...) {
+    # validity checks
+    .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour)
 
-  # validity checks
-  .valid.imageChannel(x, coords, channel, quantile_threshold, palette, na_colour)
+    # input handling — accept assignMetapeaks list or plain df/matrix
+    if (is.data.frame(x) || is.matrix(x)) {
+        df <- x
+        coords <- coords
+    } else {
+        df <- x$IntensityDF
+        coords <- x$SpatialCoords
+    }
 
-  # input handling — accept assignMetapeaks list or plain df/matrix
-  if (is.data.frame(x) || is.matrix(x)) {
-    df     <- x
-    coords <- coords
-  } else {
-    df     <- x$IntensityDF
-    coords <- x$SpatialCoords
-  }
+    # channel resolution — accept name or index
+    if (is.character(channel)) {
+        channel_idx <- which(colnames(df) == channel)
+        if (length(channel_idx) == 0) stop("Channel '", channel, "' not found in the data.", call. = FALSE)
+    } else {
+        channel_idx <- channel
+    }
+    channel_name <- colnames(df)[channel_idx]
 
-  # channel resolution — accept name or index
-  if (is.character(channel)) {
-    channel_idx <- which(colnames(df) == channel)
-    if (length(channel_idx) == 0) stop("Channel '", channel, "' not found in the data.", call. = FALSE)
-  } else {
-    channel_idx <- channel
-  }
-  channel_name <- colnames(df)[channel_idx]
+    # quantile thresholding
+    intensity <- df[, channel_idx]
+    cap <- quantile(intensity, probs = quantile_threshold, na.rm = TRUE)
+    intensity[intensity > cap] <- cap
 
-  # quantile thresholding
-  intensity <- df[, channel_idx]
-  cap <- quantile(intensity, probs = quantile_threshold, na.rm = TRUE)
-  intensity[intensity > cap] <- cap
+    # build plot dataframe
+    plot_df <- data.frame(x = coords$x, y = coords$y, intensity = intensity)
 
-  # build plot dataframe
-  plot_df <- data.frame(x = coords$x, y = coords$y, intensity = intensity)
+    # build ggplot
+    p <- ggplot(plot_df, aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["intensity"]])) +
+        geom_raster() +
+        coord_equal() +
+        scale_fill_viridis_c(option = palette, na.value = na_colour) +
+        ggtitle(channel_name) +
+        theme_void(base_size = 12) +
+        theme(...)
 
-  # build ggplot
-  p <- ggplot(plot_df, aes(x = .data[["x"]], y = .data[["y"]], fill = .data[["intensity"]])) +
-    geom_raster() +
-    coord_equal() +
-    scale_fill_viridis_c(option = palette, na.value = na_colour) +
-    ggtitle(channel_name) +
-    theme_void(base_size = 12) +
-    theme(...)
-
-  return(p)
-
+    return(p)
 }

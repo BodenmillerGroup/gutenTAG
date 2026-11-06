@@ -9,15 +9,15 @@
 #'
 #' @examples
 #' path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
-#' raw  <- readMSIData(path)
-#' pre  <- preProcess(raw)
+#' raw <- readMSIData(path)
+#' pre <- preProcess(raw)
 #' peaks <- peakDetection(pre)
 #' count_df <- countPeaks(peaks$peaks)
 #'
 #' @importFrom matter as.list
 #' @export countPeaks
 countPeaks <- function(mse_detected) {
-  result <- Cardinal::summarizeFeatures(mse_detected, stat=c(count = "nnzero"))
-  result_df <- matter::as.data.frame(Cardinal::featureData(result))
-  return(result_df)
+    result <- Cardinal::summarizeFeatures(mse_detected, stat = c(count = "nnzero"))
+    result_df <- matter::as.data.frame(Cardinal::featureData(result))
+    return(result_df)
 }

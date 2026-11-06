@@ -18,46 +18,46 @@
 #' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
+asMSImagingExperiment <- function(x, remove.na = FALSE) {
+    # validity checks
+    .valid.asMSImagingExperiment(x)
 
-asMSImagingExperiment <- function(x, remove.na = FALSE){
+    # pdata: where spatial coordinates go
+    coord <- x$SpatialCoords
+    run <- factor(rep("run0", nrow(coord)))
+    pdata <- PositionDataFrame(run = run, coord = coord)
 
-  # validity checks
-  .valid.asMSImagingExperiment(x)
-
-  # pdata: where spatial coordinates go
-  coord <- x$SpatialCoords
-  run <- factor(rep("run0", nrow(coord)))
-  pdata <- PositionDataFrame(run = run, coord = coord)
-
-  # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
-  fdata <- MassDataFrame(mz = sort(x$CorrespondenceMatrix$expected_mz_location),
-                         observed_mz = x$CorrespondenceMatrix$mz_location,
-                         expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location))
-
-
-  # idata: where intensity df goes
-  idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
-  # get m/z order of marker names
-  correct_order <- x$CorrespondenceMatrix$marker
-  # reorder rows (markers) of idata according to m/z order
-  idata <- idata[correct_order, ]
-
-  # remove NA clause
-  if (remove.na) {
-    keep <- !is.na(x$CorrespondenceMatrix$mz_location)
-
-    # remove from idata
-    idata <- idata[keep, ]
-    # remove from fdata
-    fdata<- fdata[keep, ]
-  }
-
-  # put them all together
-  out <- MSImagingExperiment(spectraData = idata,
-                             featureData = fdata,
-                             pixelData = pdata)
-
-  return(out)
+    # ordered vector of mass locations. metapeak mz stored as mz, expected mz stored as expected_mz
+    fdata <- MassDataFrame(
+        mz = sort(x$CorrespondenceMatrix$expected_mz_location),
+        observed_mz = x$CorrespondenceMatrix$mz_location,
+        expected_mz = sort(x$CorrespondenceMatrix$expected_mz_location)
+    )
 
 
+    # idata: where intensity df goes
+    idata <- t(as.matrix(x$IntensityDF)) # intensity dataframe must first be a matrix, then transposed
+    # get m/z order of marker names
+    correct_order <- x$CorrespondenceMatrix$marker
+    # reorder rows (markers) of idata according to m/z order
+    idata <- idata[correct_order, ]
+
+    # remove NA clause
+    if (remove.na) {
+        keep <- !is.na(x$CorrespondenceMatrix$mz_location)
+
+        # remove from idata
+        idata <- idata[keep, ]
+        # remove from fdata
+        fdata <- fdata[keep, ]
+    }
+
+    # put them all together
+    out <- MSImagingExperiment(
+        spectraData = idata,
+        featureData = fdata,
+        pixelData = pdata
+    )
+
+    return(out)
 }

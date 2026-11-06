@@ -27,9 +27,13 @@ Bar chart of Geary's C spatial autocorrelation score per marker,
 \examples{
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
-processed_geary <- computeGearysC(results$processed, update_correspondence = TRUE,
-                                  verbose = FALSE)
+processed_geary <- computeGearysC(results$processed,
+    update_correspondence = TRUE,
+    verbose = FALSE
+)
 plotGearysC(x = processed_geary)
-plotGearysC(x = processed_geary, bar = list(fill = "steelblue"),
-            line = list(color = "black"))
+plotGearysC(
+    x = processed_geary, bar = list(fill = "steelblue"),
+    line = list(color = "black")
+)
 }

@@ -27,74 +27,70 @@
 #' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' removeDuplicates(x = results$processed, shift = "closest")
-removeDuplicates <- function(x, shift){
-
-  if (!shift %in% c("left", "right", "closest")) {
-    stop("'shift' must be \"left\", \"right\", or \"closest\".")
-  }
-
-  cur_df <- x$IntensityDF
-  cur_correspondence <- x$CorrespondenceMatrix
-
-  # get the correspondence matrix of just the duplicated values
-  dup_tags <- unique(cur_correspondence$expected_mz_location)[which(table(cur_correspondence$expected_mz_location) > 1)]
-  dup_correspondence <- cur_correspondence[which(cur_correspondence$expected_mz_location %in% dup_tags), ]
-
-  # choose the correct peak for each duplicated expected mz
-  duplicate_expected_mzs <- unique(dup_correspondence$expected_mz_location)
-
-  correct_peaks <- vapply(duplicate_expected_mzs, function(i) {
-
-    cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
-
-    if (shift == "closest") {
-      return(.choose_closest(cur_pairing$mz_location, i))
+removeDuplicates <- function(x, shift) {
+    if (!shift %in% c("left", "right", "closest")) {
+        stop("'shift' must be \"left\", \"right\", or \"closest\".")
     }
 
-    compare_fn <- if (shift == "right") `>` else `<`
-    select_fn  <- if (shift == "right") min else max
+    cur_df <- x$IntensityDF
+    cur_correspondence <- x$CorrespondenceMatrix
 
-    correct_shifted_mzs <- cur_pairing$mz_location[compare_fn(cur_pairing$mz_location, i)]
+    # get the correspondence matrix of just the duplicated values
+    dup_tags <- unique(cur_correspondence$expected_mz_location)[which(table(cur_correspondence$expected_mz_location) > 1)]
+    dup_correspondence <- cur_correspondence[which(cur_correspondence$expected_mz_location %in% dup_tags), ]
 
-    if (length(correct_shifted_mzs) == 0) {
-      warning("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak.", call. = FALSE)
-      correct_shifted_mzs <- cur_pairing$mz_location
-    }
+    # choose the correct peak for each duplicated expected mz
+    duplicate_expected_mzs <- unique(dup_correspondence$expected_mz_location)
 
-    select_fn(correct_shifted_mzs)
+    correct_peaks <- vapply(duplicate_expected_mzs, function(i) {
+        cur_pairing <- dup_correspondence[dup_correspondence$expected_mz_location == i, ]
 
-  }, numeric(1))
+        if (shift == "closest") {
+            return(.choose_closest(cur_pairing$mz_location, i))
+        }
 
-  # remove all columns in original df that are NOT in the keep list
+        compare_fn <- if (shift == "right") `>` else `<`
+        select_fn <- if (shift == "right") min else max
 
-  ## get non-duplicated tags
-  non_dup_tags <- cur_correspondence$mz_location[!cur_correspondence$expected_mz_location %in% dup_tags]
-  na_tags_idx <- which(is.na(cur_correspondence$mz_location))
+        correct_shifted_mzs <- cur_pairing$mz_location[compare_fn(cur_pairing$mz_location, i)]
 
-  # these are the mz locations of the tags to keep (non-duplicated peaks plus the correct duplicated ones)
-  keep_peaks <- sort(c(correct_peaks, non_dup_tags))
-  # get the indexes of peaks to keep -- IMPORTANT: we move to index rather than mz_location so that we can include the NA-valued tags, which would be excluded if we worked in mz_location (since these markers didn't get a metapeak)
-  keep_idx <- sort(c(which(cur_correspondence$mz_location %in% keep_peaks), na_tags_idx))
+        if (length(correct_shifted_mzs) == 0) {
+            warning("No metapeak found to the ", shift, " of expected mz ", i, ". Falling back to closest peak.", call. = FALSE)
+            correct_shifted_mzs <- cur_pairing$mz_location
+        }
 
-  # correspondence matrix of only the peaks to keep
-  updated_correspondence <- cur_correspondence[keep_idx, ]
+        select_fn(correct_shifted_mzs)
+    }, numeric(1))
 
-  # flag marker names containing "duplicate"
-  bin_vector <- grepl("duplicate", colnames(cur_df), fixed = TRUE)
+    # remove all columns in original df that are NOT in the keep list
 
-  # update marker names in new correspondence matrix
-  updated_correspondence$marker <- colnames(cur_df)[!bin_vector]
+    ## get non-duplicated tags
+    non_dup_tags <- cur_correspondence$mz_location[!cur_correspondence$expected_mz_location %in% dup_tags]
+    na_tags_idx <- which(is.na(cur_correspondence$mz_location))
 
-  # update intensity dataframe
-  updated_df <- cur_df[, keep_idx]
-  colnames(updated_df) <- colnames(cur_df)[!bin_vector]
+    # these are the mz locations of the tags to keep (non-duplicated peaks plus the correct duplicated ones)
+    keep_peaks <- sort(c(correct_peaks, non_dup_tags))
+    # get the indexes of peaks to keep -- IMPORTANT: we move to index rather than mz_location so that we can include the NA-valued tags, which would be excluded if we worked in mz_location (since these markers didn't get a metapeak)
+    keep_idx <- sort(c(which(cur_correspondence$mz_location %in% keep_peaks), na_tags_idx))
 
-  ## Update relevant fields in the original structure
-  updated_sample <- x
-  updated_sample$IntensityDF <- updated_df
-  updated_sample$CorrespondenceMatrix <- updated_correspondence
-  updated_sample$FilteredDF <- x$FilteredDF[, colnames(updated_df)]
+    # correspondence matrix of only the peaks to keep
+    updated_correspondence <- cur_correspondence[keep_idx, ]
 
-  return(updated_sample)
+    # flag marker names containing "duplicate"
+    bin_vector <- grepl("duplicate", colnames(cur_df), fixed = TRUE)
 
+    # update marker names in new correspondence matrix
+    updated_correspondence$marker <- colnames(cur_df)[!bin_vector]
+
+    # update intensity dataframe
+    updated_df <- cur_df[, keep_idx]
+    colnames(updated_df) <- colnames(cur_df)[!bin_vector]
+
+    ## Update relevant fields in the original structure
+    updated_sample <- x
+    updated_sample$IntensityDF <- updated_df
+    updated_sample$CorrespondenceMatrix <- updated_correspondence
+    updated_sample$FilteredDF <- x$FilteredDF[, colnames(updated_df)]
+
+    return(updated_sample)
 }

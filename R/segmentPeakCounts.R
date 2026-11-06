@@ -17,29 +17,30 @@
 #' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' labels <- segmentPeakCounts(results$metapeaks$count_smooth_df,
-#'                              seed_mz = results$metapeaks$seed_mz,
-#'                              detection_threshold = 0)
+#'     seed_mz = results$metapeaks$seed_mz,
+#'     detection_threshold = 0
+#' )
 #'
 #' @importFrom EBImage propagate
 #' @export
 segmentPeakCounts <- function(count_df, seed_mz, detection_threshold) {
-  # Convert the mz to row indices in the count_df
-  target_indices <- findInterval(seed_mz, count_df$mz)
+    # Convert the mz to row indices in the count_df
+    target_indices <- findInterval(seed_mz, count_df$mz)
 
-  # Remove values below threshold
-  counts <- count_df$count
-  counts[counts < detection_threshold] <- 0
+    # Remove values below threshold
+    counts <- count_df$count
+    counts[counts < detection_threshold] <- 0
 
-  # Convert to matrix representing a column vector.
-  target_indices_matrix <- matrix(0, nrow = nrow(count_df), ncol = 1)
-  target_indices_matrix[target_indices] <- seq_along(target_indices)
-  count_matrix <- matrix(counts, nrow = nrow(count_df), ncol = 1)
+    # Convert to matrix representing a column vector.
+    target_indices_matrix <- matrix(0, nrow = nrow(count_df), ncol = 1)
+    target_indices_matrix[target_indices] <- seq_along(target_indices)
+    count_matrix <- matrix(counts, nrow = nrow(count_df), ncol = 1)
 
-  propagation_selection <- EBImage::propagate(
-    count_matrix,
-    seeds = target_indices_matrix,
-    mask = count_matrix > detection_threshold,
-  )
+    propagation_selection <- EBImage::propagate(
+        count_matrix,
+        seeds = target_indices_matrix,
+        mask = count_matrix > detection_threshold,
+    )
 
-  return(as.vector(propagation_selection))
+    return(as.vector(propagation_selection))
 }

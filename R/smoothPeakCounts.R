@@ -13,15 +13,13 @@
 #'
 #' @export
 smoothPeakCounts <- function(count_df, smooth_factor) {
+    n_features <- nrow(count_df)
+    sigma_smoothing_isotopic <- smooth_factor / .mzScalingFactor(count_df)
+    list_values <- seq(-n_features / 2, n_features / 2, length.out = n_features)
+    gaussian_vector <- exp(-list_values^2 / sigma_smoothing_isotopic^2)
+    freq_peak_ordered_smooth <- stats::convolve(y = gaussian_vector, x = count_df$count, conj = TRUE)
+    half <- floor(n_features / 2)
+    freq_peak_ordered_smooth <- freq_peak_ordered_smooth[c(seq(half, n_features), seq_len(half - 1))]
 
-  n_features <- nrow(count_df)
-  sigma_smoothing_isotopic <- smooth_factor / .mzScalingFactor(count_df)
-  list_values <- seq(-n_features / 2, n_features / 2, length.out = n_features)
-  gaussian_vector <- exp(-list_values^2 / sigma_smoothing_isotopic^2)
-  freq_peak_ordered_smooth <- stats::convolve(y = gaussian_vector, x = count_df$count, conj = TRUE)
-  half <- floor(n_features / 2)
-  freq_peak_ordered_smooth <- freq_peak_ordered_smooth[c(seq(half, n_features), seq_len(half - 1))]
-
-  return(data.frame(mz = count_df$mz, count = freq_peak_ordered_smooth))
-
+    return(data.frame(mz = count_df$mz, count = freq_peak_ordered_smooth))
 }

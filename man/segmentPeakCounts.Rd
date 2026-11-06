@@ -29,7 +29,8 @@ A vector of class labels is returned, where each label corresponds to a peak.
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 labels <- segmentPeakCounts(results$metapeaks$count_smooth_df,
-                             seed_mz = results$metapeaks$seed_mz,
-                             detection_threshold = 0)
+    seed_mz = results$metapeaks$seed_mz,
+    detection_threshold = 0
+)
 
 }

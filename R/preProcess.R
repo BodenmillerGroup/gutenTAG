@@ -22,17 +22,13 @@
 #' panel <- readPanel(path = panel_path)
 #' raw <- readMSIData(path)
 #' preProcess(raw)
+preProcess <- function(x, BPPARAM = BiocParallel::bpparam()) {
+    # validity checks for preProcess
+    .valid.preProcess(x, BPPARAM)
 
-preProcess <- function(x, BPPARAM = BiocParallel::bpparam()){
-
-  # validity checks for preProcess
-  .valid.preProcess(x, BPPARAM)
-
-  x |>
-    Cardinal::normalize(method = "tic") |>
-    Cardinal::smooth(method = "gaussian") |>
-    Cardinal::reduceBaseline(method = "locmin") |>
-    Cardinal::process(BPPARAM = BPPARAM)
-
+    x |>
+        Cardinal::normalize(method = "tic") |>
+        Cardinal::smooth(method = "gaussian") |>
+        Cardinal::reduceBaseline(method = "locmin") |>
+        Cardinal::process(BPPARAM = BPPARAM)
 }
-

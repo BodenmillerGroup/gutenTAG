@@ -25,16 +25,13 @@
 #' raw <- readMSIData(path)
 #' pre <- preProcess(raw)
 #' peakDetection(pre)
+peakDetection <- function(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam()) {
+    # validity checks for peakDetection
+    .valid.peakDetection(x, snr, win, BPPARAM)
 
-peakDetection <- function(x, snr = 3, win = 50, BPPARAM = BiocParallel::bpparam()){
+    # peak detection
+    picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
+    list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
 
-  # validity checks for peakDetection
-  .valid.peakDetection(x, snr, win, BPPARAM)
-
-  # peak detection
-  picker <- Cardinal::peakPick(x, method = "mad", SNR = snr, width = win)
-  list_peaks <- Cardinal::process(picker, BPPARAM = BPPARAM)
-
-  return(list(peaks = list_peaks, params = list(snr = snr, win = win)))
-
+    return(list(peaks = list_peaks, params = list(snr = snr, win = win)))
 }

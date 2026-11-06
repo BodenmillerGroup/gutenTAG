@@ -19,8 +19,8 @@ MSProcessedImagingExperiment object has not been processed with peak detection.
 }
 \examples{
 path <- system.file("extdata/Example_data/Example_data.imzML", package = "gutenTAG")
-raw  <- readMSIData(path)
-pre  <- preProcess(raw)
+raw <- readMSIData(path)
+pre <- preProcess(raw)
 peaks <- peakDetection(pre)
 count_df <- countPeaks(peaks$peaks)
 

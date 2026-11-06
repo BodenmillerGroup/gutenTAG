@@ -1,4 +1,3 @@
-
 #' Title asAnnData
 #'
 #' @param x the output from `gutenTAG` function `assignMetapeaks()`
@@ -17,33 +16,34 @@
 #' metapeaks <- generateMetapeaks(peaks, hist_smooth_factor = 1)
 #' final <- assignMetapeaks(x = metapeaks, pre, panel)
 #'
+asAnnData <- function(x) {
+    if (!requireNamespace("reticulate", quietly = TRUE)) {
+        stop(
+            "Package 'reticulate' is required for asAnnData(). Please install it ",
+            "and ensure the Python 'anndata' module is available."
+        )
+    }
 
-asAnnData <- function(x){
+    # extract data from object
+    exp_data <- as.matrix(x$IntensityDF)
+    var_data <- x$CorrespondenceMatrix
+    rownames(var_data) <- rep(0:(nrow(var_data) - 1))
 
-  if (!requireNamespace("reticulate", quietly = TRUE)) {
-    stop("Package 'reticulate' is required for asAnnData(). Please install it ",
-         "and ensure the Python 'anndata' module is available.")
-  }
+    # create obsdata
+    obs_data <- x$SpatialCoords
 
-  # extract data from object
-  exp_data <- as.matrix(x$IntensityDF)
-  var_data <- x$CorrespondenceMatrix
-  rownames(var_data) <- rep(0:(nrow(var_data) - 1))
+    # Build the AnnData object directly via reticulate. The R `anndata` wrapper
+    # injects a `dtype` argument that Python anndata >= 0.11 removed, so we call
+    # the Python class ourselves and omit it.
+    if (utils::packageVersion("reticulate") >= "1.41.0") {
+        reticulate::py_require("anndata")
+    }
+    ad <- reticulate::import("anndata")
+    output <- ad$AnnData(
+        X = exp_data,
+        obs = data.frame(obs_data),
+        var = data.frame(var_data)
+    )
 
-  # create obsdata
-  obs_data <- x$SpatialCoords
-
-  # Build the AnnData object directly via reticulate. The R `anndata` wrapper
-  # injects a `dtype` argument that Python anndata >= 0.11 removed, so we call
-  # the Python class ourselves and omit it.
-  if (utils::packageVersion("reticulate") >= "1.41.0") {
-    reticulate::py_require("anndata")
-  }
-  ad <- reticulate::import("anndata")
-  output <- ad$AnnData(X = exp_data,
-                       obs = data.frame(obs_data),
-                       var = data.frame(var_data))
-
-  return(output)
+    return(output)
 }
-

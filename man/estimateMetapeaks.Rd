@@ -36,7 +36,8 @@ The parameters include the center, maximum, delimitation, and width of each meta
 rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 load(rdata_path)
 mp <- estimateMetapeaks(results$metapeaks$count_df,
-                        results$metapeaks$count_smooth_df,
-                        seed_mz = results$metapeaks$seed_mz)
+    results$metapeaks$count_smooth_df,
+    seed_mz = results$metapeaks$seed_mz
+)
 
 }

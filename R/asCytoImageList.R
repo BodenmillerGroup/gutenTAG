@@ -22,26 +22,23 @@
 #' processed <- assignMetapeaks(metapeaks, pre = pre, refList = panel)
 #'
 #' cil <- asCytoImageList(processed, name = "test")
+asCytoImageList <- function(x, name = "test") {
+    # run validity checks
+    .valid.asCytoImageList(x, name)
 
-asCytoImageList <- function(x, name = "test"){
+    dataframe <- x$IntensityDF
+    coords <- x$SpatialCoords
 
-  # run validity checks
-  .valid.asCytoImageList(x, name)
+    matrix_list <- lapply(colnames(dataframe), .curateMatrix, coords = coords, dataframe = dataframe)
+    # Create multidimensional array
+    my_array <- do.call(abind, list(matrix_list, along = 3))
+    # Create multichannel image from array
+    my_image <- Image(my_array)
+    # Create CytoImageList object from image
+    my_image <- CytoImageList(my_image)
+    # Assign image and channel names
+    names(my_image) <- name
+    cytomapper::channelNames(my_image) <- colnames(dataframe)
 
-  dataframe <- x$IntensityDF
-  coords <- x$SpatialCoords
-
-  matrix_list <- lapply(colnames(dataframe), .curateMatrix, coords = coords, dataframe = dataframe)
-  # Create multidimensional array
-  my_array <- do.call(abind, list(matrix_list, along = 3))
-  # Create multichannel image from array
-  my_image <- Image(my_array)
-  # Create CytoImageList object from image
-  my_image <- CytoImageList(my_image)
-  # Assign image and channel names
-  names(my_image) <- name
-  cytomapper::channelNames(my_image) <- colnames(dataframe)
-
-  return(my_image)
-
+    return(my_image)
 }

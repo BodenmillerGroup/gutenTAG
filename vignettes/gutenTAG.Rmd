@@ -36,8 +36,8 @@ editor_options:
 ---
 
 ```{r setup-opts, echo=FALSE, results="hide"}
-knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE, crop = NULL)
-#library(BiocStyle)
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = FALSE, crop = NULL)
+# library(BiocStyle)
 ```
 
 ```{r library, echo=FALSE}
@@ -49,8 +49,9 @@ library(gutenTAG)
 `gutenTAG` can be installed from Bioconductor using `BiocManager`:
 
 ```{r install, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
+}
 
 BiocManager::install("gutenTAG")
 ```
@@ -218,7 +219,6 @@ pre <- rawFile |>
     Cardinal::smooth(method = "gaussian") |>
     reduceBaseline(method = "locmin") |>
     process(BPPARAM = BiocParallel::bpparam())
-
 ```
 
 ## Processing {#processing}
@@ -313,7 +313,7 @@ After registering, all subsequent calls to `preProcess` and `peakDetection`
 will use the registered backend automatically:
 
 ```{r parallelisation-registered-call, eval=FALSE}
-pre      <- preProcess(rawFile)
+pre <- preProcess(rawFile)
 detected <- peakDetection(pre, snr = 3)
 ```
 
@@ -323,7 +323,7 @@ You can also pass a backend directly to override the registered default for a
 single call:
 
 ```{r parallelisation-per-call, eval=FALSE}
-pre      <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
+pre <- preProcess(rawFile, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
 detected <- peakDetection(pre, snr = 3, BPPARAM = BiocParallel::SnowParam(workers = 4))
 ```
 
@@ -355,29 +355,31 @@ first be coerced to a `CytoImageList` object using the `asCytoImageList`
 function from this package.
 
 ```{r coerce to CytoImageList object}
-
 library(cytomapper)
 cil <- asCytoImageList(processed)
-
 ```
 
 Now the channels can be visualised using the `plotPixels` function.
 Single channel and multichannel imaging is supported using this format.
 
 ```{r single channel imaging}
-cytomapper::plotPixels(image = cil, 
-                       colour_by = "HLA.ABC", 
-                       scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-                       interpolate = FALSE, 
-                       image_title = list(margin = c(1, 1)))
+cytomapper::plotPixels(
+    image = cil,
+    colour_by = "HLA.ABC",
+    scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+    interpolate = FALSE,
+    image_title = list(margin = c(1, 1))
+)
 ```
 
 ```{r multi-channel imaging}
-plotPixels(cil, colour_by = c("HLA.ABC", "CD98", "beta.actin"),
-           legend = list(colour_by.title.cex = 0.7), 
-           scale_bar = list(length = 5, lwidth = 0.5, margin = c(1,1)),
-           image_title = list(margin = c(1, 1)),
-           interpolate = FALSE)
+plotPixels(cil,
+    colour_by = c("HLA.ABC", "CD98", "beta.actin"),
+    legend = list(colour_by.title.cex = 0.7),
+    scale_bar = list(length = 5, lwidth = 0.5, margin = c(1, 1)),
+    image_title = list(margin = c(1, 1)),
+    interpolate = FALSE
+)
 ```
 
 ### Cytoviewer

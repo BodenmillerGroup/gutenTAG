@@ -17,60 +17,66 @@
 #' rdata_path <- system.file("extdata/Example_data/Example_processed.Rdata", package = "gutenTAG")
 #' load(rdata_path)
 #' mp <- estimateMetapeaks(results$metapeaks$count_df,
-#'                         results$metapeaks$count_smooth_df,
-#'                         seed_mz = results$metapeaks$seed_mz)
+#'     results$metapeaks$count_smooth_df,
+#'     seed_mz = results$metapeaks$seed_mz
+#' )
 #'
 #' @importFrom stats weighted.mean
 #' @importFrom utils head tail
 #' @export
 
 estimateMetapeaks <- function(count_df, smooth_count_df, seed_mz, detection_threshold = 0, fixed.limits = NULL) {
-  ## validity checks
-  .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
+    ## validity checks
+    .valid.estimateMetapeaks(count_df, seed_mz, detection_threshold)
 
-  # 1. Segment the count_df histogram using the seed_mz values.
-  propagation_selection <- segmentPeakCounts(smooth_count_df, seed_mz, detection_threshold = detection_threshold)
+    # 1. Segment the count_df histogram using the seed_mz values.
+    propagation_selection <- segmentPeakCounts(smooth_count_df, seed_mz, detection_threshold = detection_threshold)
 
-  # 2. Get metapeak parameters
-  num_metapeaks <- max(propagation_selection)
-  if (num_metapeaks == 0) {
-    stop("No metapeaks were found.")
-  }
-  # per segment: weighted-mean centre, max-count location, min and max mz
-  peak_stats <- vapply(seq_len(num_metapeaks), function(k) {
-    peak_mask <- as.numeric(propagation_selection) == k
-    peak_mzs <- count_df$mz[peak_mask]
-    peak_counts <- count_df$count[peak_mask]
-    c(weighted.mean(x = peak_mzs, w = peak_counts),
-      peak_mzs[which.max(peak_counts)],
-      min(peak_mzs), max(peak_mzs))
-  }, numeric(4))
+    # 2. Get metapeak parameters
+    num_metapeaks <- max(propagation_selection)
+    if (num_metapeaks == 0) {
+        stop("No metapeaks were found.")
+    }
+    # per segment: weighted-mean centre, max-count location, min and max mz
+    peak_stats <- vapply(seq_len(num_metapeaks), function(k) {
+        peak_mask <- as.numeric(propagation_selection) == k
+        peak_mzs <- count_df$mz[peak_mask]
+        peak_counts <- count_df$count[peak_mask]
+        c(
+            weighted.mean(x = peak_mzs, w = peak_counts),
+            peak_mzs[which.max(peak_counts)],
+            min(peak_mzs), max(peak_mzs)
+        )
+    }, numeric(4))
 
-  metapeak_center <- peak_stats[1, ]
-  metapeak_max <- peak_stats[2, ]
+    metapeak_center <- peak_stats[1, ]
+    metapeak_max <- peak_stats[2, ]
 
-  # Limits are the intersection of the smoothed metapeak with the detection_threshold
-  # line (segmentPeakCounts() already excludes bins at or below threshold), or a
-  # fixed window around the metapeak max.
-  metapeak_limits <- if (is.null(fixed.limits)) {
-    cbind(peak_stats[3, ], peak_stats[4, ])
-  } else {
-    cbind(metapeak_max - fixed.limits, metapeak_max + fixed.limits)
-  }
+    # Limits are the intersection of the smoothed metapeak with the detection_threshold
+    # line (segmentPeakCounts() already excludes bins at or below threshold), or a
+    # fixed window around the metapeak max.
+    metapeak_limits <- if (is.null(fixed.limits)) {
+        cbind(peak_stats[3, ], peak_stats[4, ])
+    } else {
+        cbind(metapeak_max - fixed.limits, metapeak_max + fixed.limits)
+    }
 
 
-  # width of each peak (rescaled to the m/z scale)
-  metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) * .mzScalingFactor(count_df)
+    # width of each peak (rescaled to the m/z scale)
+    metapeak_width <- (metapeak_limits[, 2] - metapeak_limits[, 1]) * .mzScalingFactor(count_df)
 
-  metapeaks <- list(center = metapeak_center,
-                    max = metapeak_max,
-                    width = metapeak_width,
-                    limits = metapeak_limits)
+    metapeaks <- list(
+        center = metapeak_center,
+        max = metapeak_max,
+        width = metapeak_width,
+        limits = metapeak_limits
+    )
 
-  return(list(metapeaks = metapeaks,
-              count_df = count_df,
-              count_smooth_df = smooth_count_df,
-              seed_mz = seed_mz,
-              propagation_selection = propagation_selection))
-
+    return(list(
+        metapeaks = metapeaks,
+        count_df = count_df,
+        count_smooth_df = smooth_count_df,
+        seed_mz = seed_mz,
+        propagation_selection = propagation_selection
+    ))
 }
